@@ -1,24 +1,32 @@
-%% 
-%% This is file `thesis.cls',
-%% generated with the docstrip utility.
-%% 
-%% The original source files were:
-%% 
-%% thesis.dtx  (with options: `thesis')
-%% 
-%% Copyright (C) 1991, 1996 by Wenzel Matiaske, mati1831@perform.ww.tu-berlin.de 
-%% 
-%% You are not allowed to distribute this file without the 
-%% original source thesis.dtx. For distribution of the 
-%% sources see the copyright notice in the file thesis.dtx. 
-%% 
+%******************************************************************************
+%  CVS/RCS version:
+%     $Id: softlab-thesis.cls,v 1.2 2002-10-28 17:01:04 nickie Exp $
+%******************************************************************************
+%  LaTeX file  : softlab-thesis.cls
+%  Written by  : Nikolaos S. Papaspyrou
+%  Date        : October 17, 2002
+%  Revised     : October 22, 2002
+%
+%  Description : A uniform template for diploma projects and doctoral
+%                dissertations at the Software Engineering Laboratory,
+%                Department of Electrical and Computer Engineering,
+%                National Technical University of Athens.
+%
+% Notes        : This package is based on `thesis.cls', written by 
+%                Wenzel Matiaske (mati1831@perform.ww.tu-berlin.de)
+%                Copyright (C) 1991, 1996.  Version 1.0g (1996/25/01).
+
+% Package information
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\filename{softlab-thesis}
-\def\fileversion{1.0g}
-\def\filedate{1996/25/01}
-\def\docdate{1995/25/01}
+\def\fileversion{1.0a}
+\def\filedate{2002/10/28}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{softlab-thesis}[\filedate\space\fileversion\space%
-       LaTeX document class (wm).]
+       LaTeX document class (nsp).]
+
+% Options and related stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand\@ptsize{}
 \newif\if@restonecol
 \newif\if@titlepage
@@ -54,6 +62,9 @@
 \DeclareOption{12pt}{\renewcommand\@ptsize{2}}
 \DeclareOption{oneside}{\@twosidefalse \@mparswitchfalse}
 \DeclareOption{twoside}{\@twosidetrue  \@mparswitchtrue}
+\newif\if@greek \@greekfalse
+\DeclareOption{greek}{\@greektrue}
+\DeclareOption{english}{\@greekfalse}
 \newcount\hours \newcount\minutes
 \def\SetTime{\hours=\time
         \global\divide\hours by 60
@@ -203,9 +214,12 @@
 \newif\if@chapterbib \@chapterbibfalse
 \DeclareOption{chapterbib}{\@chapterbibtrue}
 \ExecuteOptions{a4paper,11pt,twoside,onecolumn,final,openright,%
-                bold,nocenter,noupper,headcount}
+                bold,nocenter,noupper,headcount,greek}
 
 \ProcessOptions*
+
+% Miscellaneous settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \input{bk1\@ptsize.clo}
 \setlength\lineskip{1\p@}
 \setlength\normallineskip{1\p@}
@@ -222,17 +236,26 @@
 \@lowpenalty   51
 \@medpenalty  151
 \@highpenalty 301
-\setcounter{topnumber}{2}
-\renewcommand\topfraction{.7}
-\setcounter{bottomnumber}{1}
-\renewcommand\bottomfraction{.3}
-\setcounter{totalnumber}{3}
+\setcounter{topnumber}{3}
+\renewcommand\topfraction{.8}
+\setcounter{bottomnumber}{2}
+\renewcommand\bottomfraction{.8}
+\setcounter{totalnumber}{5}
 \renewcommand\textfraction{.2}
-\renewcommand\floatpagefraction{.5}
+\renewcommand\floatpagefraction{.8}
 \setcounter{dbltopnumber}{2}
-\renewcommand\dbltopfraction{.7}
-\renewcommand\dblfloatpagefraction{.5}
+\renewcommand\dbltopfraction{.8}
+\renewcommand\dblfloatpagefraction{.8}
 \def\e@skip{\h@font{\phantom{y}}}
+
+% Required packages
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\RequirePackage{a4}
+\RequirePackage{graphicx}
+\RequirePackage{dates}
+
+% Headings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \if@twoside
   \def\ps@headings{
       \let\@oddfoot\@empty\let\@evenfoot\@empty
@@ -325,6 +348,11 @@
     \let\@oddfoot\@empty\let\@evenfoot\@empty
     \def\@oddhead{\hfill\raise\headheight\@crosshairs}
     \let\@evenhead\@oddhead}}
+
+% Title page and front matter
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\@supervisor{}       \def\supervisor#1{\gdef\@supervisor{#1}}
+\def\@committeemembers{} \def\committeemembers#1{\gdef\@committeemembers{#1}}
 \def\@subtitle{}         \def\subtitle#1{\gdef\@subtitle{#1}}
 \def\@translator{}       \def\translator#1{\gdef\@translator{#1}}
 \def\@institution{}      \def\institution#1{\gdef\@institution{#1}}
@@ -332,75 +360,117 @@
 \def\@uppertitleback{}   \long\def\uppertitleback#1{\def\@uppertitleback{#1}}
 \def\@middletitleback{}  \long\def\middletitleback#1{\def\@middletitleback{#1}}
 \def\@lowertitleback{}   \long\def\lowertitleback#1{\def\@lowertitleback{#1}}
+
+                         \def\url#1{\gdef\@url{\texttt{#1}}}
+                         \def\TRnumber#1{\gdef\@TRnumber{#1}}
+\def\@trurl{}            \def\trurl#1{\gdef\@trurl{\texttt{#1}}}
+\def\@trftp{}            \def\trftp#1{\gdef\@trftp{\texttt{#1}}}
+
 \def\new@tpage{\newpage\thispagestyle{empty}\null}
-\def\and{\end{tabular}\hskip 1em plus.17fil
-   \if@center
-      \begin{tabular}[t]{c}
-   \else
-     \begin{tabular}[t]{@{}l@{}}
-   \fi}
+
+\def\@author@and{\end{tabular}\hskip 1em plus.17fil
+  \if@center
+    \begin{tabular}[t]{c}
+  \else
+    \begin{tabular}[t]{@{}l@{}}
+  \fi}
+\def\@committeemembers@and{\\ &}
+\let\and\relax
+
 \def\maketitle{%
   \begin{titlepage}
-    \let\footnotesize\small
-    \let\footnoterule\relax
-    \def\thefootnote{\fnsymbol{footnote}}
-     \if@twoside
-       \new@tpage
-       \begin{raggedright}
-       {\t@font \@title \par}\vskip 1em
-       {\st@font \@subtitle \par}\vspace{50pt}
-       {\a@font \lineskip 1.25em
-       \begin{tabular}[t]{@{}l@{}}
-       \@author
-       \end{tabular}\par}
-       \vfill
-       {\in@font\@institution\par}
-       \end{raggedright}
-       \new@tpage \new@tpage
-       {\ss@font\@title}\par
-       {\sss@font\@subtitle}
-       \new@tpage
-    \fi
-    \new@tpage
-     \begin{center}
-     {\t@font\@title \par}\vskip 1em
-     {\st@font\@subtitle \par}
-     \vspace{50pt}
-     {\a@font \lineskip 1.25em
-     \begin{tabular}[t]{c}
-     \@author
-     \end{tabular} \par }\vfil
-     {\tr@font \@translator \par}
-     \vfil
-     {\st@font \@date \par}
-     \vskip 2em
-     {\in@font\@institution \par}
-     \end{center}
-     \par \@thanks
-   \if@twoside \new@tpage
-      \noindent\begin{minipage}[t]{\textwidth}
-      \@uppertitleback
-      \end{minipage}\par
-      \vfill
-      \noindent\begin{minipage}[t]{\textwidth}
-      \@middletitleback
-      \end{minipage}\par
-      \vfill
-      \noindent\begin{minipage}[b]{\textwidth}
-      \@lowertitleback
-      \end{minipage}
-   \fi
-   \ifx\@dedication\@empty\else \new@tpage
-        {\centering \Large \@dedication \par}
-   \fi
-   \if@twoside \new@tpage \fi
-   \end{titlepage}
-   \def\thefootnote{\arabic{footnote}}
-   \setcounter{footnote}{0}
-   \if@thema\else\let\thanks\relax\fi
-   \gdef\@thanks{}\gdef\@author{}\gdef\@translator{}\gdef\@institution{}
-   \gdef\@uppertitleback{}\gdef\@lowertitleback{}\gdef\@dedication{}%
-   \gdef\@title{}\gdef\@subtitle{}\let\maketitle\relax}
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  \def\thefootnote{\fnsymbol{footnote}}
+  \new@tpage
+%
+  \begin{minipage}{2.5cm}
+  \includegraphics[width=2.5cm]{pyrforos}%
+  \end{minipage}
+  \hspace{0.5cm}
+  \begin{minipage}{12cm}
+  \renewcommand\baselinestretch{1.2}\normalsize%
+  \in@font\@institution
+  \end{minipage}
+%
+  \vfill
+%
+  \begin{center}
+  {\t@font\@title}
+  \end{center}
+  \ifx\@subtitle\@empty\else
+  \vspace{1cm}
+  \begin{center}
+  {\st@font\@subtitle}
+  \end{center}
+  \fi
+%
+  \vspace{1cm}
+%
+  \begin{center}
+  \let\old@and\and%
+  \let\and\@author@and%                           
+  {\a@font%
+  \if@center%
+    \begin{tabular}[t]{c}%
+  \else%
+    \begin{tabular}[t]{@{}l@{}}%
+  \fi%
+  \@author%
+  \end{tabular}}%
+  \let\and\old@and%
+  \end{center}
+%
+  \vfill
+%
+  \begin{minipage}{4.5cm}
+  \includegraphics{softlab-logo}%
+  \end{minipage}
+  \hspace{1cm}
+  \begin{minipage}{9.5cm}
+  \renewcommand\baselinestretch{1.2}\normalsize%
+  \tr@font\@translator \\[0.5em]
+  \st@font%
+  \let\old@and\and%
+  \let\and\@committeemembers@and%                           
+  \begin{tabular}{@{}ll@{}}
+      \multicolumn{2}{@{}l@{}}{\underline{\committeename}:} \\[0.25em]
+      \supervisorname: & \@supervisor \\
+      \committeemembersname: & \@committeemembers
+  \end{tabular}%
+  \let\and\old@and%
+  \end{minipage}
+  \vspace{2cm}
+  \begin{center}
+  \st@font \@date
+  \end{center}
+%
+  \if@twoside\new@tpage
+  \noindent\begin{minipage}[t]{\textwidth}
+  \@uppertitleback
+  \end{minipage}\par
+  \vfill
+  \noindent\begin{minipage}[t]{\textwidth}
+  \@middletitleback
+  \end{minipage}\par
+  \vfill
+  \noindent\begin{minipage}[b]{\textwidth}
+  \@lowertitleback
+  \end{minipage}
+  \fi
+  \ifx\@dedication\@empty\else \new@tpage
+       {\centering \Large \@dedication \par}
+       \if@twoside \new@tpage \fi
+  \fi
+  \end{titlepage}
+  \def\thefootnote{\arabic{footnote}}
+  \setcounter{footnote}{0}
+  \if@thema\else\let\thanks\relax\fi
+  \gdef\@thanks{}\gdef\@author{}\gdef\@translator{}\gdef\@institution{}%
+  \gdef\@supervisor{}\gdef\@committeemembers{}%
+  \gdef\@uppertitleback{}\gdef\@lowertitleback{}\gdef\@dedication{}%
+  \gdef\@title{}\gdef\@subtitle{}\let\maketitle\relax%
+}
 \def\abstract{%\titlepage
   \addcontentsline{toc}{chapter}{\abstractname}%
   \chapter*{\abstractname\@mkboth{\abstractname}{\abstractname}}}
@@ -425,6 +495,23 @@
      \def\endchapterabstract{\par\bigskip}
   \fi
 \fi
+\newenvironment{titlepage}
+    {%
+      \cleardoublepage
+      \if@twocolumn
+        \@restonecoltrue\onecolumn
+      \else
+        \@restonecolfalse\newpage
+      \fi
+      \thispagestyle{empty}%
+      \if@compatibility
+        \setcounter{page}{0}
+      \fi}%
+    {\if@restonecol\twocolumn \else \newpage \fi
+    }
+
+% Sectioning
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand*{\chaptermark}[1]{}
 \setcounter{secnumdepth}{2}
 \newcounter {part}
@@ -690,6 +777,20 @@
                                        {3.25ex \@plus1ex \@minus .2ex}%
                                        {-1em}%
                                       {\reset@font\spg@font}}
+\newcommand\appendix{\par
+  \setcounter{chapter}{0}%
+  \setcounter{section}{0}%
+  \ifx\@chapapp\@empty
+    \def\@addappendixtocontents{\addcontentsline{toc}{part}{\appendixname}}
+    \part*{\appendixname\@mkboth{\appendixname}{\appendixname}%%
+           \@addappendixtocontents}
+  \else
+    \renewcommand{\@chapapp}{\appendixname}%
+  \fi
+  \renewcommand{\thechapter}{\Alph{chapter}}}
+
+% Space lengths
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \if@twocolumn
   \setlength\leftmargini  {2em}
 \else
@@ -748,6 +849,9 @@
   \newcommand\labelitemiii{\bfseries --}
   \newcommand\labelitemiv{\bfseries --}
 \fi
+
+% Some new environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newenvironment{description}
                {\list{}{\labelwidth\z@ \itemindent-\leftmargin
                         \let\makelabel\descriptionlabel}}
@@ -792,31 +896,9 @@
     \setlength{\leftmargin}{\labelwidth}%
     \addtolength{\leftmargin}{\labelsep}}}%
   {\end{list}}
-\newenvironment{titlepage}
-    {%
-      \cleardoublepage
-      \if@twocolumn
-        \@restonecoltrue\onecolumn
-      \else
-        \@restonecolfalse\newpage
-      \fi
-      \thispagestyle{empty}%
-      \if@compatibility
-        \setcounter{page}{0}
-      \fi}%
-    {\if@restonecol\twocolumn \else \newpage \fi
-    }
-\newcommand\appendix{\par
-  \setcounter{chapter}{0}%
-  \setcounter{section}{0}%
-  \ifx\@chapapp\@empty
-    \def\@addappendixtocontents{\addcontentsline{toc}{part}{\appendixname}}
-    \part*{\appendixname\@mkboth{\appendixname}{\appendixname}%%
-           \@addappendixtocontents}
-  \else
-    \renewcommand{\@chapapp}{\appendixname}%
-  \fi
-  \renewcommand{\thechapter}{\Alph{chapter}}}
+
+% More lengths and settings
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \setlength\arraycolsep{5\p@}
 \setlength\tabcolsep{6\p@}
 \setlength\arrayrulewidth{.4\p@}
@@ -843,6 +925,9 @@
 \def\seealso#1{\mbox{}%
     \marginpar[\raggedleft$\rightarrow$ \small #1]%
         {\raggedright\small  #1 $\leftarrow$}\ignorespaces}
+
+% Floating environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcounter{figure}[chapter]
 \renewcommand{\thefigure}{\thechapter.\@arabic\c@figure}
 \def\fps@figure{tbp}
@@ -910,6 +995,8 @@
 \newcommand{\@dotsep}{4.5}
 \setcounter{tocdepth}{2}
 
+% Table of contents, etc.
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\tableofcontents}{%
     \if@twocolumn
       \@restonecoltrue\onecolumn
@@ -989,6 +1076,9 @@
     \if@restonecol\twocolumn\fi
     }
 \let\l@table\l@figure
+
+% Bibliography
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newdimen\bibindent
 \bibindent=1.5em
 \newenvironment{thebibliography}[1]
@@ -1051,25 +1141,32 @@
        \let\@auxout=\@mainaux\else\@nameuse{cp@#1}
    \fi}
 \fi
-\newenvironment{theindex}
-               {\if@twocolumn
-                  \@restonecolfalse
-                \else
-                  \@restonecoltrue
-                \fi
-                \columnseprule \z@
-                \columnsep 35\p@
-                \twocolumn[\@makeschapterhead{\indexname}]%
-                \@mkboth{\indexname}%
-                        {\indexname}%
-                \thispagestyle{plain}\parindent\z@
-                \parskip\z@ \@plus .3\p@\relax
-                \let\item\@idxitem\index@size}
-               {\if@restonecol\onecolumn\else\clearpage\fi}
+
+% Index
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newcommand{\nindexbefore}{}
+\newcommand{\nindexafter}{}
+\newenvironment{theindex}{%
+  \if@twocolumn\@restonecolfalse\else\@restonecoltrue\fi%
+  \columnseprule \z@%
+  \columnsep 35\p@%
+  \twocolumn[\@makeschapterhead{\indexname}]%
+  \nindexbefore%
+  \@mkboth{\indexname}{\indexname}%
+  \thispagestyle{empty}\parindent\z@%
+  \parskip\z@ \@plus .3\p@\relax%
+  \let\item\@idxitem\index@size%
+}{%
+  \nindexafter%
+  \if@restonecol\onecolumn\else\clearpage\fi%
+}
 \newcommand{\@idxitem}  {\par\hangindent 40\p@}
 \newcommand{\subitem}   {\par\hangindent 40\p@ \hspace*{20\p@}}
 \newcommand{\subsubitem}{\par\hangindent 40\p@ \hspace*{30\p@}}
 \newcommand{\indexspace}{\par \vskip 10\p@ \@plus5\p@ \@minus3\p@\relax}
+
+% Footnotes
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \renewcommand\footnoterule{%
   \kern-3\p@
   \hrule width .4\columnwidth
@@ -1086,6 +1183,38 @@
       \noindent
       \hbox to 1.8em{\hss\@makefnmark\kern 0.25em}#1}
 \fi
+
+% Names
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\if@greek
+\def\contentsname{Περιεχόμενα}
+\def\listfigurename{Σχήματα}
+\def\listtablename{Πίνακες}
+\def\bibname{Βιβλιογραφία}
+\def\refname{Αναφορές}
+\def\indexname{Ευρετήριο}
+\def\figurename{Σχήμα}
+\def\tablename{Πίνακας}
+\def\chaptername{Κεφάλαιο}
+\def\appendixname{Παράρτημα}
+\def\partname{Μέρος}
+\def\abstractname{Περίληψη}
+\def\draftname{προσχέδιο}
+\def\prefacename{Πρόλογος}
+\def\keywordsname{Λέξεις κλειδιά}
+\def\acknowledgementsname{Ευχαριστίες}
+\def\committeename{Συμβουλευτική επιτροπή}
+\def\supervisorname{Επιβλέπων}
+\def\committeemembersname{Μέλη}
+\def\pagesname{Σελίδες}
+\def\urlname{URL}
+\def\ftpname{FTP}
+\newcommand{\today}{\space\number\day \ifcase\month\or
+  Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or Απριλίου\or
+  Μαΐου\or Ιουνίου\or Ιουλίου\or Αυγούστου\or
+  Σεπτεμβρίου\or Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+  \number\year}
+\else
 \def\contentsname{Contents}
 \def\listfigurename{List of Figures}
 \def\listtablename{List of Tables}
@@ -1099,13 +1228,25 @@
 \def\partname{Part}
 \def\abstractname{Abstract}
 \def\draftname{preliminary draft}
-\def\figureshortname{Fig.}                      % <-- thesis
-\def\tableshortname{Tab.}                       % <-- thesis
-\def\prefacename{Preface}                       % <-- thesis
+\def\prefacename{Preface}
+\def\keywordsname{Keywords}
+\def\acknowledgementsname{Acknowledgements}
+\def\committeename{Counselling committee}
+\def\supervisorname{Supervisor}
+\def\committeemembersname{Members}
+\def\pagesname{Pages}
+\def\urlname{URL}
+\def\ftpname{FTP}
 \newcommand{\today}{\ifcase\month\or
-  January\or February\or March\or April\or May\or June\or
-  July\or August\or September\or October\or November\or December\fi
+  January\or February\or March\or April\or
+  May\or June\or July\or August\or September\or
+  October\or November\or December\fi
   \space\number\day, \number\year}
+\fi
+\chapapp{\chaptername}                   % Print ``Chapter'' (?)
+\def\figureshortname{\figurename}        % I don't like short names
+\def\tableshortname{\tablename}
+
 \setlength\columnsep{10\p@}
 \setlength\columnseprule{0\p@}
 \iffinal
@@ -1126,22 +1267,12 @@
   \onecolumn
 \fi
 
-
-%% Customization for SoftLab -- nickie
-
-\usepackage{a4}
-\usepackage{graphicx}
-
-
-%%% Layout
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-
-%%% Page setup
-
-   % Formulae for calculating the layout parameters:
-   %     odd side margin = IM - 1 in
-   %    even side margin = OM - 1 in
-   %          top margin = TM - 1 in
+% Page setup
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% Formulae for calculating the layout parameters:
+%     odd side margin = IM - 1 in
+%    even side margin = OM - 1 in
+%          top margin = TM - 1 in
 
                                          % Paper width
                                          % --------------------------------
@@ -1162,36 +1293,9 @@
 \advance \topmargin by -\headheight
 \advance \topmargin by -\headsep
 
-% Let us allow bigger floats
-
-\renewcommand{\topfraction}{0.8}
-\renewcommand{\bottomfraction}{0.8}
-\renewcommand{\floatpagefraction}{0.8}
-
-% Other parameters
-
-\setlength{\parskip}{6pt}
-
-
-%%%  For the thesis class
-
-\def\contentsname{Περιεχόμενα}           % Declare all greek titles again
-\def\listfigurename{Σχήματα}             % (thesis class has changed them)
-\def\listtablename{Πίνακες}
-\def\bibname{Βιβλιογραφία}
-\def\figurename{Σχήμα}
-\def\tablename{Πίνακας}
-\def\chaptername{Κεφάλαιο}
-\def\appendixname{Παράρτημα}
-\def\partname{Μέρος}
-\def\abstractname{Περίληψη}
-
-\chapapp{\chaptername}                   % Print ``Chapter''
-
-\def\figureshortname{\figurename}        % I don't like short names
-\def\tableshortname{\tablename}
-
-\newenvironment{keywords}{\section*{Λέξεις κλειδιά}}{}
+% More environments
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\newenvironment{keywords}{\section*{\keywordsname}}{}
 \newcommand{\footacknowledgement}[1]{%
   \let\@tmp@makefntext\@makefntext%
   \long\def\@makefntext##1{%
@@ -1200,98 +1304,21 @@
   \footnotetext{#1}%
   \let\@makefntext\@tmp@makefntext%
 }
+\newenvironment{acknowledgements}{%
+  \addcontentsline{toc}{chapter}{\acknowledgementsname}%
+  \chapter*{\acknowledgementsname}%
+}{}
 
-\def\maketitle{%
-  \begin{titlepage}
-  \let\footnotesize\small
-  \let\footnoterule\relax
-  \def\thefootnote{\fnsymbol{footnote}}
-  \new@tpage
-%
-  \begin{minipage}{2.5cm}
-  \includegraphics[width=2.5cm]{pyrforos}%
-  \end{minipage}
-  \hspace{0.5cm}
-  \begin{minipage}{12cm}
-  \renewcommand\baselinestretch{1.2}\normalsize%
-  \in@font\@institution
-  \end{minipage}
-%
-  \vfill
-%
-  \begin{center}
-  {\t@font\@title}
-  \end{center}
-  \ifx\@subtitle\@empty\else
-  \vspace{1cm}
-  \begin{center}
-  {\st@font\@subtitle}
-  \end{center}
-  \fi
-%
-  \vspace{1cm}
-%
-  \begin{center}
-  {\a@font\@author}
-  \end{center}
-%
-  \vfill
-%
-  \begin{minipage}{4.5cm}
-  \includegraphics{softlab-logo}%
-  \end{minipage}
-  \hspace{1cm}
-  \begin{minipage}{9.5cm}
-  \renewcommand\baselinestretch{1.2}\normalsize%
-  \tr@font\@translator \\[0.5em]
-  \st@font%
-  \begin{tabular}{@{}ll@{}}
-      \multicolumn{2}{@{}l@{}}{\underline{Συμβουλευτική επιτροπή:}} \\[0.25em]
-      Επιβλέπων: & Νικόλαος Παπασπύρου, Λέκτορας \\
-      Μέλη: & Εμμανουήλ Σκορδαλάκης, Καθηγητής \\
-            & Ευστάθιος Ζάχος, Καθηγητής
-  \end{tabular}
-  \end{minipage}
-  \vspace{2cm}
-  \begin{center}
-  \st@font \@date
-  \end{center}
-%
-  \new@tpage
-  \noindent\begin{minipage}[t]{\textwidth}
-  \@uppertitleback
-  \end{minipage}\par
-  \vfill
-  \noindent\begin{minipage}[t]{\textwidth}
-  \@middletitleback
-  \end{minipage}\par
-  \vfill
-  \noindent\begin{minipage}[b]{\textwidth}
-  \@lowertitleback
-  \end{minipage}
-  \ifx\@dedication\@empty\else \new@tpage
-       {\centering \Large \@dedication \par}
-       \if@twoside \new@tpage \fi
-  \fi
-  \end{titlepage}
-  \def\thefootnote{\arabic{footnote}}
-  \setcounter{footnote}{0}
-  \if@thema\else\let\thanks\relax\fi
-  \gdef\@thanks{}\gdef\@author{}\gdef\@translator{}\gdef\@institution{}
-  \gdef\@uppertitleback{}\gdef\@lowertitleback{}\gdef\@dedication{}%
-  \gdef\@title{}\gdef\@subtitle{}\let\maketitle\relax%
-}
+% Font customization
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\t@font{\Huge\bfseries}
 \def\st@font{\large}
 \def\a@font{\LARGE}
 \def\tr@font{\Large}
 \def\in@font{\large\slshape}
-%\def\t@font{\LARGE\bfseries}
-%\def\st@font{\large}
-%\def\a@font{\Large}
-%\def\tr@font{\large}
-%\def\in@font{\large\slshape}
 
+% Miscellaneous stuff
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
    % Empty pages should be really empty (not have headings)
 \def\cleardoublepage{\clearpage\if@twoside \ifodd\c@page\else
@@ -1306,39 +1333,33 @@
 \renewcommand\footnoterule{\vfill\kern-3\p@%
   \hrule width .4\columnwidth\kern 2.6\p@}
 
-   % This is a patch for the thesis package
-   % The first page of the index should be empty too
-   % [If the index package is used, it must be before it.]
-   % The macros \nindexbefore and \nindexafter are used for
-   % putting text before and after the index, on the same page.
+% Macros for dates
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\def\aux@date@year{\dateread{\theyear}}
+\newcommand\date@year[1][\date]{\expandafter\aux@date@year #1 {}\relax{}}
 
-\newcommand{\nindexbefore}{}
-\newcommand{\nindexafter}{}
+% More names
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\renewenvironment{theindex}{%
-  \if@twocolumn\@restonecolfalse\else\@restonecoltrue\fi%
-  \columnseprule \z@%
-  \columnsep 35\p@%
-  \twocolumn[\@makeschapterhead{\indexname}]%
-  \nindexbefore%
-  \@mkboth{\indexname}{\indexname}%
-  \thispagestyle{empty}\parindent\z@%
-  \parskip\z@ \@plus .3\p@\relax%
-  \let\item\@idxitem\index@size%
-}{%
-  \nindexafter%
-  \if@restonecol\onecolumn\else\clearpage\fi%
-}
-
-\translator{%
-  Διπλωματική Εργασία
-}
+\if@greek
+\translator{Διπλωματική Εργασία}
 \institution{%
-  Εθνικό Μετσόβιο Πολυτεχνείο \\
-  Τμήμα Ηλεκτρολόγων Μηχανικών και Μηχανικών Υπολογιστών \\
-  Τομέας Τεχνολογίας Πληροφορικής και Υπολογιστών \\
-  Εργαστήριο Τεχνολογίας Λογισμικού
+  Εθνικό Μετσόβιο Πολυτεχνείο\\
+  Τμήμα Ηλεκτρολόγων Μηχανικών και Μηχανικών Υπολογιστών\\
+  Τομέας Τεχνολογίας Πληροφορικής και Υπολογιστών\\
+  Εργαστήριο Τεχνολογίας Λογισμικού%
 }
+\else
+\translator{Diploma Project}
+\institution{%
+  National Technical University of Athens\\
+  Department of Electrical and Computer Engineering\\
+  Division of Computer Science\\
+  Software Engineering Laboratory%
+}
+\fi
+\trurl{http://www.softlab.ntua.gr/techrep/}
+\trftp{ftp://ftp.softlab.ntua.gr/pub/techrep/}
 
 \uppertitleback{%
   \begin{minipage}{2cm}
@@ -1350,7 +1371,8 @@
   \end{minipage}
 }
 \middletitleback{%
-  Copyright \copyright\ \ \@author, 2002.\\        % !!!
+  Copyright \copyright\ \ \@author, \date@year.\\
+\if@greek
   Με επιφύλαξη παντός δικαιώματος.\\[12pt]
   Απαγορεύεται η αντιγραφή, αποθήκευση και διανομή της παρούσας
   εργασίας, εξ ολοκλήρου ή τμήματος αυτής, για εμπορικό σκοπό.
@@ -1359,41 +1381,52 @@
   να αναφέρεται η πηγή προέλευσης και να διατηρείται το παρόν μήνυμα.
   Ερωτήματα που αφορούν τη χρήση της εργασίας για κερδοσκοπικό σκοπό
   πρέπει να απευθύνονται προς τον συγγραφέα.
+\else
+  All rights reserved.\\[12pt]
+  This work is copyright and may not be reproduced, stored nor
+  distributed in whole or in part for commercial purposes.  Permission
+  is hereby granted to reproduce, store and distribute this work for
+  non-propfit, educational and research purposes, provided that the
+  source is acknowledged and the present copyright message is retained.
+  Enquiries regarding use for profit should be directed to the author.
+\fi
 }
+\def\cr@comma{, }
 \lowertitleback{%
-  Το πρωτότυπο κείμενο της παρούσας εργασίας είναι γραμμένο στην αγγλική
-  γλώσσα. Η μετάφραση στα ελληνικά έγινε από το συγγραφέα. Ακολουθεί η
-  πλήρης αναφορά του πρωτοτύπου. \\[24pt]
-%
+  \let\cr@old\\%
+  \let\\\cr@comma%
   \@author,
   \emph{\@title},
   \@translator,
   \@institution,
-  \@date. \\[6pt]
+  \@date.%
+  \let\\\cr@old%
+  \\[6pt]
   \begin{tabular}{@{}ll@{}}
-    URL:   & \texttt{http://www.softlab.ntua.gr/~{}vkoutav/} \\  % !!!
-    Pages: & \pageref{pg:last-front} + \pageref{pg:last-document}
+    \@ifundefined{@url}{}{%
+      \urlname:   & \@url \\
+    }
+    \pagesname: & \pageref{pg:last-front} + \pageref{pg:last-document}
   \end{tabular} \\[12pt]
-  Διαθέσιμο επίσης ως:
-  Τεχνική Αναφορά CSD-SW-TR-2-02,
-  Εθνικό Μετσόβιο Πολυτεχνείο,
-  Τμήμα Ηλεκτρολόγων Μηχανικών και Μηχανικών Υπολογιστών,
-  Εργαστήριο Τεχνολογίας Λογισμικού,
-  \@date. \\[6pt]
-  \begin{tabular}{@{}ll@{}}
-  URL: & \texttt{http://www.softlab.ntua.gr/techrep/} \\
-  FTP: & \texttt{ftp://ftp.softlab.ntua.gr/pub/techrep/}
-  \end{tabular}
+  \@ifundefined{@TRnumber}{}{%
+    \let\cr@old\\%
+    \let\\\cr@comma%
+    \if@greek%
+      Διαθέσιμο επίσης ως: Τεχνική Αναφορά
+    \else%
+      Also available as: Technical Report
+    \fi%
+    \@TRnumber, \@institution, \@date.%
+    \let\\\cr@old%
+    \\[6pt]
+    \begin{tabular}{@{}ll@{}}
+    \urlname: & \@trurl \\
+    \ftpname: & \@trftp
+    \end{tabular}
+  }
 }
-
-\newenvironment{acknowledgements}{%
-  \addcontentsline{toc}{chapter}{Ευχαριστίες}%
-  \chapter*{Ευχαριστίες}%
-}{}
 
 \let\nickie@oldenddocument\enddocument
 \def\enddocument{\label{pg:last-document}\nickie@oldenddocument}
 
 \endinput
-%% 
-%% End of file `thesis.cls'.
