@@ -1,11 +1,11 @@
 %******************************************************************************
 %  CVS/RCS version:
-%     $Id: softlab-thesis.cls,v 1.3 2003-07-21 12:43:42 nickie Exp $
+%     $Id: softlab-thesis.cls,v 1.3 2005/10/19 09:50:29 nickie Exp $
 %******************************************************************************
 %  LaTeX file  : softlab-thesis.cls
 %  Written by  : Nikolaos S. Papaspyrou
 %  Date        : October 17, 2002
-%  Revised     : July 2, 2003
+%  Revised     : October 3, 2004
 %
 %  Description : A uniform template for diploma projects and doctoral
 %                dissertations at the Software Engineering Laboratory,
@@ -21,7 +21,7 @@
 
 % Package information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\filename{softlab-thesis}
+\def\filename{Styles/softlab-thesis}
 \def\fileversion{1.1a}
 \def\filedate{2003/07/02}
 \NeedsTeXFormat{LaTeX2e}
@@ -223,7 +223,7 @@
 \ProcessOptions*
 
 \ifnum\c@type=0
-  \ClassError{softlab-thesis}{Undefined type of thesis}{%
+  \ClassError{Styles/softlab-thesis}{Undefined type of thesis}{%
     Please, give one of the options: diploma, master, dissertation%
   }
 \fi
@@ -384,6 +384,8 @@
 \let\and\relax
 
 \def\maketitle{%
+  \begingroup
+%
   \cleardoublepage
   \newpage
   \thispagestyle{empty}%
@@ -397,10 +399,10 @@
   \new@tpage
 %
   \noindent
-  \begin{minipage}{3.0cm}
-  \includegraphics[height=2.8cm]{pyrforos}%
+  \begin{minipage}{4.0cm}
+  \includegraphics[height=3.5cm]{pyrforos}%
   \end{minipage}
-  \begin{minipage}{12.0cm}
+  \begin{minipage}{11.0cm}
   \raggedright%
   \renewcommand\baselinestretch{1.2}\normalsize%
   {\in@font\@institution} \\
@@ -462,10 +464,10 @@
   \new@tpage
 %
   \noindent%
-  \begin{minipage}{3.0cm}
-  \includegraphics[height=2.8cm]{pyrforos}%
+  \begin{minipage}{4.0cm}
+  \includegraphics[height=3.5cm]{pyrforos}%
   \end{minipage}
-  \begin{minipage}{12.0cm}
+  \begin{minipage}{11.0cm}
   \raggedright%
   \renewcommand\baselinestretch{1.2}\normalsize%
   {\in@font\@institution} \\
@@ -561,6 +563,7 @@
   \fi
 %
   \newpage
+  \endgroup
 %
   \def\thefootnote{\arabic{footnote}}
   \setcounter{footnote}{0}
@@ -574,15 +577,15 @@
   \gdef\@title{}\gdef\@subtitle{}\let\maketitle\relax%
 }
 \def\abstractgr{%
-  \addcontentsline{toc}{chapter}{\abstractnamegr}%
   \chapter*{\abstractnamegr\@mkboth{\abstractnamegr}{\abstractnamegr}}%
+  \addcontentsline{toc}{chapter}{\abstractnamegr}%
   \noindent}
 \def\endabstractgr{\par\vfil\null}
 \def\abstracten{%
-  \addcontentsline{toc}{chapter}{\abstractnameen}%
   \chapter*{\abstractnameen\@mkboth{\abstractnameen}{\abstractnameen}}%
+  \addcontentsline{toc}{chapter}{\abstractnameen}%
   \noindent}
-\def\endabstract-en{\par\vfil\null}
+\def\endabstracten{\par\vfil\null}
 
 % Sectioning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -966,10 +969,10 @@
 % Table of contents, etc.
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \newcommand{\tableofcontents}{%
-    \addcontentsline{toc}{chapter}{\contentsname}
     \chapter*{\contentsname
         \@mkboth{\contentsname}%
                 {\contentsname}}%
+    \addcontentsline{toc}{chapter}{\contentsname}
     \@starttoc{toc}%
     }
 \newcommand*{\l@part}[2]{%
@@ -1011,18 +1014,18 @@
 \newcommand*{\l@paragraph}    {\@dottedtocline{4}{10em}{5em}}
 \newcommand*{\l@subparagraph} {\@dottedtocline{5}{12em}{6em}}
 \newcommand{\listoffigures}{%
-    \addcontentsline{toc}{chapter}{\listfigurename}
     \chapter*{\listfigurename
       \@mkboth{\listfigurename}%
               {\listfigurename}}%
+    \addcontentsline{toc}{chapter}{\listfigurename}
     \@starttoc{lof}%
     }
 \newcommand*{\l@figure}{\@dottedtocline{1}{1.5em}{2.3em}}
 \newcommand{\listoftables}{%
-    \addcontentsline{toc}{chapter}{\listtablename}
     \chapter*{\listtablename
       \@mkboth{\listtablename}%
               {\listtablename}}%
+    \addcontentsline{toc}{chapter}{\listtablename}
     \@starttoc{lot}%
     }
 \let\l@table\l@figure
@@ -1033,13 +1036,13 @@
 \bibindent=1.5em
 \newenvironment{thebibliography}[1]
      {\if@chapterbib
-        \addcontentsline{toc}{section}{\refname}%
         \section*{\refname\@mkboth{\refname}{\refname}}%
+        \addcontentsline{toc}{section}{\refname}%
       \else
+        \chapter*{\bibname\@mkboth{\bibname}{\bibname}}%
         \addtocontents{toc}{\protect\addvspace{1em}}%
         \addcontentsline{toc}{chapter}{\bibname}%
         \addtocontents{toc}{\protect\addvspace{1em}}%
-        \chapter*{\bibname\@mkboth{\bibname}{\bibname}}%
       \fi
       \list{\@biblabel{\arabic{enumiv}}}%
            {\settowidth\labelwidth{\@biblabel{#1}}%
@@ -1269,17 +1272,23 @@
 \newenvironment{keywordsgr}{\section*{\keywordsnamegr}}{}
 \newenvironment{keywordsen}{\section*{\keywordsnameen}}{}
 \newcommand{\footacknowledgement}[1]{%
+  \let\footnotesize\small%
   \let\@tmp@makefntext\@makefntext%
   \long\def\@makefntext##1{%
-      \parindent 1em%
-      \noindent##1}%
+    \parindent 1em%
+    \noindent##1}%
   \footnotetext{#1}%
   \let\@makefntext\@tmp@makefntext%
 }
 \newenvironment{acknowledgements}{%
-  \addcontentsline{toc}{chapter}{\acknowledgementsname}%
   \chapter*{\acknowledgementsname}%
-}{}
+  \addcontentsline{toc}{chapter}{\acknowledgementsname}%
+  \begingroup%
+  \let\footnoterule\relax%
+}{%
+  \newpage%
+  \endgroup%
+}
 
 % Font customization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
