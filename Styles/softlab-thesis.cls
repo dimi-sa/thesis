@@ -12,7 +12,7 @@
 %                School of Electrical and Computer Engineering,
 %                National Technical University of Athens.
 %
-%  Notes       : This package is based on `thesis.cls', written by 
+% Notes        : This package is based on `thesis.cls', written by 
 %                Wenzel Matiaske (mati1831@perform.ww.tu-berlin.de)
 %                Copyright (C) 1991, 1996.  Version 1.0g (1996/25/01).
 %                Revised in July 2003, to adhere to NTUA's ECE library
@@ -266,7 +266,7 @@
 %\RequirePackage{xunicode}
 %\RequirePackage{xltxtra}
 \defaultfontfeatures{Mapping=tex-text}
-%\RequirePackage[english]{babel}
+\RequirePackage[english]{babel}
 \RequirePackage{xgreek}
 
 % XeLaTeX fonts
@@ -632,8 +632,7 @@
   \noindent\ignorespaces}
 \def\endabstractgr{\par\vfil\null}
 \def\abstracten{%
-  %\selectlanguage{english}%
-  \setlanguage{english}%
+  \selectlanguage{english}%
   \chapter*{\abstractnameen\@mkboth{\abstractnameen}{\abstractnameen}}%
   \addcontentsline{toc}{chapter}{\abstractnameen}%
   \noindent\ignorespaces}
@@ -1359,8 +1358,7 @@
   \endgroup%
 }
 \newenvironment{acknowledgementsen}{%
-  %\selectlanguage{english}%
-  \setlanguage{english}%
+  \selectlanguage{english}%
   \chapter*{\acknowledgementsnameen}%
   \addcontentsline{toc}{chapter}{\acknowledgementsnameen}%
   \begingroup%
