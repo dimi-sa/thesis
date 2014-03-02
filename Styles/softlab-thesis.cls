@@ -1,11 +1,11 @@
 %******************************************************************************
 %  CVS/RCS version:
-%     $Id: softlab-thesis.cls,v 1.3 2005/10/19 09:50:29 nickie Exp $
+%     $Id: softlab-thesis.cls,v 1.3 2003/07/21 12:43:42 nickie Exp $
 %******************************************************************************
 %  LaTeX file  : softlab-thesis.cls
 %  Written by  : Nikolaos S. Papaspyrou
 %  Date        : October 17, 2002
-%  Revised     : October 3, 2004
+%  Revised     : December 17, 2008
 %
 %  Description : A uniform template for diploma projects and doctoral
 %                dissertations at the Software Engineering Laboratory,
@@ -21,9 +21,9 @@
 
 % Package information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\filename{Styles/softlab-thesis}
-\def\fileversion{1.1a}
-\def\filedate{2003/07/02}
+\def\filename{softlab-thesis}
+\def\fileversion{1.2a}
+\def\filedate{2008/12/17}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{softlab-thesis}[\filedate\space\fileversion\space%
        LaTeX document class (nsp).]
@@ -223,7 +223,7 @@
 \ProcessOptions*
 
 \ifnum\c@type=0
-  \ClassError{Styles/softlab-thesis}{Undefined type of thesis}{%
+  \ClassError{softlab-thesis}{Undefined type of thesis}{%
     Please, give one of the options: diploma, master, dissertation%
   }
 \fi
@@ -239,7 +239,7 @@
   \setlength\parskip{0.5\baselineskip
          \@plus.1\baselineskip \@minus.1\baselineskip}
   \setlength\parindent{\z@}
-  \def\noparskip{\par\vspace{-\parskip}}
+ \def\noparskip{\par\vspace{-\parskip}}
 \else
   \setlength\parskip{0\p@ \@plus 1\p@}
   \let\noparskip\relax
@@ -260,9 +260,42 @@
 \def\e@skip{\h@font{\phantom{y}}}
 
 % Required packages
+% (cannot be very early)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \RequirePackage{graphicx}
 \RequirePackage{dates}
+\RequirePackage[cm-default]{fontspec}
+%\RequirePackage{xunicode}
+%\RequirePackage{xltxtra}
+\defaultfontfeatures{Mapping=tex-text}
+\RequirePackage{Styles/xgreek}
+
+% XeLaTeX fonts
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% My twist for fontspec
+\def\deffontfamily#1{
+  \edef\@tempa{%
+    \noexpand\DeclareRobustCommand\noexpand#1%
+      {\noexpand\fontfamily{\zf@family}\noexpand\selectfont}}%
+  \@tempa}
+
+% roman font
+\zf@fontspec{}{Times New Roman}
+\let\rmdefault\zf@family
+\deffontfamily\fontminion
+\normalfont
+
+% sans serif font
+\zf@fontspec{Scale=MatchLowercase}{Arial}
+\let\sfdefault\zf@family
+\deffontfamily\fontmghelvlight
+
+% typewritter font
+\zf@fontspec{Scale=MatchLowercase}{Courier New}
+\let\cmtt\ttdefault
+\def\cmttfamily{\fontfamily{\cmtt}}
+\let\ttdefault\zf@family
+\deffontfamily\fontumtt
 
 % Headings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -400,7 +433,7 @@
 %
   \noindent
   \begin{minipage}{4.0cm}
-  \includegraphics[height=3.5cm]{pyrforos}%
+  \includegraphics[height=3.5cm]{Styles/pyrforos}%
   \end{minipage}
   \begin{minipage}{11.0cm}
   \raggedright%
@@ -451,7 +484,7 @@
   \vfill
 %
   \begin{center}
-  {\st@font Αθήνα, \@date}
+  {\st@font Ξ‘ΞΈΞ®Ξ½Ξ±, \@date}
   \end{center}
 %
   \cleardoublepage
@@ -465,7 +498,7 @@
 %
   \noindent%
   \begin{minipage}{4.0cm}
-  \includegraphics[height=3.5cm]{pyrforos}%
+  \includegraphics[height=3.5cm]{Styles/pyrforos}%
   \end{minipage}
   \begin{minipage}{11.0cm}
   \raggedright%
@@ -516,7 +549,7 @@
   \vspace{1.0cm}\par
 %
   \noindent
-  Εγκρίθηκε από την τριμελή εξεταστική επιτροπή την \@date@defense.
+  Ξ•Ξ³ΞΊΟΞ―ΞΈΞ·ΞΊΞµ Ξ±Ο€Ο Ο„Ξ·Ξ½ Ο„ΟΞΉΞΌΞµΞ»Ξ® ΞµΞΎΞµΟ„Ξ±ΟƒΟ„ΞΉΞΊΞ® ΞµΟ€ΞΉΟ„ΟΞΏΟ€Ξ® Ο„Ξ·Ξ½ \@date@defense.
   }
 %
   \vspace{1.5cm}\par
@@ -541,7 +574,7 @@
   \vfill
 %
   \begin{center}
-  {\st@font Αθήνα, \@date}
+  {\st@font Ξ‘ΞΈΞ®Ξ½Ξ±, \@date}
   \end{center}
 %
   \if@twoside\new@tpage
@@ -1139,35 +1172,35 @@
 % Names
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \if@greek
-\def\contentsname{Περιεχόμενα}
-\def\listfigurename{Σχήματα}
-\def\listtablename{Πίνακες}
-\def\bibname{Βιβλιογραφία}
-\def\refname{Αναφορές}
-\def\indexname{Ευρετήριο}
-\def\figurename{Σχήμα}
-\def\tablename{Πίνακας}
-\def\chaptername{Κεφάλαιο}
-\def\appendixname{Παράρτημα}
-\def\partname{Μέρος}
-\def\abstractname{Περίληψη}
-\def\abstractnamegr{Περίληψη}
+\def\contentsname{Ξ ΞµΟΞΉΞµΟ‡ΟΞΌΞµΞ½Ξ±}
+\def\listfigurename{Ξ£Ο‡Ξ®ΞΌΞ±Ο„Ξ±}
+\def\listtablename{Ξ Ξ―Ξ½Ξ±ΞΊΞµΟ‚}
+\def\bibname{Ξ’ΞΉΞ²Ξ»ΞΉΞΏΞ³ΟΞ±Ο†Ξ―Ξ±}
+\def\refname{Ξ‘Ξ½Ξ±Ο†ΞΏΟΞ­Ο‚}
+\def\indexname{Ξ•Ο…ΟΞµΟ„Ξ®ΟΞΉΞΏ}
+\def\figurename{Ξ£Ο‡Ξ®ΞΌΞ±}
+\def\tablename{Ξ Ξ―Ξ½Ξ±ΞΊΞ±Ο‚}
+\def\chaptername{ΞΞµΟ†Ξ¬Ξ»Ξ±ΞΉΞΏ}
+\def\appendixname{Ξ Ξ±ΟΞ¬ΟΟ„Ξ·ΞΌΞ±}
+\def\partname{ΞΞ­ΟΞΏΟ‚}
+\def\abstractname{Ξ ΞµΟΞ―Ξ»Ξ·ΟΞ·}
+\def\abstractnamegr{Ξ ΞµΟΞ―Ξ»Ξ·ΟΞ·}
 \def\abstractnameen{Abstract}
-\def\draftname{Προσχέδιο}
-\def\prefacename{Πρόλογος}
-\def\keywordsnamegr{Λέξεις κλειδιά}
+\def\draftname{Ξ ΟΞΏΟƒΟ‡Ξ­Ξ΄ΞΉΞΏ}
+\def\prefacename{Ξ ΟΟΞ»ΞΏΞ³ΞΏΟ‚}
+\def\keywordsnamegr{Ξ›Ξ­ΞΎΞµΞΉΟ‚ ΞΊΞ»ΞµΞΉΞ΄ΞΉΞ¬}
 \def\keywordsnameen{Key words}
-\def\acknowledgementsname{Ευχαριστίες}
-\def\committeename{Συμβουλευτική επιτροπή}
-\def\supervisorname{Επιβλέπων}
-\def\committeemembersname{Μέλη}
-\def\pagesname{Σελίδες}
+\def\acknowledgementsname{Ξ•Ο…Ο‡Ξ±ΟΞΉΟƒΟ„Ξ―ΞµΟ‚}
+\def\committeename{Ξ£Ο…ΞΌΞ²ΞΏΟ…Ξ»ΞµΟ…Ο„ΞΉΞΊΞ® ΞµΟ€ΞΉΟ„ΟΞΏΟ€Ξ®}
+\def\supervisorname{Ξ•Ο€ΞΉΞ²Ξ»Ξ­Ο€Ο‰Ξ½}
+\def\committeemembersname{ΞΞ­Ξ»Ξ·}
+\def\pagesname{Ξ£ΞµΞ»Ξ―Ξ΄ΞµΟ‚}
 \def\urlname{URL}
 \def\ftpname{FTP}
-\newcommand{\today}{\number\day\space \ifcase\month\or
-  Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or Απριλίου\or
-  Μαΐου\or Ιουνίου\or Ιουλίου\or Αυγούστου\or
-  Σεπτεμβρίου\or Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
+\renewcommand{\today}{\number\day\space \ifcase\month\or
+  Ξ™Ξ±Ξ½ΞΏΟ…Ξ±ΟΞ―ΞΏΟ…\or Ξ¦ΞµΞ²ΟΞΏΟ…Ξ±ΟΞ―ΞΏΟ…\or ΞΞ±ΟΟ„Ξ―ΞΏΟ…\or Ξ‘Ο€ΟΞΉΞ»Ξ―ΞΏΟ…\or
+  ΞΞ±ΞΞΏΟ…\or Ξ™ΞΏΟ…Ξ½Ξ―ΞΏΟ…\or Ξ™ΞΏΟ…Ξ»Ξ―ΞΏΟ…\or Ξ‘Ο…Ξ³ΞΏΟΟƒΟ„ΞΏΟ…\or
+  Ξ£ΞµΟ€Ο„ΞµΞΌΞ²ΟΞ―ΞΏΟ…\or ΞΞΊΟ„Ο‰Ξ²ΟΞ―ΞΏΟ…\or ΞΞΏΞµΞΌΞ²ΟΞ―ΞΏΟ…\or Ξ”ΞµΞΊΞµΞΌΞ²ΟΞ―ΞΏΟ…\fi
   \space\number\year}
 \else
 \def\contentsname{Contents}
@@ -1192,7 +1225,7 @@
 \def\pagesname{Pages}
 \def\urlname{URL}
 \def\ftpname{FTP}
-\newcommand{\today}{\ifcase\month\or
+\renewcommand{\today}{\ifcase\month\or
   January\or February\or March\or April\or
   May\or June\or July\or August\or September\or
   October\or November\or December\fi
@@ -1203,28 +1236,28 @@
 \def\tableshortname{\tablename}
 
 \if@greek
-  \uccode`ά=`Α%
-  \uccode`έ=`Ε%
-  \uccode`ή=`Η%
-  \uccode`ί=`Ι%
-  \uccode`ό=`Ο%
-  \uccode`ύ=`Υ%
-  \uccode`ώ=`Ω%
+  \uccode`Ξ¬=`Ξ‘%
+  \uccode`Ξ­=`Ξ•%
+  \uccode`Ξ®=`Ξ—%
+  \uccode`Ξ―=`Ξ™%
+  \uccode`Ο=`Ξ%
+  \uccode`Ο=`Ξ¥%
+  \uccode`Ο=`Ξ©%
   %
-  \uccode`¶=`Α%
-  \uccode`Έ=`Ε%
-  \uccode`Ή=`Η%
-  \uccode`Ί=`Ι%
-  \uccode`Ό=`Ο%
-  \uccode`Ύ=`Υ%
-  \uccode`Ώ=`Ω%
+  \uccode`Ξ†=`Ξ‘%
+  \uccode`Ξ=`Ξ•%
+  \uccode`Ξ‰=`Ξ—%
+  \uccode`Ξ=`Ξ™%
+  \uccode`Ξ=`Ξ%
+  \uccode`Ξ=`Ξ¥%
+  \uccode`Ξ=`Ξ©%
   %
-  \uccode`ϊ=`Ϊ%
-  \uccode`ϋ=`Ϋ%
-  \uccode`ΐ=`Ϊ%
-  \uccode`ΰ=`Ϋ%
+  \uccode`Ο=`Ξª%
+  \uccode`Ο‹=`Ξ«%
+  \uccode`Ξ=`Ξª%
+  \uccode`Ξ°=`Ξ«%
   %
-  \uccode`ς=`Σ%
+  \uccode`Ο‚=`Ξ£%
 \fi
 
 \setlength\columnsep{10\p@}
@@ -1327,13 +1360,13 @@
 % More names
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
-\def\@author@accusative{τον συγγραφέα}
+\def\@author@accusative{Ο„ΞΏΞ½ ΟƒΟ…Ξ³Ξ³ΟΞ±Ο†Ξ­Ξ±}
 
 \if@greek
-\thesistype{Διπλωματική Εργασία}
-\institution{Εθνικό Μετσόβιο Πολυτεχνείο}
-\school{Σχολή Ηλεκτρολόγων Μηχανικών \\ και Μηχανικών Υπολογιστών}
-\department{Τομέας Τεχνολογίας Πληροφορικής \\ και Υπολογιστών}
+\thesistype{Ξ”ΞΉΟ€Ξ»Ο‰ΞΌΞ±Ο„ΞΉΞΊΞ® Ξ•ΟΞ³Ξ±ΟƒΞ―Ξ±}
+\institution{Ξ•ΞΈΞ½ΞΉΞΊΟ ΞΞµΟ„ΟƒΟΞ²ΞΉΞΏ Ξ ΞΏΞ»Ο…Ο„ΞµΟ‡Ξ½ΞµΞ―ΞΏ}
+\school{Ξ£Ο‡ΞΏΞ»Ξ® Ξ—Ξ»ΞµΞΊΟ„ΟΞΏΞ»ΟΞ³Ο‰Ξ½ ΞΞ·Ο‡Ξ±Ξ½ΞΉΞΊΟΞ½ \\ ΞΊΞ±ΞΉ ΞΞ·Ο‡Ξ±Ξ½ΞΉΞΊΟΞ½ Ξ¥Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΟ„ΟΞ½}
+\department{Ξ¤ΞΏΞΌΞ­Ξ±Ο‚ Ξ¤ΞµΟ‡Ξ½ΞΏΞ»ΞΏΞ³Ξ―Ξ±Ο‚ Ξ Ξ»Ξ·ΟΞΏΟ†ΞΏΟΞΉΞΊΞ®Ο‚ \\ ΞΊΞ±ΞΉ Ξ¥Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΟ„ΟΞ½}
 \else
 \thesistype{Diploma Project}
 \institution{National Technical University of Athens}
@@ -1349,30 +1382,30 @@
   \signature[6pt]{%
     \textbf{\uppercase{\@author}}
   }{%
-    Διπλωματούχος Ηλεκτρολόγος Μηχανικός και Μηχανικός Υπολογιστών Ε.Μ.Π.
+    Ξ”ΞΉΟ€Ξ»Ο‰ΞΌΞ±Ο„ΞΏΟΟ‡ΞΏΟ‚ Ξ—Ξ»ΞµΞΊΟ„ΟΞΏΞ»ΟΞ³ΞΏΟ‚ ΞΞ·Ο‡Ξ±Ξ½ΞΉΞΊΟΟ‚ ΞΊΞ±ΞΉ ΞΞ·Ο‡Ξ±Ξ½ΞΉΞΊΟΟ‚ Ξ¥Ο€ΞΏΞ»ΞΏΞ³ΞΉΟƒΟ„ΟΞ½ Ξ•.Ξ.Ξ .
   }}
 }
 \lowertitleback{%
   {\large Copyright \copyright\ \ \@author, \date@year.\\
 \if@greek
-  Με επιφύλαξη παντός δικαιώματος.  All rights reserved.\\[12pt]
+  ΞΞµ ΞµΟ€ΞΉΟ†ΟΞ»Ξ±ΞΎΞ· Ο€Ξ±Ξ½Ο„ΟΟ‚ Ξ΄ΞΉΞΊΞ±ΞΉΟΞΌΞ±Ο„ΞΏΟ‚.  All rights reserved.\\[12pt]
 \else
   All rights reserved.\\[12pt]
 \fi
   }
 \if@greek
-  Απαγορεύεται η αντιγραφή, αποθήκευση και διανομή της παρούσας
-  εργασίας, εξ ολοκλήρου ή τμήματος αυτής, για εμπορικό σκοπό.
-  Επιτρέπεται η ανατύπωση, αποθήκευση και διανομή για σκοπό μη
-  κερδοσκοπικό, εκπαιδευτικής ή ερευνητικής φύσης, υπό την προϋπόθεση
-  να αναφέρεται η πηγή προέλευσης και να διατηρείται το παρόν μήνυμα.
-  Ερωτήματα που αφορούν τη χρήση της εργασίας για κερδοσκοπικό σκοπό
-  πρέπει να απευθύνονται προς τον συγγραφέα.
+  Ξ‘Ο€Ξ±Ξ³ΞΏΟΞµΟΞµΟ„Ξ±ΞΉ Ξ· Ξ±Ξ½Ο„ΞΉΞ³ΟΞ±Ο†Ξ®, Ξ±Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· ΞΊΞ±ΞΉ Ξ΄ΞΉΞ±Ξ½ΞΏΞΌΞ® Ο„Ξ·Ο‚ Ο€Ξ±ΟΞΏΟΟƒΞ±Ο‚
+  ΞµΟΞ³Ξ±ΟƒΞ―Ξ±Ο‚, ΞµΞΎ ΞΏΞ»ΞΏΞΊΞ»Ξ®ΟΞΏΟ… Ξ® Ο„ΞΌΞ®ΞΌΞ±Ο„ΞΏΟ‚ Ξ±Ο…Ο„Ξ®Ο‚, Ξ³ΞΉΞ± ΞµΞΌΟ€ΞΏΟΞΉΞΊΟ ΟƒΞΊΞΏΟ€Ο.
+  Ξ•Ο€ΞΉΟ„ΟΞ­Ο€ΞµΟ„Ξ±ΞΉ Ξ· Ξ±Ξ½Ξ±Ο„ΟΟ€Ο‰ΟƒΞ·, Ξ±Ο€ΞΏΞΈΞ®ΞΊΞµΟ…ΟƒΞ· ΞΊΞ±ΞΉ Ξ΄ΞΉΞ±Ξ½ΞΏΞΌΞ® Ξ³ΞΉΞ± ΟƒΞΊΞΏΟ€Ο ΞΌΞ·
+  ΞΊΞµΟΞ΄ΞΏΟƒΞΊΞΏΟ€ΞΉΞΊΟ, ΞµΞΊΟ€Ξ±ΞΉΞ΄ΞµΟ…Ο„ΞΉΞΊΞ®Ο‚ Ξ® ΞµΟΞµΟ…Ξ½Ξ·Ο„ΞΉΞΊΞ®Ο‚ Ο†ΟΟƒΞ·Ο‚, Ο…Ο€Ο Ο„Ξ·Ξ½ Ο€ΟΞΏΟ‹Ο€ΟΞΈΞµΟƒΞ·
+  Ξ½Ξ± Ξ±Ξ½Ξ±Ο†Ξ­ΟΞµΟ„Ξ±ΞΉ Ξ· Ο€Ξ·Ξ³Ξ® Ο€ΟΞΏΞ­Ξ»ΞµΟ…ΟƒΞ·Ο‚ ΞΊΞ±ΞΉ Ξ½Ξ± Ξ΄ΞΉΞ±Ο„Ξ·ΟΞµΞ―Ο„Ξ±ΞΉ Ο„ΞΏ Ο€Ξ±ΟΟΞ½ ΞΌΞ®Ξ½Ο…ΞΌΞ±.
+  Ξ•ΟΟ‰Ο„Ξ®ΞΌΞ±Ο„Ξ± Ο€ΞΏΟ… Ξ±Ο†ΞΏΟΞΏΟΞ½ Ο„Ξ· Ο‡ΟΞ®ΟƒΞ· Ο„Ξ·Ο‚ ΞµΟΞ³Ξ±ΟƒΞ―Ξ±Ο‚ Ξ³ΞΉΞ± ΞΊΞµΟΞ΄ΞΏΟƒΞΊΞΏΟ€ΞΉΞΊΟ ΟƒΞΊΞΏΟ€Ο
+  Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ± Ξ±Ο€ΞµΟ…ΞΈΟΞ½ΞΏΞ½Ο„Ξ±ΞΉ Ο€ΟΞΏΟ‚ Ο„ΞΏΞ½ ΟƒΟ…Ξ³Ξ³ΟΞ±Ο†Ξ­Ξ±.
 \medskip\par
-  Οι απόψεις και τα συμπεράσματα που περιέχονται σε αυτό το
-  έγγραφο εκφράζουν \@author@accusative{} και δεν πρέπει να
-  ερμηνευθεί ότι αντιπροσωπεύουν τις επίσημες θέσεις του
-  Εθνικού Μετσόβιου Πολυτεχνείου.
+  ΞΞΉ Ξ±Ο€ΟΟΞµΞΉΟ‚ ΞΊΞ±ΞΉ Ο„Ξ± ΟƒΟ…ΞΌΟ€ΞµΟΞ¬ΟƒΞΌΞ±Ο„Ξ± Ο€ΞΏΟ… Ο€ΞµΟΞΉΞ­Ο‡ΞΏΞ½Ο„Ξ±ΞΉ ΟƒΞµ Ξ±Ο…Ο„Ο Ο„ΞΏ
+  Ξ­Ξ³Ξ³ΟΞ±Ο†ΞΏ ΞµΞΊΟ†ΟΞ¬Ξ¶ΞΏΟ…Ξ½ \@author@accusative{} ΞΊΞ±ΞΉ Ξ΄ΞµΞ½ Ο€ΟΞ­Ο€ΞµΞΉ Ξ½Ξ±
+  ΞµΟΞΌΞ·Ξ½ΞµΟ…ΞΈΞµΞ― ΟΟ„ΞΉ Ξ±Ξ½Ο„ΞΉΟ€ΟΞΏΟƒΟ‰Ο€ΞµΟΞΏΟ…Ξ½ Ο„ΞΉΟ‚ ΞµΟ€Ξ―ΟƒΞ·ΞΌΞµΟ‚ ΞΈΞ­ΟƒΞµΞΉΟ‚ Ο„ΞΏΟ…
+  Ξ•ΞΈΞ½ΞΉΞΊΞΏΟ ΞΞµΟ„ΟƒΟΞ²ΞΉΞΏΟ… Ξ ΞΏΞ»Ο…Ο„ΞµΟ‡Ξ½ΞµΞ―ΞΏΟ….
 \else
   This work is copyright and may not be reproduced, stored nor
   distributed in whole or in part for commercial purposes.  Permission
