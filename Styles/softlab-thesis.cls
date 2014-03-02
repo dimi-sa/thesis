@@ -12,7 +12,7 @@
 %                School of Electrical and Computer Engineering,
 %                National Technical University of Athens.
 %
-% Notes        : This package is based on `thesis.cls', written by 
+%  Notes       : This package is based on `thesis.cls', written by 
 %                Wenzel Matiaske (mati1831@perform.ww.tu-berlin.de)
 %                Copyright (C) 1991, 1996.  Version 1.0g (1996/25/01).
 %                Revised in July 2003, to adhere to NTUA's ECE library
@@ -266,7 +266,7 @@
 %\RequirePackage{xunicode}
 %\RequirePackage{xltxtra}
 \defaultfontfeatures{Mapping=tex-text}
-%\usepackage{xgreek}
+%\RequirePackage[english]{babel}
 \RequirePackage{xgreek}
 
 % XeLaTeX fonts
@@ -281,18 +281,22 @@
 % roman font
 \zf@fontspec{}{Times New Roman}
 \let\rmdefault\zf@family
-\deffontfamily\fontminion
+\deffontfamily\fontroman
 \normalfont
 
 % sans serif font
 \zf@fontspec{Scale=MatchLowercase}{Arial}
 \let\sfdefault\zf@family
-\deffontfamily\fontmghelvlight
+\deffontfamily\fontsans
 
-% typewritter font
-\zf@fontspec{Scale=MatchLowercase}{Courier New}
+% typewriter font
+\zf@fontspec{Scale=MatchLowercase}{Liberation Mono}
+%\zf@fontspec{Scale=MatchLowercase}{DejaVu Sans Mono}
+%\zf@fontspec{Scale=MatchLowercase}{Lucida Sans Typewriter}
+%\zf@fontspec{Scale=MatchLowercase}{Free Monospaced}
+%\zf@fontspec{Scale=MatchLowercase}{Bitstream Vera Sans Mono}
 \let\ttdefault\zf@family
-\deffontfamily\fontumtt
+\deffontfamily\fonttypewriter
 
 % Headings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -402,7 +406,9 @@
 \def\@lowertitleback{}   \long\def\lowertitleback#1{\def\@lowertitleback{#1}}
 \def\@date@defense{}     \def\datedefense#1#2#3{%
                            \gdef\@date@defense{#1η\ \@date@month@gen[#2]\ #3}%
+                           \gdef\@date@defenseen{\@date@month[#2]\ #1,\ #3}%
                            \gdef\@date{\@date@month@nom[#2]\ #3}%
+                           \gdef\@dateen{\@date@month[#2]\ #3}%
                            \gdef\@date@year{#3}%
                          }
                          \def\url#1{\gdef\@url{\texttt{#1}}}
@@ -412,11 +418,16 @@
 
 \def\new@tpage{\newpage\thispagestyle{empty}\null}
 
+\def\authoren#1{\gdef\@authoren{#1}}
 \def\@author@and{\end{tabular}\hskip 1em plus.17fil
   \begin{tabular}[t]{@{}l@{}}}
 \def\@committeemembers@and{\\ &}
 \let\and\relax
 
+\newcommand\@date@month[1][\month]{%
+  \ifcase#1\or January\or February\or March\or April\or
+    May\or June\or July\or August\or
+     September\or October\or November\or December\fi}
 \newcommand\@date@month@nom[1][\month]{%
   \ifcase#1\or Ιανουάριος\or Φεβρουάριος\or Μάρτιος\or Απρίλιος\or
     Μάιος\or Ιούνιος\or Ιούλιος\or Αύγουστος\or
@@ -615,14 +626,17 @@
   \let\maketitle\relax%
 }
 \def\abstractgr{%
+  \setlanguage{monogreek}%
   \chapter*{\abstractnamegr\@mkboth{\abstractnamegr}{\abstractnamegr}}%
   \addcontentsline{toc}{chapter}{\abstractnamegr}%
-  \noindent}
+  \noindent\ignorespaces}
 \def\endabstractgr{\par\vfil\null}
 \def\abstracten{%
+  %\selectlanguage{english}%
+  \setlanguage{english}%
   \chapter*{\abstractnameen\@mkboth{\abstractnameen}{\abstractnameen}}%
   \addcontentsline{toc}{chapter}{\abstractnameen}%
-  \noindent}
+  \noindent\ignorespaces}
 \def\endabstracten{\par\vfil\null}
 
 % Sectioning
@@ -1189,20 +1203,15 @@
 \def\appendixname{Παράρτημα}
 \def\partname{Μέρος}
 \def\abstractname{Περίληψη}
-\def\abstractnamegr{Περίληψη}
-\def\abstractnameen{Abstract}
 \def\draftname{Προσχέδιο}
 \def\prefacename{Πρόλογος}
-\def\keywordsnamegr{Λέξεις κλειδιά}
-\def\keywordsnameen{Key words}
-\def\acknowledgementsname{Ευχαριστίες}
 \def\committeename{Συμβουλευτική επιτροπή}
 \def\supervisorname{Επιβλέπων}
 \def\committeemembersname{Μέλη}
 \def\pagesname{Σελίδες}
 \def\urlname{URL}
 \def\ftpname{FTP}
-\renewcommand{\today}{\number\day\space \ifcase\month\or
+\def\today{\number\day\space \ifcase\month\or
   Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or Απριλίου\or
   Μαΐου\or Ιουνίου\or Ιουλίου\or Αυγούστου\or
   Σεπτεμβρίου\or Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi
@@ -1223,19 +1232,24 @@
 \def\draftname{Preliminary draft}
 \def\prefacename{Preface}
 \def\keywordsname{Keywords}
-\def\acknowledgementsname{Acknowledgements}
 \def\committeename{Counselling committee}
 \def\supervisorname{Supervisor}
 \def\committeemembersname{Members}
 \def\pagesname{Pages}
 \def\urlname{URL}
 \def\ftpname{FTP}
-\renewcommand{\today}{\ifcase\month\or
+\def\today{\ifcase\month\or
   January\or February\or March\or April\or
   May\or June\or July\or August\or September\or
   October\or November\or December\fi
   \space\number\day, \number\year}
 \fi
+\def\abstractnamegr{Περίληψη}
+\def\abstractnameen{Abstract}
+\def\keywordsnamegr{Λέξεις κλειδιά}
+\def\keywordsnameen{Key words}
+\def\acknowledgementsnamegr{Ευχαριστίες}
+\def\acknowledgementsnameen{Acknowledgements}
 \chapapp{\chaptername}                   % Print ``Chapter'' (?)
 \def\figureshortname{\figurename}        % I don't like short names
 \def\tableshortname{\tablename}
@@ -1318,9 +1332,10 @@
   \footnotetext{#1}%
   \let\@makefntext\@tmp@makefntext%
 }
-\newenvironment{acknowledgements}{%
-  \chapter*{\acknowledgementsname}%
-  \addcontentsline{toc}{chapter}{\acknowledgementsname}%
+\newenvironment{acknowledgementsgr}{%
+  \setlanguage{monogreek}%
+  \chapter*{\acknowledgementsnamegr}%
+  \addcontentsline{toc}{chapter}{\acknowledgementsnamegr}%
   \begingroup%
   \let\footnoterule\relax%
 }{%
@@ -1334,6 +1349,33 @@
     Μηχανικών και Μηχανικών Υπολογιστών, Τομέας Τεχνολογίας
     Πληροφορικής και Υπολογιστών, Εργαστήριο Τεχνολογίας
     Λογισμικού, \@date.
+    \\[6pt]
+    \begin{tabular}{@{}ll@{}}
+    URL: & \texttt{http://www.softlab.ntua.gr/techrep/} \\
+    FTP: & \texttt{ftp://ftp.softlab.ntua.gr/pub/techrep/}
+    \end{tabular}
+  }
+  \newpage%
+  \endgroup%
+}
+\newenvironment{acknowledgementsen}{%
+  %\selectlanguage{english}%
+  \setlanguage{english}%
+  \chapter*{\acknowledgementsnameen}%
+  \addcontentsline{toc}{chapter}{\acknowledgementsnameen}%
+  \begingroup%
+  \let\footnoterule\relax%
+}{%
+  \begin{flushright}
+    \@authoren, \\[6pt]
+    Athens, \@date@defenseen
+  \end{flushright}
+  \footacknowledgement{%
+    This thesis is also available as Technical Report \@TRnumber,
+    National Technical University of Athens,
+    School of Electrical and Computer Engineering,
+    Department of Computer Science,
+    Software Engineering Laboratory, \@dateen.
     \\[6pt]
     \begin{tabular}{@{}ll@{}}
     URL: & \texttt{http://www.softlab.ntua.gr/techrep/} \\
