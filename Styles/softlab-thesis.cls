@@ -22,8 +22,8 @@
 % Package information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\filename{softlab-thesis}
-\def\fileversion{1.2a}
-\def\filedate{2008/12/17}
+\def\fileversion{1.3a}
+\def\filedate{2010/10/26}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{softlab-thesis}[\filedate\space\fileversion\space%
        LaTeX document class (nsp).]
@@ -239,7 +239,7 @@
   \setlength\parskip{0.5\baselineskip
          \@plus.1\baselineskip \@minus.1\baselineskip}
   \setlength\parindent{\z@}
- \def\noparskip{\par\vspace{-\parskip}}
+  \def\noparskip{\par\vspace{-\parskip}}
 \else
   \setlength\parskip{0\p@ \@plus 1\p@}
   \let\noparskip\relax
@@ -260,15 +260,14 @@
 \def\e@skip{\h@font{\phantom{y}}}
 
 % Required packages
-% (cannot be very early)
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \RequirePackage{graphicx}
-\RequirePackage{dates}
 \RequirePackage[cm-default]{fontspec}
 %\RequirePackage{xunicode}
 %\RequirePackage{xltxtra}
 \defaultfontfeatures{Mapping=tex-text}
-\RequirePackage{Styles/xgreek}
+%\usepackage{xgreek}
+\RequirePackage{xgreek}
 
 % XeLaTeX fonts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -292,8 +291,6 @@
 
 % typewritter font
 \zf@fontspec{Scale=MatchLowercase}{Courier New}
-\let\cmtt\ttdefault
-\def\cmttfamily{\fontfamily{\cmtt}}
 \let\ttdefault\zf@family
 \deffontfamily\fontumtt
 
@@ -403,9 +400,13 @@
 \def\@uppertitleback{}   \long\def\uppertitleback#1{\def\@uppertitleback{#1}}
 \def\@middletitleback{}  \long\def\middletitleback#1{\def\@middletitleback{#1}}
 \def\@lowertitleback{}   \long\def\lowertitleback#1{\def\@lowertitleback{#1}}
-\def\@date@defense{}     \def\datedefense#1{\gdef\@date@defense{#1}}
+\def\@date@defense{}     \def\datedefense#1#2#3{%
+                           \gdef\@date@defense{#1η\ \@date@month@gen[#2]\ #3}%
+                           \gdef\@date{\@date@month@nom[#2]\ #3}%
+                           \gdef\@date@year{#3}%
+                         }
                          \def\url#1{\gdef\@url{\texttt{#1}}}
-                         \def\TRnumber#1{\gdef\@TRnumber{#1}}
+\def\@TRnumber{}         \def\TRnumber#1{\gdef\@TRnumber{#1}}
 \def\@trurl{}            \def\trurl#1{\gdef\@trurl{\texttt{#1}}}
 \def\@trftp{}            \def\trftp#1{\gdef\@trftp{\texttt{#1}}}
 
@@ -415,6 +416,15 @@
   \begin{tabular}[t]{@{}l@{}}}
 \def\@committeemembers@and{\\ &}
 \let\and\relax
+
+\newcommand\@date@month@nom[1][\month]{%
+  \ifcase#1\or Ιανουάριος\or Φεβρουάριος\or Μάρτιος\or Απρίλιος\or
+    Μάιος\or Ιούνιος\or Ιούλιος\or Αύγουστος\or
+     Σεπτέμβριος\or Οκτώβριος\or Νοέμβριος\or Δεκέμβριος\fi}
+\newcommand\@date@month@gen[1][\month]{%
+  \ifcase#1\or Ιανουαρίου\or Φεβρουαρίου\or Μαρτίου\or Απριλίου\or
+    Μαΐου\or Ιουνίου\or Ιουλίου\or Αυγούστου\or
+     Σεπτεμβρίου\or Οκτωβρίου\or Νοεμβρίου\or Δεκεμβρίου\fi}
 
 \def\maketitle{%
   \begingroup
@@ -433,7 +443,7 @@
 %
   \noindent
   \begin{minipage}{4.0cm}
-  \includegraphics[height=3.5cm]{Styles/pyrforos}%
+  \includegraphics[height=3.5cm]{pyrforos}%
   \end{minipage}
   \begin{minipage}{11.0cm}
   \raggedright%
@@ -498,7 +508,7 @@
 %
   \noindent%
   \begin{minipage}{4.0cm}
-  \includegraphics[height=3.5cm]{Styles/pyrforos}%
+  \includegraphics[height=3.5cm]{pyrforos}%
   \end{minipage}
   \begin{minipage}{11.0cm}
   \raggedright%
@@ -600,14 +610,9 @@
 %
   \def\thefootnote{\arabic{footnote}}
   \setcounter{footnote}{0}
-  \gdef\@thanks{}\gdef\@author{}\gdef\@translator{}\gdef\@institution{}%
-  \gdef\@date@defense{}\gdef\@school{}\gdef\@department{}%
-  \gdef\@supervisor{}\gdef\@supervisor@pos{}%
-  \gdef\@committee@one{}\gdef\@committee@one@pos{}%
-  \gdef\@committee@two{}\gdef\@committee@two@pos{}%
-  \gdef\@committee@three{}\gdef\@committee@three@pos{}%
+  \gdef\@thanks{}%
   \gdef\@uppertitleback{}\gdef\@lowertitleback{}\gdef\@dedication{}%
-  \gdef\@title{}\gdef\@subtitle{}\let\maketitle\relax%
+  \let\maketitle\relax%
 }
 \def\abstractgr{%
   \chapter*{\abstractnamegr\@mkboth{\abstractnamegr}{\abstractnamegr}}%
@@ -1319,6 +1324,22 @@
   \begingroup%
   \let\footnoterule\relax%
 }{%
+  \begin{flushright}
+    \@author, \\[6pt]
+    Αθήνα, \@date@defense
+  \end{flushright}
+  \footacknowledgement{%
+    Η εργασία αυτή είναι επίσης διαθέσιμη ως Τεχνική Αναφορά
+    \@TRnumber, Εθνικό Μετσόβιο Πολυτεχνείο, Σχολή Ηλεκτρολόγων
+    Μηχανικών και Μηχανικών Υπολογιστών, Τομέας Τεχνολογίας
+    Πληροφορικής και Υπολογιστών, Εργαστήριο Τεχνολογίας
+    Λογισμικού, \@date.
+    \\[6pt]
+    \begin{tabular}{@{}ll@{}}
+    URL: & \texttt{http://www.softlab.ntua.gr/techrep/} \\
+    FTP: & \texttt{ftp://ftp.softlab.ntua.gr/pub/techrep/}
+    \end{tabular}
+  }
   \newpage%
   \endgroup%
 }
@@ -1347,11 +1368,6 @@
    % This typesets footnotes always at the very bottom of the page
 \renewcommand\footnoterule{\vfill\kern-3\p@%
   \hrule width .4\columnwidth\kern 2.6\p@}
-
-% Macros for dates
-%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\def\aux@date@year{\dateread{\theyear}}
-\newcommand\date@year[1][\date]{\expandafter\aux@date@year #1 {}\relax{}}
 
 % Macros for signatures
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1386,7 +1402,7 @@
   }}
 }
 \lowertitleback{%
-  {\large Copyright \copyright\ \ \@author, \date@year.\\
+  {\large Copyright \copyright\ \ \@author, \@date@year.\\
 \if@greek
   Με επιφύλαξη παντός δικαιώματος.  All rights reserved.\\[12pt]
 \else
