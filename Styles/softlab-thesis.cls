@@ -22,8 +22,8 @@
 % Package information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\filename{softlab-thesis}
-\def\fileversion{1.3a}
-\def\filedate{2010/10/26}
+\def\fileversion{1.4a}
+\def\filedate{2011/08/19}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{softlab-thesis}[\filedate\space\fileversion\space%
        LaTeX document class (nsp).]
@@ -67,7 +67,7 @@
 \DeclareOption{english}{\@greekfalse}
 \newcount\c@type
 \DeclareOption{diploma}{\c@type=1}
-\DeclareOption{master}{\c@type=2}
+\DeclareOption{mpla}{\c@type=2}
 \DeclareOption{dissertation}{\c@type=3}
 \newcount\hours \newcount\minutes
 \def\SetTime{\hours=\time
@@ -78,7 +78,7 @@
         \global\multiply\minutes by-1 }
 \def\now{\number\hours:\ifnum\minutes<10 0\fi\number\minutes}
 \newif\iffinal \finaltrue
-\DeclareOption{draft}{\setlength\overfullrule{5pt}\finalfalse \SetTime}
+\DeclareOption{preliminary}{\setlength\overfullrule{5pt}\finalfalse \SetTime}
 \DeclareOption{final}{\setlength\overfullrule{0pt}\finaltrue}
 \newif\if@crosshair       \@crosshairfalse
 \DeclareOption{crosshair}{\@crosshairtrue}
@@ -224,7 +224,7 @@
 
 \ifnum\c@type=0
   \ClassError{softlab-thesis}{Undefined type of thesis}{%
-    Please, give one of the options: diploma, master, dissertation%
+    Please, give one of the options: diploma, mpla, dissertation%
   }
 \fi
 
@@ -351,11 +351,13 @@
     \def\@oddhead{\vbox{\hsize=\textwidth
       \hbox to \textwidth{%
       \hfill{\pn@font\today,\ \now\ ---
-      {\h@font \draftname: ``\jobname''}}\if@center\hfill\fi}}}%
+      {\h@font \draftname: ``\jobname''}}\if@center\hfill\fi}%
+       \vskip 2pt\hrule}}%
     \def\@evenhead{\vbox{\hsize=\textwidth
        \hbox to \textwidth{%
        \if@center\hfill\fi{\pn@font{\h@font \draftname: ``\jobname''} ---
-       \today,\ \now}\hfill}}}%
+       \today,\ \now}\hfill}%
+       \vskip 2pt\hrule}}%
     \let\@mkboth\@gobbletwo
     \let\chaptermark\@gobble
     \let\sectionmark\@gobble
@@ -384,7 +386,14 @@
 \def\@committee@three@pos{}\def\committeethreepos#1{\gdef\@committee@three@pos{#1}}
 \def\@subtitle{}         \def\subtitle#1{\gdef\@subtitle{#1}}
 \def\@thesistype{}       \def\thesistype#1{\gdef\@thesistype{#1}}
+\if@greek
 \def\@institution{}      \def\institution#1{\gdef\@institution{#1}}
+\def\@institutiongen{}   \def\institutiongen#1{\gdef\@institutiongen{#1}}
+\else
+\def\@institution{}      \def\institution#1{\gdef\@institution{#1}
+                                            \gdef\@institutiongen{#1}}
+\def\@institutiongen{}
+\fi
 \def\@school{}           \def\school#1{\gdef\@school{#1}}
 \def\@department{}       \def\department#1{\gdef\@department{#1}}
 \def\@dedication{}       \def\dedication#1{\def\@dedication{#1}}
@@ -405,11 +414,38 @@
 
 \def\new@tpage{\newpage\thispagestyle{empty}\null}
 
+\def\authorsig#1{\gdef\@authorsig{#1}}
+\if@greek
+  \ifcase\c@type
+  \or\authorsig{Διπλωματούχος Ηλεκτρολόγος Μηχανικός
+                και Μηχανικός Υπολογιστών Ε.Μ.Π.}
+  \or\authorsig{}
+  \or\authorsig{Διδάκτωρ Πληροφορικής Ε.Μ.Π.}
+  \fi
+\else
+  \ifcase\c@type
+  \or\authorsig{Electrical and Computer Engineer}
+  \or\authorsig{}
+  \or\authorsig{Dr.\ Computer Egineer}
+  \fi
+\fi
+
 \def\authoren#1{\gdef\@authoren{#1}}
 \def\@author@and{\end{tabular}\hskip 1em plus.17fil
   \begin{tabular}[t]{@{}l@{}}}
 \def\@committeemembers@and{\\ &}
 \let\and\relax
+
+\if@greek
+  \def\@location{Αθήνα}
+\else
+  \def\@location{Athens}
+  \let\old@author\author
+  \def\author#1{\old@author{#1}\authoren{#1}}
+\fi
+
+\def\@locationen{Athens}
+\def\@locationgr{Αθήνα}
 
 \newcommand\@date@month[1][\month]{%
   \ifcase#1\or January\or February\or March\or April\or
@@ -440,6 +476,16 @@
   \new@tpage
 %
   \noindent
+  \ifnum\c@type=2
+  \begin{center}
+  \renewcommand\baselinestretch{1.2}\normalsize%
+  {\in@font\@institution} \\
+  {\sc@font\@school} \\[3pt]
+  {\dp@font\@department}
+  \vfill
+  \includegraphics[height=3.5cm]{mpla}%
+  \end{center}  
+  \else%
   \begin{minipage}{4.0cm}
   \includegraphics[height=3.5cm]{pyrforos}%
   \end{minipage}
@@ -450,6 +496,7 @@
   {\sc@font\@school} \\[3pt]
   {\dp@font\@department}
   \end{minipage}
+  \fi
 %
   \vfill
 %
@@ -475,7 +522,11 @@
   \let\and\@author@and%                           
   {\a@font%
   \begin{tabular}[t]{@{}l@{}}%
+  \if@greek
   \uppercase\expandafter{\@author}%
+  \else
+  \uppercase\expandafter{\@authoren}%
+  \fi
   \end{tabular}}%
   \let\and\old@and%
   \end{center}
@@ -492,9 +543,11 @@
   \vfill
 %
   \begin{center}
-  {\st@font Αθήνα, \@date}
+  {\st@font \@location, \if@greek\@date\else\@dateen\fi}
   \end{center}
 %
+\ifcase\c@type
+\or%%%%%%%%%%%%%%%%%%%%%% Diploma Project %%%%%%%%%%%%%%%%%%%%%%
   \cleardoublepage
   \newpage
   \thispagestyle{empty}%
@@ -557,7 +610,11 @@
   \vspace{1.0cm}\par
 %
   \noindent
+  \if@greek
   Εγκρίθηκε από την τριμελή εξεταστική επιτροπή την \@date@defense.
+  \else
+  Approved by the examining committee on the \@date@defenseen.
+  \fi
   }
 %
   \vspace{1.5cm}\par
@@ -582,9 +639,58 @@
   \vfill
 %
   \begin{center}
-  {\st@font Αθήνα, \@date}
+  {\st@font \@location, \if@greek\@date\else\@dateen\fi}
   \end{center}
+\or%%%%%%%%%%%%%%%%%%%%%% μΠλ∀ M.Sc. thesis %%%%%%%%%%%%%%%%%%%%%%
+  \cleardoublepage
+  \newpage
+  \thispagestyle{empty}%
 %
+  \let\footnotesize\small
+  \let\footnoterule\relax
+  \def\thefootnote{\fnsymbol{footnote}}
+  \new@tpage
+%
+  \vfill
+%
+  \begin{center}
+  \renewcommand\baselinestretch{1.5}\large%
+  Η παρούσα Διπλωματική Εργασία \\
+  εκπονήθηκε στα πλαίσια των σπουδών \\
+  για την απόκτηση του
+  \textbf{Μεταπτυχιακού Διπλώματος Ειδίκευσης} \\
+  στη \\
+  \textbf{Λογική και Θεωρία Αλγορίθμων και Υπολογισμού} \\
+  που απονέμει το \\
+  \textbf{Τμήμα Μαθηματικών} \\
+  του \\
+  \textbf{Εθνικού και Καποδιστριακού Πανεπιστημίου Αθηνών}
+  \end{center}  
+%
+  \vfill
+%
+  \noindent
+  Εγκρίθηκε την \@date@defense{} από Εξεταστική Επιτροπή
+  αποτελούμενη από τους:
+%
+  \vspace{2cm}\par
+%
+  \noindent
+  \begin{tabular}{@{}rl@{\hspace{1cm}}l@{\hspace{1cm}}c@{}}
+       & \textbf{Ονοματεπώνυμο} & \textbf{Βαθμίδα}
+       & \textbf{Υπογραφή} \\[1.5cm]
+    1. & \@committee@one & \@committee@one@pos
+       & \makebox[40mm]{\tiny\dotfill} \\[1.5cm]
+    2. & \@committee@two & \@committee@two@pos
+       & \makebox[40mm]{\tiny\dotfill} \\[1.5cm]
+    3. & \@committee@three & \@committee@three@pos
+       & \makebox[40mm]{\tiny\dotfill}
+  \end{tabular}
+%
+  \vfill
+
+%
+\fi
   \if@twoside\new@tpage
   \noindent\begin{minipage}[t]{\textwidth}
   \@uppertitleback
@@ -693,20 +799,20 @@
                 \newpage
               \fi}
 \newcommand{\chapter}{\if@openright\cleardoublepage\else\clearpage\fi
-                    %\thispagestyle{empty}
                     \global\@topnum\z@
                     \@afterindentfalse
                     \secdef\@chapter\@schapter}
 \def\@chapter[#1]#2{%
-    \ifnum \c@secnumdepth >\m@ne
-       \if@mainmatter
-          \refstepcounter{chapter}%
-          \typeout{\chaptername\space\thechapter.}
-          \addcontentsline{toc}{chapter}{%
-          \protect\numberline{\thechapter.}#1}%
-      \else
-        \addcontentsline{toc}{chapter}{#1}
-      \fi
+   \ifnum \c@secnumdepth >\m@ne
+      \if@mainmatter\else%
+         \ifnum \c@chapter = 0%
+            \addcontentsline{toc}{part}{\appendixname}%
+         \fi
+      \fi%
+      \refstepcounter{chapter}%
+      \typeout{\chaptername\space\thechapter.}
+      \addcontentsline{toc}{chapter}{%
+         \protect\numberline{\thechapter.}#1}%
    \else
       \addcontentsline{toc}{chapter}{#1}
    \fi
@@ -747,10 +853,8 @@
   \else
     \raggedright
     \ifnum \c@secnumdepth >\m@ne
-      \if@mainmatter
-         {\s@font \@chapapp{} \thechapter}
-         \par \vskip 15\p@
-      \fi
+       {\s@font \@chapapp{} \thechapter}
+       \par \vskip 15\p@
     \fi
     {\c@font
     \if@upper
@@ -798,11 +902,11 @@
 \newcommand\appendix{\par
   \setcounter{chapter}{0}%
   \setcounter{section}{0}%
-  \ifx\@chapapp\@empty
-    \def\@addappendixtocontents{\addcontentsline{toc}{part}{\appendixname}}
+  \ifx\@chapapp\@empty%
+    \def\@addappendixtocontents{\addcontentsline{toc}{part}{\appendixname}}%
     \part*{\appendixname\@mkboth{\appendixname}{\appendixname}%%
            \@addappendixtocontents}
-  \else
+  \else%
     \renewcommand{\@chapapp}{\appendixname}%
   \fi
   \renewcommand{\thechapter}{\Alph{chapter}}}
@@ -1236,7 +1340,7 @@
 \def\keywordsnameen{Key words}
 \def\acknowledgementsnamegr{Ευχαριστίες}
 \def\acknowledgementsnameen{Acknowledgements}
-\chapapp{\chaptername}                   % Print ``Chapter'' (?)
+\chapapp{\chaptername}                   % Print ``Chapter''
 \def\figureshortname{\figurename}        % I don't like short names
 \def\tableshortname{\tablename}
 
@@ -1324,10 +1428,11 @@
   \addcontentsline{toc}{chapter}{\acknowledgementsnamegr}%
   \begingroup%
   \let\footnoterule\relax%
+  \noindent\ignorespaces%
 }{%
   \begin{flushright}
     \@author, \\[6pt]
-    Αθήνα, \@date@defense
+    \@locationgr, \@date@defense
   \end{flushright}
   \footacknowledgement{%
     Η εργασία αυτή είναι επίσης διαθέσιμη ως Τεχνική Αναφορά
@@ -1350,10 +1455,11 @@
   \addcontentsline{toc}{chapter}{\acknowledgementsnameen}%
   \begingroup%
   \let\footnoterule\relax%
+  \noindent\ignorespaces%
 }{%
   \begin{flushright}
     \@authoren, \\[6pt]
-    Athens, \@date@defenseen
+    \@locationen, \@date@defenseen
   \end{flushright}
   \footacknowledgement{%
     This thesis is also available as Technical Report \@TRnumber,
@@ -1406,15 +1512,33 @@
 \def\@author@accusative{τον συγγραφέα}
 
 \if@greek
-\thesistype{Διπλωματική Εργασία}
 \institution{Εθνικό Μετσόβιο Πολυτεχνείο}
+\institutiongen{Εθνικού Μετσόβιου Πολυτεχνείου}
 \school{Σχολή Ηλεκτρολόγων Μηχανικών \\ και Μηχανικών Υπολογιστών}
 \department{Τομέας Τεχνολογίας Πληροφορικής \\ και Υπολογιστών}
+\ifcase\c@type
+  \or\thesistype{Διπλωματική Εργασία}
+  \or\thesistype{Μεταπτυχιακή Διπλωματική Εργασία}
+     \institution{Εθνικό και Καποδιστριακό Πανεπιστήμιο Αθηνών}
+     \institutiongen{Εθνικού και Καποδιστριακού Πανεπιστημίου Αθηνών}
+     \school{Τμήμα Μαθηματικών}
+     \department{Μεταπτυχιακό Πρόγραμμα στη Λογική και Θεωρία Αλγορίθμων \\
+       και Υπολογισμού}
+  \or\thesistype{Διδακτορική Διατριβή}
+\fi
 \else
-\thesistype{Diploma Project}
 \institution{National Technical University of Athens}
 \school{School of Electrical and Computer Engineering}
 \department{Department of Computer Science}
+\ifcase\c@type
+  \or\thesistype{Diploma Project}
+  \or\thesistype{M.Sc. Thesis}
+     \institution{National and Kapodistrian University of Athens}
+     \school{Department of Mathematics}
+     \department{Graduate Program in Logic and Theory of 
+       Algorithms and Computation}
+  \or\thesistype{Doctoral Dissertation}
+\fi
 \fi
 \trurl{http://www.softlab.ntua.gr/techrep/}
 \trftp{ftp://ftp.softlab.ntua.gr/pub/techrep/}
@@ -1423,19 +1547,22 @@
   \vspace*{4cm}%
   {\large%
   \signature[6pt]{%
-    \textbf{\uppercase{\@author}}
+    \textbf{\uppercase{\if@greek\@author\else\@authoren\fi}}
   }{%
-    Διπλωματούχος Ηλεκτρολόγος Μηχανικός και Μηχανικός Υπολογιστών Ε.Μ.Π.
+    \@authorsig
   }}
 }
 \lowertitleback{%
-  {\large Copyright \copyright\ \ \@author, \@date@year.\\
+  {\large
 \if@greek
+  Copyright \copyright\ \ \@author, \@date@year.\\
   Με επιφύλαξη παντός δικαιώματος.  All rights reserved.\\[12pt]
 \else
+  Copyright \copyright\ \ \@authoren, \@date@year.\\
   All rights reserved.\\[12pt]
 \fi
   }
+
 \if@greek
   Απαγορεύεται η αντιγραφή, αποθήκευση και διανομή της παρούσας
   εργασίας, εξ ολοκλήρου ή τμήματος αυτής, για εμπορικό σκοπό.
@@ -1448,7 +1575,7 @@
   Οι απόψεις και τα συμπεράσματα που περιέχονται σε αυτό το
   έγγραφο εκφράζουν \@author@accusative{} και δεν πρέπει να
   ερμηνευθεί ότι αντιπροσωπεύουν τις επίσημες θέσεις του
-  Εθνικού Μετσόβιου Πολυτεχνείου.
+  \@institution@gen.
 \else
   This work is copyright and may not be reproduced, stored nor
   distributed in whole or in part for commercial purposes.  Permission
@@ -1459,8 +1586,7 @@
 \medskip\par
   The views and conclusions contained in this document are those
   of the author and should not be interpreted as representing the
-  official policies, either expressed or implied, of the National
-  Technical University of Athens.
+  official policies, either expressed or implied, of the \@institution.
 \fi
   \vspace*{2cm}
 }
