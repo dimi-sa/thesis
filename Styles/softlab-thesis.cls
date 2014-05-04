@@ -388,11 +388,11 @@
 \def\@thesistype{}       \def\thesistype#1{\gdef\@thesistype{#1}}
 \if@greek
 \def\@institution{}      \def\institution#1{\gdef\@institution{#1}}
-\def\@institutiongen{}   \def\institutiongen#1{\gdef\@institutiongen{#1}}
+\def\@institution@gen{}  \def\institutiongen#1{\gdef\@institution@gen{#1}}
 \else
 \def\@institution{}      \def\institution#1{\gdef\@institution{#1}
-                                            \gdef\@institutiongen{#1}}
-\def\@institutiongen{}
+                                            \gdef\@institution@gen{#1}}
+\def\@institution@gen{}
 \fi
 \def\@school{}           \def\school#1{\gdef\@school{#1}}
 \def\@department{}       \def\department#1{\gdef\@department{#1}}
