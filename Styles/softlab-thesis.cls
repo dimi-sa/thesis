@@ -262,28 +262,52 @@
 % Required packages
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \RequirePackage{graphicx}
-\RequirePackage[english]{babel}
 \RequirePackage{fontspec}
 \RequirePackage{xunicode}
 \RequirePackage{xltxtra}
 \defaultfontfeatures{Mapping=tex-text}
-\RequirePackage{xgreek}
 
 % XeLaTeX fonts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 % roman font
-\setmainfont{Times New Roman}
+\def\font@roman{Times New Roman}
+%\def\font@roman{Liberation Serif}
 
 % sans serif font
-\setsansfont[Scale=MatchLowercase]{Arial}
+\def\font@sans{Arial}
+%\def\font@sans{Liberation Sans}
 
 % typewriter font
-\setmonofont[Scale=MatchLowercase]{Liberation Mono}
-%\setmonofont[Scale=MatchLowercase]{DejaVu Sans Mono}
-%\setmonofont[Scale=MatchLowercase]{Lucida Sans Typewriter}
-%\setmonofont[Scale=MatchLowercase]{Free Monospaced}
-%\setmonofont[Scale=MatchLowercase]{Bitstream Vera Sans Mono}
+\def\font@tt{Liberation Mono}
+%\def\font@tt{DejaVu Sans Mono}
+%\def\font@tt{Lucida Sans Typewriter}
+%\def\font@tt{Free Monospaced}
+%\def\font@tt{Bitstream Vera Sans Mono}
+
+\setromanfont{\font@roman}
+\setsansfont[Scale=MatchLowercase]{\font@sans}
+\setmonofont[Scale=MatchLowercase]{\font@tt}
+
+
+% Polyglossia
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\RequirePackage{polyglossia}
+\if@greek
+\newfontfamily\greekfont{\font@roman}
+\newfontfamily\greekfontsf[Scale=MatchLowercase]{\font@sans}
+\newfontfamily\greekfonttt[Script=grek,Scale=MatchLowercase]{\font@tt}
+%\newfontfamily\greekfont{Times New Roman}
+%\newfontfamily\greekfont[Script=grek]{Liberation Serif}
+%\newfontfamily\greekfontsf[Scale=MatchLowercase]{Arial}
+%\newfontfamily\greekfontsf[Script=grek,Scale=MatchLowercase]{Liberation Sans}
+%\newfontfamily\greekfonttt[Script=grek,Scale=MatchLowercase]{Liberation Mono}
+\setdefaultlanguage[variant=mono,numerals=arabic]{greek}
+\setotherlanguage{english}
+\else
+\setdefaultlanguage{english}
+\fi
 
 % Headings
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -719,17 +743,23 @@
   \let\maketitle\relax%
 }
 \def\abstractgr{%
-  \setlanguage{monogreek}%
+  \begin{greek}%
   \chapter*{\abstractnamegr\@mkboth{\abstractnamegr}{\abstractnamegr}}%
   \addcontentsline{toc}{chapter}{\abstractnamegr}%
   \noindent\ignorespaces}
-\def\endabstractgr{\par\vfil\null}
+\def\endabstractgr{%
+  \par%
+  \end{greek}%
+  \vfil\null}
 \def\abstracten{%
-  \selectlanguage{english}%
+  \begin{english}%
   \chapter*{\abstractnameen\@mkboth{\abstractnameen}{\abstractnameen}}%
   \addcontentsline{toc}{chapter}{\abstractnameen}%
   \noindent\ignorespaces}
-\def\endabstracten{\par\vfil\null}
+\def\endabstracten{%
+  \par%
+  \end{english}%
+  \vfil\null}
 
 % Sectioning
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -810,7 +840,11 @@
          \fi
       \fi%
       \refstepcounter{chapter}%
-      \typeout{\chaptername\space\thechapter.}
+      \if@mainmatter%
+        \typeout{\chaptername\space\thechapter.}
+      \else%
+        \typeout{\appendixname\space\thechapter.}
+      \fi%
       \addcontentsline{toc}{chapter}{%
          \protect\numberline{\thechapter.}#1}%
    \else
@@ -907,9 +941,9 @@
     \part*{\appendixname\@mkboth{\appendixname}{\appendixname}%%
            \@addappendixtocontents}
   \else%
-    \renewcommand{\@chapapp}{\appendixname}%
+    \gdef\@chapapp{\appendixname}%
   \fi
-  \renewcommand{\thechapter}{\Alph{chapter}}}
+  \gdef\thechapter{\@Alph\c@chapter}}
 
 % Space lengths
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1411,8 +1445,10 @@
 
 % More environments
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\newenvironment{keywordsgr}{\section*{\keywordsnamegr}}{}
-\newenvironment{keywordsen}{\section*{\keywordsnameen}}{}
+\newenvironment{keywordsgr}{\section*{\keywordsnamegr}%
+  \noindent\ignorespaces}{}
+\newenvironment{keywordsen}{\section*{\keywordsnameen}%
+  \noindent\ignorespaces}{}
 \newcommand{\footacknowledgement}[1]{%
   \let\footnotesize\small%
   \let\@tmp@makefntext\@makefntext%
@@ -1423,7 +1459,7 @@
   \let\@makefntext\@tmp@makefntext%
 }
 \newenvironment{acknowledgementsgr}{%
-  \setlanguage{monogreek}%
+  \begin{greek}%
   \chapter*{\acknowledgementsnamegr}%
   \addcontentsline{toc}{chapter}{\acknowledgementsnamegr}%
   \begingroup%
@@ -1448,9 +1484,10 @@
   }
   \newpage%
   \endgroup%
+  \end{greek}%
 }
 \newenvironment{acknowledgementsen}{%
-  \selectlanguage{english}%
+  \begin{english}%
   \chapter*{\acknowledgementsnameen}%
   \addcontentsline{toc}{chapter}{\acknowledgementsnameen}%
   \begingroup%
@@ -1475,6 +1512,7 @@
   }
   \newpage%
   \endgroup%
+  \end{english}%
 }
 
 % Font customization
