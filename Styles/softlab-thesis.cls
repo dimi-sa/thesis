@@ -1470,6 +1470,7 @@
     \@author, \\[6pt]
     \@locationgr, \@date@defense
   \end{flushright}
+  \ifx\@TRnumber\@empty\else
   \footacknowledgement{%
     Η εργασία αυτή είναι επίσης διαθέσιμη ως Τεχνική Αναφορά
     \@TRnumber, Εθνικό Μετσόβιο Πολυτεχνείο, Σχολή Ηλεκτρολόγων
@@ -1482,6 +1483,7 @@
     FTP: & \texttt{ftp://ftp.softlab.ntua.gr/pub/techrep/}
     \end{tabular}
   }
+  \fi
   \newpage%
   \endgroup%
   \end{greek}%
@@ -1498,6 +1500,7 @@
     \@authoren, \\[6pt]
     \@locationen, \@date@defenseen
   \end{flushright}
+  \ifx\@TRnumber\@empty\else
   \footacknowledgement{%
     This thesis is also available as Technical Report \@TRnumber,
     National Technical University of Athens,
@@ -1510,6 +1513,7 @@
     FTP: & \texttt{ftp://ftp.softlab.ntua.gr/pub/techrep/}
     \end{tabular}
   }
+  \fi
   \newpage%
   \endgroup%
   \end{english}%
