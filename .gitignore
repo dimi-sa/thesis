@@ -40,4 +40,6 @@ Thumbs.db*
 
 # The example PDF file
 
-/test.pdf
+/thesis.pdf
+
+/_minted-*/

@@ -5,14 +5,14 @@
 %  LaTeX file  : softlab-thesis.cls
 %  Written by  : Nikolaos S. Papaspyrou
 %  Date        : October 17, 2002
-%  Revised     : December 17, 2008
+%  Revised     : August 26, 2019
 %
-%  Description : A uniform template for diploma projects and doctoral
-%                dissertations at the Software Engineering Laboratory,
+%  Description : A uniform template for diploma projects, master's and
+%                doctoral dissertations at the Software Engineering Laboratory,
 %                School of Electrical and Computer Engineering,
 %                National Technical University of Athens.
 %
-% Notes        : This package is based on `thesis.cls', written by 
+% Notes        : This package is based on `thesis.cls', written by
 %                Wenzel Matiaske (mati1831@perform.ww.tu-berlin.de)
 %                Copyright (C) 1991, 1996.  Version 1.0g (1996/25/01).
 %                Revised in July 2003, to adhere to NTUA's ECE library
@@ -22,8 +22,8 @@
 % Package information
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \def\filename{softlab-thesis}
-\def\fileversion{1.4a}
-\def\filedate{2011/08/19}
+\def\fileversion{1.5a}
+\def\filedate{2019/08/26}
 \NeedsTeXFormat{LaTeX2e}
 \ProvidesClass{softlab-thesis}[\filedate\space\fileversion\space%
        LaTeX document class (nsp).]
@@ -266,6 +266,7 @@
 \RequirePackage{xunicode}
 \RequirePackage{xltxtra}
 \defaultfontfeatures{Mapping=tex-text}
+\RequirePackage{verbatim}
 
 % XeLaTeX fonts
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -273,17 +274,28 @@
 % roman font
 \def\font@roman{Times New Roman}
 %\def\font@roman{Liberation Serif}
+%\def\font@roman{CMU Serif}
+%\def\font@roman{DejaVu Serif}
+%\def\font@roman{FreeSerif}
+%\def\font@roman{Linux Libertine O}
 
 % sans serif font
 \def\font@sans{Arial}
 %\def\font@sans{Liberation Sans}
+%\def\font@sans{CMU Sans Serif}
+%\def\font@sans{DejaVu Sans}
+%\def\font@sans{FreeSans}
+%\def\font@sans{Linux Biolinum O}
 
 % typewriter font
+%\def\font@tt{Courier New}
 \def\font@tt{Liberation Mono}
+%\def\font@tt{CMU Typewriter Text}
 %\def\font@tt{DejaVu Sans Mono}
+%\def\font@tt{FreeMono}
 %\def\font@tt{Lucida Sans Typewriter}
-%\def\font@tt{Free Monospaced}
 %\def\font@tt{Bitstream Vera Sans Mono}
+%\def\font@tt{Linux Libertine Mono O}
 
 \setromanfont{\font@roman}
 \setsansfont[Scale=MatchLowercase]{\font@sans}
@@ -298,11 +310,6 @@
 \newfontfamily\greekfont{\font@roman}
 \newfontfamily\greekfontsf[Scale=MatchLowercase]{\font@sans}
 \newfontfamily\greekfonttt[Script=Greek,Scale=MatchLowercase]{\font@tt}
-%\newfontfamily\greekfont{Times New Roman}
-%\newfontfamily\greekfont[Script=Greek]{Liberation Serif}
-%\newfontfamily\greekfontsf[Scale=MatchLowercase]{Arial}
-%\newfontfamily\greekfontsf[Script=Greek,Scale=MatchLowercase]{Liberation Sans}
-%\newfontfamily\greekfonttt[Script=Greek,Scale=MatchLowercase]{Liberation Mono}
 \setdefaultlanguage[variant=mono,numerals=arabic]{greek}
 \setotherlanguage{english}
 \else
@@ -450,7 +457,7 @@
   \ifcase\c@type
   \or\authorsig{Electrical and Computer Engineer}
   \or\authorsig{}
-  \or\authorsig{Dr.\ Computer Egineer}
+  \or\authorsig{Dr.\ Computer Engineer}
   \fi
 \fi
 
@@ -508,7 +515,7 @@
   {\dp@font\@department}
   \vfill
   \includegraphics[height=3.5cm]{mpla}%
-  \end{center}  
+  \end{center}
   \else%
   \begin{minipage}{4.0cm}
   \includegraphics[height=3.5cm]{pyrforos}%
@@ -543,7 +550,7 @@
 %
   \vspace{1cm}
   \let\old@and\and%
-  \let\and\@author@and%                           
+  \let\and\@author@and%
   {\a@font%
   \begin{tabular}[t]{@{}l@{}}%
   \if@greek
@@ -614,7 +621,7 @@
 %
   \vspace{1cm}
   \let\old@and\and%
-  \let\and\@author@and%                           
+  \let\and\@author@and%
   {\a@font%
   \begin{tabular}[t]{@{}l@{}}%
   \uppercase\expandafter{\@author}%
@@ -689,7 +696,7 @@
   \textbf{Τμήμα Μαθηματικών} \\
   του \\
   \textbf{Εθνικού και Καποδιστριακού Πανεπιστημίου Αθηνών}
-  \end{center}  
+  \end{center}
 %
   \vfill
 %
@@ -801,7 +808,8 @@
       \addcontentsline{toc}{part}{\partname\ \thepart \hspace{1em}#1}%
     \else
      \addcontentsline{toc}{part}{#1}\fi \markboth{}{}%
-     {\raggedright
+     \vfil%
+     {\centering
       \reset@font
       \ifnum \c@secnumdepth >-2\relax
         \p@font \partname{} \thepart \par
@@ -814,8 +822,8 @@
       \fi
   \par}
 \@endpart}
-\def\@spart#1{%
-      {\raggedright
+\def\@spart#1{\vfil%
+      {\centering
        \reset@font\p@font
        \if@upper
           \uppercase\expandafter{#1}
@@ -1204,7 +1212,15 @@
     \addcontentsline{toc}{chapter}{\listtablename}
     \@starttoc{lot}%
     }
+\newcommand{\listofalgorithms}{%
+    \chapter*{\listalgorithmname
+      \@mkboth{\listalgorithmname}%
+              {\listalgorithmname}}%
+    \addcontentsline{toc}{chapter}{\listalgorithmname}
+    \@starttoc{loa}%
+    }
 \let\l@table\l@figure
+\let\l@algorithm\l@figure
 
 % Bibliography
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1488,6 +1504,10 @@
   \endgroup%
   \end{greek}%
 }
+\if@greek
+\let\acknowledgementsen\comment
+\let\endacknowledgementsen\endcomment
+\else
 \newenvironment{acknowledgementsen}{%
   \begin{english}%
   \chapter*{\acknowledgementsnameen}%
@@ -1518,6 +1538,7 @@
   \endgroup%
   \end{english}%
 }
+\fi
 
 % Font customization
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -1577,7 +1598,7 @@
   \or\thesistype{M.Sc. Thesis}
      \institution{National and Kapodistrian University of Athens}
      \school{Department of Mathematics}
-     \department{Graduate Program in Logic and Theory of 
+     \department{Graduate Program in Logic and Theory of
        Algorithms and Computation}
   \or\thesistype{Doctoral Dissertation}
 \fi
@@ -1636,5 +1657,20 @@
 
 \let\nickie@oldenddocument\enddocument
 \def\enddocument{\label{pg:last-document}\nickie@oldenddocument}
+
+\def\englishtext{%
+  \if@greek
+  \part*{Κείμενο στα αγγλικά}%
+  \addcontentsline{toc}{part}{Κείμενο στα αγγλικά}%
+  \addtocontents{lot}{\protect\contentsline{part}%
+                     {Πίνακες στο αγγλικό κείμενο}{}}%
+  \addtocontents{lof}{\protect\contentsline{part}%
+                     {Σχήματα στο αγγλικό κείμενο}{}}%
+  \addtocontents{loa}{\protect\contentsline{part}%
+                     {Αλγόριθμοι στο αγγλικό κείμενο}{}}%
+  \setcounter{chapter}{0}%
+  \fi
+  \selectlanguage{english}%
+}
 
 \endinput
