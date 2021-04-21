@@ -16,6 +16,7 @@ default: $(FILE).pdf
 clean:
 	$(RM) *.{dvi,aux,log,toc,lof,lol,lot,dlog,bbl,blg,idx,out,tpt,svn}
 	$(RM) *.{nav,snm,vrb,fls,fdb_latexmk} *~ *.bak
+	$(RM) -r _minted-thesis/
 
 distclean: clean
 	$(RM) $(FILE).{dvi,ps,pdf}
