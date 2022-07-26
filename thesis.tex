@@ -6,6 +6,16 @@
 
 \usepackage{minted}
 
+% Hyperref needs to be the last package to use!
+\PassOptionsToPackage{hyphens}{url}
+\usepackage[xetex,%
+    pdfpagemode=UseOutlines,pdfstartview=FitW,%
+    colorlinks=true,linkcolor=blue,citecolor=blue,urlcolor=blue,%
+    bookmarks=true,bookmarksopen=true,bookmarksnumbered=false,%
+    pdfencoding=auto,unicode=true,hyperfootnotes=true,%
+    hypertexnames=false,%
+  ]{hyperref}
+
 
 %%%
 %%%  The document

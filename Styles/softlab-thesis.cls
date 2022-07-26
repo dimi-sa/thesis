@@ -1663,11 +1663,11 @@
   \part*{Κείμενο στα αγγλικά}%
   \addcontentsline{toc}{part}{Κείμενο στα αγγλικά}%
   \addtocontents{lot}{\protect\contentsline{part}%
-                     {Πίνακες στο αγγλικό κείμενο}{}}%
+		     {Πίνακες στο αγγλικό κείμενο}{}{}}%
   \addtocontents{lof}{\protect\contentsline{part}%
-                     {Σχήματα στο αγγλικό κείμενο}{}}%
+		     {Σχήματα στο αγγλικό κείμενο}{}{}}%
   \addtocontents{loa}{\protect\contentsline{part}%
-                     {Αλγόριθμοι στο αγγλικό κείμενο}{}}%
+		     {Αλγόριθμοι στο αγγλικό κείμενο}{}{}}%
   \setcounter{chapter}{0}%
   \fi
   \selectlanguage{english}%
