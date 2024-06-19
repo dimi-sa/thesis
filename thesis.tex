@@ -3,6 +3,9 @@
 %%%
 %%%  Add and configure the packages that you need for your thesis
 %%%
+\usepackage{fancyvrb}
+\usepackage{syntax}
+\usepackage{mathtools}
 
 \usepackage{minted}
 
@@ -16,6 +19,14 @@
     hypertexnames=false,%
   ]{hyperref}
 
+% \def
+\def\imgs{../Images}
+\def\H{Haskell}
+\def\r{$\Longleftrightarrow$\ }
+\def\lra{$\Longrightarrow$\ }
+\def\pend{\mbox{}\\\\}
+\def\prarr{$\xRightarrow{\text{preprocessing}}$\ }
+\newcommand{\mytilde}{$\sim$}
 
 %%%
 %%%  The document
@@ -27,11 +38,11 @@
 
 \frontmatter
 
-\title{Σχεδίαση και Υλοποίηση μιας Καταπληκτικής Γλώσσας Προγραμματισμού}
-\author{Γεράσιμος Τ. Ιωάννου}
-\authoren{Gerasimos T. Ioannou}
-\date{Αύγουστος 2019}
-\datedefense{26}{8}{2019}
+\title{Σχεδίαση και Υλοποίηση της Γλώσσας Προγραμματισμού lambda-cases}
+\author{Δημήτρης Σαριδάκης Μπίτος}
+\authoren{Dimitris Saridakis-Bitos}
+\date{Ιούνιος 2024}
+\datedefense{18}{6}{2024}
 
 \supervisor{Νικόλαος Σ. Παπασπύρου}
 \supervisorpos{Καθηγητής Ε.Μ.Π.}
@@ -49,114 +60,20 @@
 \maketitle
 
 
-%%%  Abstract, in Greek
-
-\begin{abstractgr}%
-  Σκοπός της παρούσας εργασίας είναι αφενός η σχεδίαση μίας απλής
-  γλώσσας υψηλού επιπέδου με υποστήριξη για προγραμματισμό με
-  αποδείξεις, αφετέρου η υλοποίηση ενός μεταγλωττιστή για τη γλώσσα
-  αυτή που θα παράγει κώδικα για μία γλώσσα ενδιάμεσου επιπέδου
-  κατάλληλη για δημιουργία πιστοποιημένων εκτελέσιμων.
-
-  Στη σημερινή εποχή, η ανάγκη για αξιόπιστο και πιστοποιημένα ασφαλή
-  κώδικα γίνεται διαρκώς ευρύτερα αντιληπτή. Τόσο κατά το παρελθόν όσο
-  και πρόσφατα έχουν γίνει γνωστά προβλήματα ασφάλειας και
-  συμβατότητας προγραμμάτων που είχαν ως αποτέλεσμα προβλήματα στην
-  λειτουργία μεγάλων συστημάτων και συνεπώς οικονομικές επιπτώσεις
-  στους οργανισμούς που τα χρησιμοποιούσαν. Τα προβλήματα αυτά
-  οφείλονται σε μεγάλο βαθμό στην έλλειψη δυνατότητας προδιαγραφής και
-  απόδειξης της ορθότητας των προγραμμάτων που χαρακτηρίζει τις
-  σύγχρονες γλώσσες προγραμματισμού. Για το σκοπό αυτό, έχουν προταθεί
-  συστήματα πιστοποιημένων εκτελέσιμων, στα οποία έχουμε τη δυνατότητα
-  να προδιαγράφουμε την ορθότητα των προγραμμάτων, και να παρέχουμε
-  μία τυπική απόδειξη αυτής, η οποία μπορεί να ελεγχθεί μηχανιστικά
-  πριν το χρόνο εκτέλεσης.
-
-  Τα συστήματα που έχουν προταθεί είναι ενδιάμεσου επιπέδου οπότε η
-  διαδικασία προγραμματισμού σε αυτά είναι ιδιαίτερα πολύπλοκη. Οι
-  γλώσσες υψηλού επιπέδου που συνοδεύουν αυτά τα συστήματα, ενώ είναι
-  ιδιαίτερα εκφραστικές, παραμένουν δύσκολες στον προγραμματισμό.  Μία
-  απλούστερη γλώσσα υψηλού επιπέδου, όπως αυτή που προτείνουμε σε αυτή
-  την εργασία, θα επέτρεπε ευρύτερη εξάπλωση του συγκεκριμένου
-  ιδιώματος προγραμματισμού.
-
-  Στη γλώσσα που προτείνουμε, ο προγραμματιστής προδιαγράφει τη μερική
-  ορθότητα του προγράμματος, δίνοντας προσυνθήκες και μετασυνθήκες για
-  τις παραμέτρους και τα αποτελέσματα των συναρτήσεων που ορίζει.
-  Επίσης δίνει ένα σύνολο θεωρημάτων βάσει του οποίου κατασκευάζονται
-  αποδείξεις της ορθής υλοποίησης και χρήσης των συναρτήσεων αυτών. Ως
-  μέρος της εργασίας, έχουμε υλοποιήσει σε γλώσσα OCaml ένα
-  μεταφραστή αυτής της γλώσσας στο σύστημα πιστοποιημένων
-  εκτελέσιμων NFLINT.
-
-  Επιτύχαμε να διατηρήσουμε τη γλώσσα κοντά στο ύφος των ευρέως
-  διαδεδομένων συναρτησιακών γλωσσών, καθώς και να διαχωρίσουμε τη
-  φάση προγραμματισμού από τη φάση απόδειξης της ορθότητας των
-  προγραμμάτων. Έτσι ένας μέσος προγραμματιστής μπορεί εύκολα να
-  προγραμματίζει στη γλώσσα που προτείνουμε με τον τρόπο που ήδη
-  γνωρίζει, και ένας γνώστης μαθηματικής λογικής να αποδεικνύει σε
-  επόμενη φάση την μερική ορθότητα των προγραμμάτων. Ως απόδειξη της
-  πρακτικότητας της προσέγγισης αυτής, παραθέτουμε ένα σύνολο
-  παραδειγμάτων στη γλώσσα με απόδειξη μερικής ορθότητας.
-\begin{keywordsgr}
-  Γλώσσες προγραμματισμού,
-  Προγραμματισμός με αποδείξεις,
-  Ασφαλείς γλώσσες προγραμματισμού,
-  Πιστοποιημένος κώδικας.
-\end{keywordsgr}
-\end{abstractgr}
-
-
 %%%  Abstract, in English
 
 \begin{abstracten}%
-  The purpose of this diploma dissertation is on one hand the design
-  of a simple high-level language that supports programming with
-  proofs, and on the other hand the implementation of a compiler for
-  this language. This compiler will produce code for an
-  intermediate-level language suitable for creating certified
-  binaries.
+  The purpose of this diploma dissertation is to isolate the \H\ features that
+  I most often use into a new programming language, while also trying to make
+  the syntax clearer and more intuitive to the new user.  For this purpose, I
+  have written a translator from the new language to \H.
 
-  The need for reliable and certifiably secure code is even more
-  pressing today than it was in the past. In many cases, security and
-  software compatibility issues put in danger the operation of large
-  systems, with substantial financial consequences. The lack of a
-  formal way of specifying and proving the correctness of programs that
-  characterizes current programming languages is one of the main reasons
-  why these issues exist. In order to address this problem, a number of
-  frameworks with support for certified binaries have recently been
-  proposed. These frameworks offer the possibility of specifying and
-  providing a formal proof of the correctness of programs. Such a proof
-  can easily be checked for validity before running the program.
-
-  The frameworks that have been proposed are intermediate-level in
-  nature, thus the process of programming in these is rather cumbersome.
-  The high-level languages that accompany some of these frameworks,
-  while very expressive, are hard to use. A simpler high-level language,
-  like the one proposed in this dissertation, would enable further use
-  of this programming idiom.
-
-  In the language we propose, the programmer specifies the partial
-  correctness of a program by annotating function definitions with pre-
-  and post-conditions that must hold for their parameters and results.
-  The programmer also provides a set of theorems, based on which proofs
-  of the proper implementation and use of the functions are constructed.
-  An implementation in OCaml of a compiler from this language to the
-  NFLINT certified binaries framework was also completed as part of this
-  dissertation.
-
-  We managed to keep the language close to the feel of the current
-  widespread functional languages, and also to fully separate the
-  programming stage from the correctness-proving stage. Thus an average
-  programmer can program in a familiar way in our language, and later an
-  expert on formal logic can prove the semi-correctness of a program.
-  As evidence of the practicality of our design, we provide a number of
-  examples in our language with full semi-correctness proofs.
 \begin{keywordsen}
+  Haskell,
+  Functional programming,
   Programming languages,
-  Programming with proofs,
-  Secure programming languages,
-  Certified code.
+  Type systems,
+  Compilers.
 \end{keywordsen}
 \end{abstracten}
 
@@ -166,40 +83,17 @@
 \begin{acknowledgementsgr}
   Ευχαριστώ θερμά τον επιβλέποντα καθηγητή αυτής της διατριβής,
   κ.~Νίκο Παπασπύρου, για τη συνεχή καθοδήγηση και εμπιστοσύνη
-  του. Ευχαριστώ επίσης τα μέλη της συμβουλευτικής επιτροπής,
-  κ.κ.~Νίκο Παπαδόπουλο και Γιώργο Νικολάου για την πρόθυμη και
-  πάντα αποτελεσματική βοήθειά τους, τις πολύτιμες συμβουλές και
-  τις χρήσιμες συζητήσεις που είχαμε.  Θέλω να ευχαριστήσω ακόμα
-  τον συμφοιτητή και φίλο Πέτρο Πετρόπουλο, ο οποίος με βοήθησε σε
-  διάφορα στάδια αυτής της εργασίας.  Θα ήθελα τέλος να ευχαριστήσω
-  την οικογένειά μου και κυρίως τους γονείς μου, οι οποίοι με
-  υποστήριξαν και έκαναν δυνατή την απερίσπαστη ενασχόλησή μου τόσο
+  του. Ευχαριστώ επίσης τη μητέρα μου, η οποία με
+  υποστήριξε και έκανε δυνατή την απερίσπαστη ενασχόλησή μου τόσο
   με την εκπόνηση της διπλωματικής μου, όσο και συνολικά με τις
-  σπουδές μου, καθώς και το Νίκο Καζαντζάκη που αποτέλεσε για μένα
-  μοναδική πηγή έμπνευσης, όταν δεν ήξερα τι να γράψω στην εισαγωγή
-  της εργασίας μου.
+  σπουδές μου.
 \end{acknowledgementsgr}
-
-\begin{acknowledgementsen}
-  I would like to thank all the people who supported my work and helped me get
-  results of better quality.  I am also grateful to the supervisor of my thesis
-  and the members of my committee for their patience and support in overcoming
-  numerous obstacles I have been facing through my research.  I would also like
-  to thank my fellow students for their feedback, cooperation and of course
-  friendship.
-
-  Last but not least, I would like to thank my family, my parents and my
-  sister, for supporting me spiritually throughout writing this thesis and
-  my life in general, and Nikos Kazantzakis for providing the inspiration
-  that I needed when I didn't know what to write in my introduction.
-\end{acknowledgementsen}
-
 
 %%%  Various tables
 
 \tableofcontents
 %\listoftables
-\listoffigures
+%\listoffigures
 %\listofalgorithms
 
 
@@ -207,672 +101,5356 @@
 
 \mainmatter
 
-\chapter{Εισαγωγή}
-
-Κάθεται ο Αγάς της Λυκόβρυσης στο μπαλκόνι του απάνω από την πλατεία του
-χωριού, καπνίζει το τσιμπούκι του και πίνει ρακή. Ψιχαλίζει ήσυχα, τρυφερά,
-και στα γυρτά χοντρά μουστάκια του, τα φρεσκοβαμμένα με καραμπογιά,
-κρέμουνται λαμπυρίζοντας μερικές ψιχάλες· κι o Αγάς, ξαναμμένος από τη ρακή,
-τις αναγλείφει να δροσερέψει. Δεξά του στέκεται όρθιος ο σεΐζης, ένας
-θεόρατος άγριος ανατολίτης, αλλήθωρος και κακομούτσουνος, με την τρουμπέτα
-του· ζερβά του κάθεται διπλοπόδι, απάνω σε βελουδένιο μαξιλάρι, ένα όμορφο
-στρουμπουλό τουρκόπουλο, που του ανάβει κάθε τόσο το τσιμπούκι και του
-γεμίζει ακατάπαυτα την κούπα του ρακή.
-
-Μισοσφαλνάει τα μαχμουρλίδικα μάτια και χαίρεται o Αγάς τον απάνω κόσμο· όλα
-τα~’καμε καλά ο Θεός, συλλογιέται, πετυχεμένο πράμα είναι ο κόσμος τούτος,
-τίποτα δεν του λείπει: αν πεινάσεις, έχει ψωμί και κρέας κοκκινιστό και
-πιλάφι με κανέλα· αν διψάσεις, έχει το αθάνατο νερό, τη ρακή· αν νυστάξεις,
-έχει κάμει ο Θεός τον ύπνο, ένα κι ένα για τη νύστα· αν θυμώσεις, έχει κάμει
-το βούρδουλα και τα πισινά του ραγιά· αν σε πιάσουν τα μεράκια σου, έχει
-κάμει τον αμανέ. Κι αν θες να ξεχάσεις τα ντέρτια και τα βάσανα του κόσμου,
-έχει κάμει το Γιουσουφάκι.
-
---- Μεγάλος μάστορας είναι ο Αλλάχ, μουρμούρισε συγκινημένος, μεγάλος
-μάστορας, μερακλής· κόβει το μυαλό του· πως του ήρθε τώρα κι έκαμε τη ρακή
-και το Γιουσουφάκι!
-
-Βουρκώνουν τα μάτια του Αγά από τη θρησκευτική κατάνυξη κι από το πολύ
-ρακοπότι. Σκύβει από το μπαλκόνι και καμαρώνει τους ραγιάδες του να
-σουλατσέρνουν στην πλατεία φρεσκοξουρισμένοι, γιορτοντυμένοι, με τα κόκκινα
-φαρδιά ζωνάρια, με τα νιοπλυμένα κοντοβράκια, με τα γαλάζια
-τουζλούκια. Άλλοι φορούν φέσι, άλλοι σαρίκι, άλλοι σκούφο από αρνίσια
-προβιά. Οι πιο ασίκηδες έχουν και στο αυτί τους ένα κλωνί βασιλικό ή ένα
-τσιγάρο.
-
-
-\section{Σκοπός της εργασίας}
-
-Τρίτη της Λαμπρής, τώρα τέλεψε η λειτουργιά. Γλυκιά, τρυφερή μέρα, ήλιος,
-ψιχαλίζει, μύρισαν οι λεμονανθοί, μπουμπουκιάζουν τα δέντρα, ανασταίνουνται
-τα χόρτα, ανεβαίνει ο Χριστός από κάθε σβωλαράκι χώμα. Σουλατσάρουν οι
-χριστιανοί στην πλατεία, σμίγουν οι φίλοι, ασπάζεται ο ένας τον άλλο, λεν
-«Χριστός ανέστη» κι ύστερα καθίζουν στον καφενέ του Κωσταντή ή κάτω από το
-μεγάλο πλάτανο στη μέση της πλατείας, παραγγέλνουν ναργιλέδες και καφέδες κι
-αρχίζει, σαν την ψιλή βροχή, το γλυκό κουβεντολόι.
-
---- Τέτοια θα~’ναι κι η Παράδεισο, λέει ο Χαράλαμπος ο καντηλανάφτης· ήλιος
-απαλός, σιγανή βροχούλα, λεμονιές ανθισμένες, ναργιλέδες και ψιλή κουβέντα
-στους αιώνες των αιώνων.
-
-Στην άλλην άκρα της πολιτείας, πίσω από τον πλάτανο, υψώνεται
-φρεσκοασβεστωμένη, με το χαριτωμένο καμπαναριό της, η εκκλησία του χωριού, η
-Σταύρωση του Χριστού. Η πόρτα της είναι σήμερα στολισμένη με βάγια και
-δάφνες. Γύρα τρογύρα, τα μαγαζάκια και τα εργαστήρια του χωριού: Το
-σαμαράδικο του αγριάνθρωπου Παναγιώταρου, που τον λεν και Γυψοφά· γιατί μια
-φορά έφεραν στο χωριό το γύψινο αγαλματάκι του Μ.~Ναπολέοντα, και το~’φαε·
-κι υστέρα έφεραν ένα άλλο, του Κεμάλ-πασά, και το~’φαε κι αυτό· κι ύστερα
-έφεραν του Βενιζέλου, και το~’φαε κι αυτό. Δίπλα, το μπαρμπέρικο του Αντώνη
-«Ο Ερωτόκριτος», κι απάνω στην πόρτα κρεμασμένη μια ταμπέλα, με μεγάλα
-κόκκινα γράμματα του αιμάτου: «Εξέρχονται και οδόντες»! Πιο πέρα το χασάπικο
-του κυρ Δημητρού του κουτσού: «Κεφαλάκια φρέσκα, η Ηρωδιάς»! Κάθε Σάββατο
-σφάζει ένα μουσκάρι και, πριν το σφάξει, του χρυσώνει τα κέρατα, του
-μπογιατίζει το κούτελο, του περνάει κόκκινες κορδέλες στο λαιμό και το
-γυρίζει στο χωριό κουτσαίνοντας και τελαλίζει τις χάρες του. Και τέλος ο
-περίφημος καφενές του Κωσταντή, μακρόστενος, δροσερός, που μοσχομυρίζει καφέ
-και τουμπεκί και φασκόμηλο το χειμώνα. Και στον τοίχο του δεξά κρέμουνται,
-καμάρι του χωριού, τρεις μεγάλες γυαλιστερές λιθογραφίες: η Γενοβέφα από τη
-μια μεριά, μισόγυμνη μέσα σ’~ένα δάσο τροπικό· από την άλλη μεριά, η
-βασίλισσα Βικτώρια, παχιά, γαλανομάτα, με τεράστιο στήθος παραμάνας· και στη
-μέση, άγριος, με γκρίζα θυμωμένα μάτια, μ’~έναν αψηλό σκούφο αστρακάν, ο
-Κεμάλ-πασάς.
-
-Όλοι αγαθοί ανθρώποι, δουλευταράδες, καλοί νοικοκυραίοι, πλούσιο το χωριό,
-κι ο Αγάς του καλός άνθρωπος κι αυτός, μερακλής, που πολύ αγαπάει τη ρακή,
-τις βαριές μυρωδιές, μόσκο καί πατσουλί, και το αφράτο τουρκόπουλο, που
-κάθεται ζερβά του, στο βελουδένιο μαξιλάρι. Κοιτάζει τώρα τους χριστιανούς,
-όπως κοιτάζει ο βοσκός τα καλοθρεμμένα αρνοπρόβατά του και χαίρεται.
-
-«Καλοί άνθρωποι, συλλογιέται, γέμισαν κι εφέτο το κελάρι μου πεσκέσια της
-Λαμπρής --- τυριά, κουλούρες σουσαμωτές, τσουρέκια, κόκκινα αυγά... Ένας, ας
-είναι καλά, μου~’φερε κι ένα λαγηνάκι χιώτικη μαστίχα για το Γιουσουφάκι
-μου, να μασάει και να μυρίζει το στοματάκι του...»
-
-Είπε, κι έριξε μια τρυφερή ματιά στο αγαδόπουλο που μασούσε μαστίχα, παχουλό
-κι αποχαυνωμένο.
-
-
-\section{Η γλώσσα προγραμματισμού C++}
-
-Κι έτσι που συλλογιόταν το κελάρι του γεμάτο αγαθά, και σιγοψιχάλιζε, και
-γυάλιζαν οι πέτρες, και τα κοκόρια άρχισαν να λαλούν, και δίπλα του,
-κουλουριαστό στα πόδια του, το Γιουσουφάκι μασούσε μαστίχα και χτυπούσε
-ευτυχισμένο τη γλώσσα του, ο Αγάς ένιωσε ξαφνικά την καρδιά του να
-ξεχειλίζει, σήκωσε το λαιμό, έκαμε ν’~αρχίσει τον αμανέ, μα
-βαρέθηκε. Γυρνάει στο σεΐζη του και του γνέφει να βαρέσει την τρουμπέτα, να
-σωπάσει ο λαός· κι ύστερα γυρνάει ζερβά του:
-
---- Τραγούδησέ μου, Γιουσουφάκι, να~’χεις την ευκή μου, τραγούδησε μου το
-«Ντουνιά ταμπίρ, ρουγιά ταμπίρ, αμάν, αμάν!», τραγούδησέ μου το, γιατί θα
-πλαντάξω!
-
-Το παχουλό παιδόπουλο αποτραβάει χωρίς βιάση τη μαστίχα από το στόμα του,
-την κολνάει στο γυμνό γόνατό του, ακουμπάει τη δεξά του παλάμη στο μάγουλο
-κι αρχίζει τον αγαπημένο αμανέ του Αγά του: «Κόσμος κι όνειρο είναι ένα,
-αμάν, αμάν!»
-
-Παθητικιά, ναζλίδικη, η φωνή ανέβαινε, κατέβαινε, γουργούριζε σαν
-περιστέρα. Κι ο Αγάς έκλεισε τα μάτια, κι όλη την ώρα που βαστούσε ο αμανές
-τόσο ήταν βαλαντωμένος που~’χε ξεχάσει να πιει.
-
---- Είναι στα κέφια του ο Αγάς, μουρμούρισε ο Κωσταντής σερβίροντας τους
-καφέδες· ας είναι καλά η ρακή.
-
---- Ας είναι καλά το Γιουσουφάκι, είπε χαμογελώντας πικρά ο Γιαννακός, ο
-πραματευτής και γραμματοφόρος του χωριού, με τα κάτασπρα κοντοστρόγγυλα
-γένια και τα πουλίσια, αρπαχτικά μάτια.
-
---- Ας είναι καλά η μοίρα η στραβή που τον έκαμε αυτόν Αγά κι εμάς ραγιάδες,
-μουρμούρισε ο αδερφός του παπά, ο Χατζη-Νικολής, που έκανε το δάσκαλο του
-χωριού, ξερακιανός, με γυαλάκια και μ’~ένα χοντρό μυτερό καρύδι του λαιμού,
-που ανεβοκατέβαινε, όταν μιλούσε.
-
-\begin{figure}[t]
-\setlength\partopsep{-\topsep}% adjusts vertical space after the listing
-\begin{minted}[frame=lines,linenos,numbersep=5pt]{c++}
-#include <iostream>
-int main() {
-  std::cout << "Γεια σου κόσμε!" << std::endl;
-}
-\end{minted}
-\caption{Στο τσακίρ κέφι, ο Αγάς γράφει και λίγο κώδικα.%
-  \label{fig:hello-greek}}
-\end{figure}
-
-
-\section{Δομή της εργασίας}
-
-Πήρε φωτιά, θυμήθηκε τους προγόνους, αναστέναξε:
-
---- Μια φορά, εξακολούθησε, κρατούσαν τα χώματα τούτα οι δικοί μας, οι
-Έλληνες, γύρισε ο τροχός κι ήρθαν οι Βυζαντινοί, Έλληνες κι αυτοί και
-χριστιανοί, ξαναγύρισε ο τροχός κι ήρθαν οι Αγαρηνοί... Μα αναστήθηκε ο
-Χριστός, παιδιά, θ’~αναστηθεί κι η πατρίδα! Κωσταντή, έλα κέρασε τα
-παλικάρια!
-
-Ωστόσο ο αμανές τέλεψε, το τουρκόπουλο ξανάβαλε στο στόμα του τη μαστίχα κι
-άρχισε πάλι ν’~αναχαράζει, αποχαυνωμένο. Βάρεσε ξανά η τρουμπέτα, μπορούσαν
-τώρα οι ραγιάδες να γελούν και να φωνάζουν λεύτερα.
-
-
-\chapter{Θεωρητικό υπόβαθρο}
-
-Ο καπετάν Φουρτούνας, ένας από τους πέντε δημογέροντες του χωριού, πρόβαλε
-στην πόρτα του καφενέ. Αψηλός, κορμάτος, παλιός καραβοκύρης, που χρόνια
-αλώνιζε τη Μαύρη Θάλασσα κουβαλώντας ρούσικο σιτάρι και κάνοντας
-κοντραμπάντο. Τρίχα δεν είχε το πρόσωπο του· σπανός και μαυροκίτρινος,
-ταγαριασμένος, με βαθιές ζαρωματιές, και τα μάτια του τα μικρά, τα
-κατάμαυρα, σπίθιζαν. Γέρασε, γέρασε και το καράβι του, τσακίστηκε μια νύχτα
-απόξω από την Τραπεζούντα, κι ο καπετάν Φουρτούνας, καραβοτσακισμένος,
-μπουχτισμένος, γύρισε στο χωριό του να σουρώσει όσο μπορεί περισσότερη ρακή
-και, σαν έρθει η ώρα η καλή, να γυρίσει το πρόσωπό του κατά τον τοίχο και να
-πεθάνει. Πολλά είχαν δει τα μάτια του, βαρέθηκε· δε βαρέθηκε, κουράστηκε, μα
-ντρέπουνταν να το μολοήσει.
-
-
-\section{Σημασιολογία γλωσσών προγραμματισμού}
-
-Φορούσε σήμερα τις αψηλές καπετανίστικες μπότες του, τον κίτρινό του μουσαμά
-και το αρχοντικό καλπάκι από αληθινό αστρακάν. Κρατούσε και το αψηλό ραβδί
-του του δημογέροντα. Δυο τρεις χωριανοί προσηκώθηκαν να τον καλέσουν να
-πάρει μια ρακή.
-
---- Δεν έχω καιρό, παιδιά, μήτε για ρακή, είπε· Χριστός ανέστη! Πάω στο
-αρχοντικό του παπά, όπου έχουμε σύναξη οι προεστοί. Σε μια ώρα να κοπιάσετε
-κι όσοι από σας είστε καλεσμένοι· κάντε το σταυρό σας κι ελατέ, καλά το
-κατέχετε, έχουμε σήμερα δουλειά. Κι ένας να πάει να φωνάξει τον Παναγιώταρο
-το σαμαρά, με του διαόλου τα γένια· αυτόν τον έχουμε μεγάλη ανάγκη.
-
-Σώπασε μια στιγμή, τα μάτια του έπαιξαν παμπόνηρα:
-
---- Αν δεν είναι σπίτι του, θα~’ναι στης χήρας, είπε κι όλοι ξέσπασαν στα
-γέλια.
-
-Μα ο γερο-Χριστοφής ο αγωγιάτης, που~’χε μάθει στα νιάτα του, κι ας το
-πλέρωσε ακριβά, τι θα πει σεβντάς, πετάχτηκε απάνω:
-
---- Τι γελάτε, μωρέ σερσέμηδες; φώναξε. Καλά κάνει· φωτιά στα τόπια, μωρέ
-Παναγιώταρε, και μην τους ακούς! Λίγη είναι η ζωή, πολύς ο θάνατος, βίρα!
-
-Ο χοντρο-Δημητρός ο χασάπης κούνησε το φρεσκοξουρισμένο κεφάλι:
-
---- Ο Θεός να~’χει καλά τη χήρα την Κατερίνα μας, είπε. Ο διάολος ξέρει από
-τι κέρατα μας γλιτώνει!
-
-Ο καπετάν Φουρτούνας γέλασε.
-
---- Βρε παιδιά, είπε, μη μαλώνετε. Χρειάζεται μια παστρικιά σε κάθε χωριό,
-να μη βρίσκουν τον μπελά τους οι τίμιες. Είναι σαν τη βρύση του δρόμου,
-μαθές· περνούν και πίνουν οι διψασμένοι· αλλιώς θα χτυπούσαν αράδα τις
-πόρτες μας. Κι οι γυναίκες, όταν τους ζητήσεις νερό...
-
-Στράφηκε, είδε το δάσκαλο:
-
---- Χατζη-Νικολή μου, του κάνει, ακόμα είσαι εδώ; Προεστός είσαι και του
-λόγου σου, έχουμε σύναξη. Σκολειό έκαμες και τον καφενέ, σκόλασε κι έλα!
-
---- Να~’ρθω κι εγώ; είπε ο γερο-Χριστοφής κι έπαιξε το μάτι στην παρέα· κάνω
-για Ιούδας.
-
-Μα ο καπετάν Φουρτούνας είχε πάρει την ανηφοριά, βαριακουμπώντας το ραβδί
-του στο καλντιρίμι. Δεν ήταν στα καλά του σήμερα· τον έσφαζαν πάλι οι
-ρεματισμοί, μάτι δεν είχε κλείσει όλη νύχτα. Ήπιε πρωί πρωί δυο τρία
-νεροπότηρα ρακή, για γιατρικό, μα του κάκου· οι πόνοι δε σκολνούσαν. Μήτε η
-ρακή τους έβανε κάτω.
-
---- Μωρέ, αν δε ντρέπουμουν, μουρμούρισε, κι άρχιζα τις φωνές, μπορεί
-ν’~αλάφρωναν οι πόνοι· μα έλα που δε με αφήνει το παντέρμο το φιλότιμο! Και
-πρέπει να περπατώ ντούρος και να κάνω πως γελώ. Κι αν πέσει χάμω το ραβδί
-μου, να μην αφήσω κανέναν κερατά να με βοηθήσει, μα να σκύψω μοναχός μου να
-το πιάσω. Δάγκανε, μωρέ καπετάν Φουρτούνα, τα χείλια, όρτσα τα πανιά,
-κατακέφαλα στο κύμα, βάρδα μην ντροπιαστείς! Μπόρα είναι, μαθές, κι η ζωή,
-θα περάσει!
-
-Έγρουζε και σιγοβλαστημούσε σκαμπανεβαίνοντας. Στάθηκε μια στιγμή, κοίταξε
-γύρα, κανένας δεν τον έβλεπε· αναστέναξε κι αλάφρωσε λίγο. Κοίταξε κατά
-πάνω, είδε στην κορυφή του χωριού ν’~ασπρογυαλίζει ανάμεσα από τα δέντρα το
-σπίτι του παπά με τα λουλακιά παραθυρόφυλλα.
-
---- Πήγε κι έχτισε στην κορυφή του χωριού ο διαολόπαπας! μουρμούρισε· την
-κατάρα του να~’χω!
-
-Και πήρε πάλι τον ανήφορο.
-
-Στο σπίτι του παπά είχαν κιόλα φτάσει δυο από τους προεστούς και κάθουνταν
-σταυροπόδι στο μεντέρι, αμίλητοι, και περίμεναν τα τραταρίσματα. Ο παπάς
-είχε μπει στην κουζίνα να δώσει διαταγές, κι η μοναχοκόρη του η Μαριορή
-ετοίμαζε το δίσκο με τον καφέ, το δροσερό νερό και το γλυκό του κουταλιού.
-
-Πλάι στο παραθύρι είχε θρονιαστεί ο πρώτος δημογέροντας της Λυκόβρυσης, από
-μεγάλο τζάκι, αρχοντάνθρωπος, καλοθρεμμένος, με τσόχινο σαλβάρι, με
-χρυσοκέντητο μεϊντάνι και μ’~ένα χοντρό χρυσό δαχτυλίδι στο δείχτη του
-χεριού του --- η βούλα του με τα δυο κεφαλαία σφιχταγκαλιασμένα γράμματα:
-Γ. Π., Γεώργιος Πατριαρχέας. Τα χέρια του ήταν παχιά και μαλακά, σα
-Δεσπότη. Δε δούλεψε ποτέ του, είχε ένα τσούρμο φαμέγιους και κολίγους που
-δούλευαν και τον τάιζαν. Και χόντρυνε τ’~άντερό του, φάρδυναν τα καπούλια
-του, είχαν γίνει σαν της φοράδας, κρεμάστηκαν οι κοιλιές του, και τα
-προγούλια του κατέβαιναν τρεις πατωσιές κι αναπαύουνταν, το ένα απάνω στο
-άλλο, στο μαλλιαρό αφράτο απανωστήθι. Δυο τρία δόντια μπροστινά του~’λειπαν,
-άλλο κουσούρι δεν είχε, κι όταν μιλούσε, φαφλάτιζε και μπερδεύουνταν· μα και
-το κουσούρι αυτό πλήθαινε την αρχοντιά του, γιατί σε ανάγκαζε, όταν μιλούσε,
-να σκύβεις για να καταλάβεις τι λέει.
-
-Δεξά του, στη γωνιά, αδύναμος, λιγδοτάμπαρος, φτενοκέφαλος, με τσιμπλιασμένα
-μάτια, με δυο χοντρές χερούκλες γεμάτες ρόζους, κάθουνταν συμμαζεμένος και
-ταπεινός ο δεύτερος προεστός, ο πιο βαρβάτος νοικοκύρης του χωριού, ο
-γερο-Λαδάς. Εβδομήντα χρόνια σκύβει στη γης, τη σκάβει, τη σπέρνει, τη
-θερίζει, της φυτεύει ελιές κι αμπέλια, τη στύβει και της πίνει το αίμα. Ποτέ
-του, από μικρό κουτσούβελο, δεν ξεκόλλησε από τη γης. Αχόρταγος, λιμασμένος,
-έπεφτε απάνω της, της έδινε ένα και της ζητούσε χίλια, και ποτέ του δεν
-έλεγε: «Δόξα σοι ο Θεός», μα πάντα μουρμούριζε, αφχαρίστητος. Και στα
-γερατιά του δεν τον έφτανε πια η γης· όσο ζύγωνε στο θάνατο κι ένιωθε πως
-λίγα πια ήταν τα καρβέλια του, βιάζουνταν να προλάβει και να φάει τον
-κόσμο. Κίνησε λοιπόν να δανείζει με βαρύ διάφορο τους χωριανούς του· έβανα
-οι δύστυχοι αμανάτι τ’~αμπελοχώραφά τους και τα σπίτια, έρχουνταν ο καιρός
-της πληρωμής, δεν είχαν να πλερώσουν, έβγαιναν τα πράματα στο σφυρί, και
-τα’~χαφτε ο γερο-Λαδάς.
-
-Κι όλο κλαίγουνταν, κι όλο πεινούσε, κι η γυναίκα του γύριζε ξυπόλυτη, και
-μια θυγατέρα, που~’χε καταφέρει να κάμει, την άφησε κι αυτή να πεθάνει,
-γιατί δεν κάλεσε, όταν έπεσε στο κρεβάτι, γιατρό να τη δει.
-
-«Πολλά έξοδα, είπε, οι μεγάλες πολιτείες είναι μακριά, πού να φέρνεις
-γιατρό! Κι ύστερα, τι ξέρουν κι αυτοί; τον κακό τους τον καιρό! Έχουμε εδώ
-τον παπά μας, αυτός κατέχει παλιά γιατροσόφια, θα τον πλερώσω να κάμει κι
-ευκέλαιο, και θα γιάνει, και θα κοστίσει και πιο φτηνά.»
-
-Μα τα ματζούνια του παπά πήγαν χαμένα, το ευκέλαιο δεν έπιασε, κι η κοπέλα
-πέθανε, δεκαφτά χρονών, και γλίτωσε από τον κύρη της· γλίτωσε κι αυτός από
-τα πολλά τα έξοδα του γάμου. Μια μέρα, λίγους μήνες μετά το θάνατό της,
-κάθισε και τα λογάριασε: Προίκα τόσο απάνω κάτω, ρουχισμός, τραπέζια,
-καρέκλες, τόσα, θ’~αναγκάζουνταν να καλέσει στο γάμο τους συγγενείς, κι
-αυτοί θένε να φάνε τον περίδρομο, βάλε κρέατα, ψωμιά, κρασιά, τόσα... Έκαμε
-τη σούμα, πάρα πολλά έξοδα, θα τον ξετίναζε η θυγατέρα του, δεν πειράζει το
-λοιπόν, όλοι θα πεθάνουμε... Γλίτωσε κι από τα βάσανα του κόσμου – άντρες,
-παιδιά, αρρώστιες, μπουγάδες. Τυχερή στάθηκε, ο Θεός σχωρέσ’~τη!
-
-
-\section{Θεωρία πεδίων}
-
-Μπήκε η Μαριορή με το δίσκο, χαιρέτησε χαμοβλεπούσα τους προεστούς, στάθηκε
-μπροστά από τον άρχοντα. Χλωμή, μεγαλομάτα, γαϊτανοφρύδα, με δυο χάντρες
-πλεξούδες καστανά μαλλιά, τυλιμένες στεφανωτά γύρα στο κεφάλι. Γέμισε ο
-γερο-άρχοντας τρουλωτά το κουταλάκι του γλυκό βύσσινο, κοίταξε την κοπέλα,
-σήκωσε το ποτήρι.
-
---- Στις χαρές σου, Μαριορή μου, ευκήθηκε· ο γιος μου βιάζεται.
-
-Ήταν αρραβωνιασμένη η παπαδοπούλα με τον μοναχογιό του το Μιχελή, και ο
-παπάς καμάρωνε που θα’~κανε τέτοιο συμπεθεριό και θα’~πιανε γρήγορα αγγόνια.
-
---- Δεν μπορώ να καταλάβω γιατί βιάζεται τόσο ο βλογημένος· δεν μπορεί,
-λέει, πια... πρόσθεσε γελώντας ο άρχοντας κι έκλεισε το μάτι στην κοπέλα.
-
-Κι αυτή κοκκίνησε ως το λαιμό, πλαντούσε, δεν μπόρεσε να μιλήσει.
-
---- Χαρές να’~χουμε! είπε ο παπα-Γρηγόρης, μπαίνοντας με μια μπουκάλα
-μοσχάτο κρασί. Με την ευκή του Χριστού και της Παναγιάς!
-
-Άγριος, κοτσονάτος, με διχαλωτή γενειάδα κάτασπρη, καλοθρεμμένος, μύριζε
-λιβάνι και βούτυρο. Είδε την κόρη του να κοκκινίζει και, για ν’~αλλάξει
-κουβέντα:
-
---- Πότε με το καλό θα παντρέψεις και την παρακόρη σου το Λενιό; ρώτησε.
-
-Το Λενιό ήταν μια από τις μπασταρδοπούλες που ο άρχοντας είχε σκαρώσει με
-τις παραδουλεύτρες του. Την είχε αρραβωνιάσει με τον ήμερο πιστό τσοπάνη
-του, το Μανολιό, και την είχε αρχοντικά προικίσει μ’~ένα κοπάδι πρόβατα, που
-τα’~βοσκε ο Μανολιός στο αντικρινό βουνό της Παναγιάς.
-
---- Αν θέλει ο Θεός, αποκρίθηκε, αυτές τις μέρες· το Λενιό, λέει,
-βιάζεται. Βιάζεται το καλορίζικο· σηκώθηκε, μαθές, το βυζί του και θέλει να
-βυζάξει γιο. «Μάης μπαίνει, μου’~πε προχτές, Μάης μπαίνει, αφεντικό, και
-πρέπει να βιαστούμε.»
-
-Γέλασε πάλι καλόκαρδα, τα προγούλια του σείστηκαν.
-
---- Το Μάη είπε, παντρεύονται τα γαϊδούρια, έχει δίκιο το Λενιό· πρέπει να
-βιαστούμε. Άνθρωποι είναι κι αυτοί, και ας είναι και φαμέγοι.
-
---- Καλός είναι ο Μανολιός, έκαμε ο παπάς· καλά θα ζήσουν.
-
-
 \englishtext
 
 \chapter{Introduction}
 
-Sitting on his balcony above the village square, the Agha of Lycovrissi
-smoked his pipe and sipped raki. A thin, warm rain fell softly; on his fat
-mustaches, which were freshly dyed black, tiny drops hung and twinkled;
-warmed by the raki, the Agha licked his lips and enjoyed the cool. At his
-right hand, holding a trumpet, stood Hussein, his squire and bodyguard, a
-giant Oriental, wicked as a monkey, and with a squint. At his left, seated
-on a velvet cushion with his legs tucked under him, a dimpled boy
-ceaselessly relit his pipe for him and refilled his cup with raki.
+\H\ is a delightful language. Yet, it doesn't seem to have its rightful place
+in terms of popularity in industry. Why is it so?  Is it inherently hard to
+learn or could it be that the syntax is perplexing to the amateur eye? It is
+my belief that with some syntax changes that give a greater familiarity to the
+new user, there would be no language more compelling than (the new) \H. In an
+attempt to achieve that familiarity, I present some (hopefully useful) new
+syntax, of which some is closer to the imperative/OOP style (to attract more
+already experienced programmers from these languages), some is closer to
+mathematics (in which most programmers should be experienced) and some is
+closer to natural language (in which we are all already experienced).
 
-The Agha half shut his heavy eyelids and savored this world below. All that
-the good God has made is perfect, he thought: this world’s a real
-success. Are you hungry? here’s bread and minced meat or pilaff with
-cinnamon. Are you thirsty? here’s that water of youthfulness, raki. Are you
-sleepy? God has made sleep; nothing like it when you’re sleepy. If you’re
-angry, He’s made the whip and the raia’s buttocks. If you’re depressed, He’s
-made the amanés, If, lastly, you want to forget all the sorrows and worries
-of this world, He’s made Youssoufaki.
+\chapter{Language Description: General}
 
-A wonderful artist, Allah! he murmured sentimentally, yes, indeed, a
-wonderful artist Who knows His business and is ingenious, too. How the devil
-did He get the idea of making raki and Youssoufaki?
+\section{Program Structure}
 
-The Agha’s eyes moistened with tears; he had drunk so much raki that his
-soul was filled with tenderness. Leaning over his balcony, he watched the
-raias strolling in the square, just shaved, in their best clothes, with
-their broad red sashes, freshly washed breeches, long blue leggings. Some
-wore the fez, others the turban, others the sheepskin cap. The smartest had
-a sprig of basil or a cigarette behind the ear.
+An lcases program consists of a set of definitions, type nicknames and
+theorems.  Definitions are split into value definitions, type definitions and
+type proposition definitions. Theorems are proven type propositions. Functions
+as well as "Environment Actions" (see section \ref{subsec:envacts}) are also
+considered values. The definition of the "main" value determines the program's
+behaviour.
+
+\paragraph{Program example: Euclidean Algorithm}
+\begin{verbatim}
+gcd_of(_)and(_): Int^2 => Int
+  = (x, cases)
+    0 => x
+    y => gcd_of(y)and((x)mod(y))
+
+read_two_ints: (Int^2)FromIO
+  = print("Please give me 2 ints");
+    get_line ;> split(_)to_words o> cases
+      [x, y] => (from_string(x), from_string(y)) -> (_)with_io
+      ... => throw_err("You didn't give me 2 ints")
+
+tuple_type NumsAndGcd
+value (x, y, gcd):Int^3
+
+nag(_)to_message: NumsAndGcd => String
+  = nag => "The GCD of " + nag.x + " and " + nag.y + " is " + nag.gcd
+
+main: IO
+  = read_two_ints ;> (i1, i2) =>
+    (i1, i2, gcd_of(i1)and(i2)) -> nag(_)to_message -> print(_)
+\end{verbatim}
+
+\paragraph{Program grammar}
+\begin{grammar}
+<program> ::=
+<nl>* <program-part> ( <nl> <nl> <program-part> )* <nl>*
+
+<program-part> ::= ""\\
+<value-def> | <grouped-value-defs> | <type-def> | <t-nickname> |
+<type-prop-def> | <type-theo>
+
+<nl> :: ( `\ ' | `\\t' )* `\\n'
+\end{grammar}
+
+\newpage
+\section{Keywords}
+
+The lcases keywords are the following:
+\begin{verbatim}
+cases all where tuple_type value or_type values
+type_proposition needed equivalent type_theorem proof
+\end{verbatim}
+Each keyword's functionality is described in the respective section shown in
+the table below:
+
+\begin{center}
+\centering
+\begin{tabular}{ |c|c| }
+\hline
+Keyword & Section
+\\
+\hline
+\hline
+\verb|cases| & \ref{subsubsec:casessyntax} "cases" Function Expressions
+\\
+\hline
+\verb|all where| & \ref{subsec:valdefswhere}
+Value Definitions and "where" Expressions
+\\
+\hline
+
+\begin{tabular}{@{}c@{}}
+\verb|tuple_type value or_type|
+\\
+\verb|values type_nickname|
+\end{tabular}
+&
+\ref{subsec:types} Types
+\\
+\hline
+\begin{tabular}{@{}c@{}}
+\verb|type_proposition needed|\\
+\verb|equivalent type_theorem proof|
+\end{tabular}
+&
+{\ref{subsec:typelogic} Type Logic}
+\\
+\hline
+\end{tabular}
+
+\end{center}
+The "\verb|cases|" and "\verb|where|" keywords are also
+reserved words. Therefore, even though they can be generated by the
+"identifiers" grammar, they cannot be used as identifiers (see "Literals and
+Identifiers" section \ref{subsubsec:litsandidents}).
+
+\newpage
+\chapter{Language Description: Values}
+
+\section{Basic Expressions}
+
+\subsection{Literals and Identifiers}
+\label{subsubsec:litsandidents}
+
+\paragraph{Literals}
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+1  2  17  42  -100
+1.62  2.72  3.14  -1234.567
+'a'  'b'  'c'  'x'  'y'  'z'  '.'  ','  '\n'
+"Hello World!"  "What's up, doc?"  "Alrighty then!"
+\end{verbatim}
+
+\item \textit{Description}
+
+There are literals for the four basic types: \texttt{Int, Real, Char, String}.
+
+\item \textit{Grammar}
+\begin{grammar}
+<literal> ::= <int-lit> | <real-lit> | <char-lit> | <string-lit>
+\end{grammar}
+
+\end{itemize}
 
 
-\section{The Goal of this Project}
+\paragraph{Identifiers}
+\begin{itemize}
 
-It was Easter Tuesday; Mass was just over. Exquisite weather, tender: spring
-sun and rain; the lemon blossoms were fragrant, the trees budding, the grass
-reviving, Christ rising from every clod. The Christians were coming and
-going across the square and embracing one another with the Paschal greeting:
-Christ is risen! Risen indeed! --- after which they would go and sit at
-Kostandis’s café or in the middle of the square under the old plane
-tree. They ordered narghiles, with their long tubes and bubbling water, and
-coffee, and at once there began an endless chatter, like the light rain.
+\item \textit{Examples}
+\begin{verbatim}
+x y z
+a1 a2 a3
+(_)mod(_)
+apply(_)to_all_in(_)
+\end{verbatim}
 
-This is what it’ll be like in Paradise, hazarded Charaiambos the beadle,
-soft sunshine, a gentle rain falling without a sound, lemon trees in
-blossom, narghiles, and agreeable conversation, forever and ever.
+\item \textit{Description}
 
-At the other end of the square, behind the plane tree, freshly whitewashed
-and with its graceful bell tower beside it, rose the village church: the
-Crucifixion. Today its doorway was decked with palm and laurel branches. All
-around were small shops and stalls:
+An identifier is the name of a value or a parameter. It is used in the
+definition of a value and in expressions that use that value, or in the
+parameters of a function and in the body of that function.
+\\\\
+An identifier starts with a lower case letter, which can be followed by lower
+case letters or underscores and/or ended with a digit. It is also possible to
+have underscores in parenthesis before, after or in the middle of an identifier
+(see "Parenthesis Function Application" section \ref{subsubsec:parenfuncapp}
+for why this can be useful).
+\\\\
+A simple identifier is an identifier without any underscores in parenthesis.
+It used in expressions where underscores in parenthesis don't make sense (e.g.
+"Prefix and Postfix Functions" \ref{subsubsec:prefixpostfix}).
 
-There was Panayotaros the saddler’s (a clown with the nickname
-Plaster-eater: once, when a plaster statuette of Napoleon was brought to the
-village, he had bolted it. After that, they had brought another, of Kemal
-Pasha; bolted again. Finally, one of Venizelos; bolted like the others).
+\newpage
+\item \textit{Grammar}
+\begin{grammar}
+<identifier> ::=
+[ <unders-in-paren> ] <id-start> <id-cont>* [ [0-9] ] [ <unders-in-paren> ]
 
-Next door, Andonis the barber’s with its signboard saying Andonis. Above the
-door an inscription in thick, dark-red letters announced: Teeth also
-extracted.
+<simple-id> ::= <id-start> [ [0-9] ]
 
-Farther on, the butcher’s shop kept by old lame Dimitri: Fresh
-calves’~heads, Herodiade. Every Saturday he killed a calf; before doing so
-he gilded its horns, painted its forehead, hung red ribbons round its neck
-and, limping, led it through the village, singing its virtues.
+<id-start> ::= [a-z] [a-z_]*
 
-Lastly the famous Café Kostandis, a long narrow room where it was cool and
-there was always a balmy smell of coffee and tobacco and, in winter,
-sage. On its walls hung --- the pride of the village --- three impressive
-portraits on glossy paper: on one side Saint Genevieve, half naked in a
-tropical forest; on the other, Queen Victoria, with blue eyes and an
-enormous nurse’s bosom; right in the middle, hard-faced, grey-eyed,
-glowering and wearing a tall Astrakhan cap, Kemal Pasha.
+<id-cont> ::= <unders-in-paren> [a-z_]+
 
-Fine men, all these villagers, hard workers, good fathers; and the Agha,
-too, was a fine man with his love for raki, for the heavy scents --- musk
-and patchouli --- and for the pretty boy seated at his left on the velvet
-cushion. Amused, the Agha gazed upon the Christians, like a shepherd upon
-his flock, and was well pleased.
+<unders-in-paren> ::= `(_' ( <comma> `_' )* `)'
 
-Excellent fellows, he thought, this year again they’ve filled my cellar with
-their Easter presents --- cheeses, coronets of sesame bread, brioches,
-scarlet eggs... One of them, may Heaven preserve him, has brought me a box
-of Chian mastic for my Youssoufaki to munch and make his little mouth smell
-nice.
+<comma> ::= `,' [ `\ ' ]
+\end{grammar}
+Even though the "\verb|cases|" and "\verb|where|" keywords can be generated
+by these grammar rules, they cannot be used as identifiers.
+
+\end{itemize}
+
+\newpage
+\subsection{Parenthesis, Tuples and Lists}
+
+\paragraph{Parenthesis}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+(1 + 2)
+(((1 + 2) * 3)^4)
+(n => 3*n + 1)
+(get_line ;> line => print("Line is: " + line))
+\end{verbatim}
+
+\item \textit{Description}
+
+An expression is put in parenthesis to prioritize it or isolate it in a bigger
+(operator) expression. The expressions inside parenthesis are operator
+or function expressions.
+\\\\
+Parenthesis expressions cannot extend over multiple lines. For expressions
+that extend of over multiple lines new values must be defined.
+
+\item \textit{Grammar}
+\begin{grammar}
+<paren-expr> ::= `(' [ `\ ' ] <line-op-expr> | <line-func-expr> [ `\ ' ] `)'
+\end{grammar}
+
+\end{itemize}
+
+\paragraph{Tuples}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+(1, "What's up, doc?")
+(2, "Alrighty then!", 3.14)
+(x, y, z, w)
+(1, my_function, (x, y, z) => sqrt(x^2 + y^2 + z^2))
+\end{verbatim}
+
+\item \textit{Description}
+
+Tuples are used to group many values (of possibly different types) into one.
+The type of a tuple can be either the product of the types of the fields or a
+defined \verb|tuple_type| which is equivalent to the aforementioned product
+type (see "Tuple Types" in section \ref{subsubsec:tdefs} for details). For
+example, the type of the second tuple above could be:
+\begin{verbatim}
+Int x String x Real
+\end{verbatim}
+or:
+\begin{verbatim}
+MyType
+\end{verbatim}
+assuming "\verb|MyType|" has been defined in a similar way to the following:
+\begin{verbatim}
+tuple_type MyType
+value
+  (my_int, my_string, my_real) : Int x String x Real
+\end{verbatim}
+
+\newpage
+\item \textit{Big Tuples}
+\\\\
+\textbf{Example}
+\begin{verbatim}
+my_big_tuple
+  : String x Int x Real x String x String x (String x Real x Real)
+  = ( "Hey, I'm the first field and I'm also a relatively big string."
+    , 42, 3.14, "Hey, I'm the first small string", "Hey, I'm the second small string"
+    , ("Hey, I'm a string inside the nested tuple", 2.72, 1.62)
+    )
+\end{verbatim}
+
+\textbf{Description}
+
+It is possible to stretch a (big) tuple expression over multiple lines (only)
+in a separate value definition (see "Value Definitions" section
+\ref{subsubsec:valdefs}).  In that case:
+\begin{itemize}
+\item
+The character '\verb|(|' is after the "\verb|=| " part of the value definition
+and the first field must be in the same line.
+
+\item
+The tuple can split in a new line only at a '\verb|,|' character. Every such
+line must be indented so that the '\verb|,|' is in same column where the
+'\verb|(|' character was in the first line.
+
+\item
+The tuple must be ended by a line that only contains the '\verb|)|' character
+and is also indented so that the '\verb|)|' is in same column where the
+'\verb|(|' character was in the first line.
+
+\item
+The precise indentation rules are described in the section
+"Indentation System" \ref{subsubsec:indsys}.
+\end{itemize}
+
+\item \textit{Tuples with empty fields}
+\\\\
+\textbf{Examples}
+\begin{verbatim}
+(42, _)
+(_, 3.14, _)
+(_, _, "Hello from 3rd field")
+\end{verbatim}
+
+\textbf{Description}\\\\
+It is possible to leave some fields empty in a tuple by having an underscore in
+their position. This creates a function that expects the empty fields
+and returns the whole tuple. This is best demonstrated by the types of the
+examples above:
+\begin{verbatim}
+(42, _) : T1 => Int x T1
+(_, 3.14, _) : T1 x T2 => T1 x Real x T2
+(_, _, "Hello from 3rd field") : T1 x T2 => T1 x T2 x String
+\end{verbatim}
+An example in a bigger expression is the following:
+\begin{verbatim}
+questions : ListOf(String)s
+  = ["the Ultimate Question of Life", "the Universe", "Everything"]
+
+answers_to : ListOf(String)s
+  = apply("The answer to " + _)to_all_in(questions)
+\end{verbatim}
+
+\newpage
+\begin{verbatim}
+>> apply((42, _))to_all_in(answers_to)
+  : ListOf(Int x String)s
+  ==> [ (42, "The answer to the Ultimate Question of Life")
+      , (42, "The answer to the Universe")
+      , (42, "The answer to Everything")
+      ]
+\end{verbatim}
+
+\item \textit{Grammar}
+\begin{grammar}
+<tuple> ::=
+`(' [ `\ ' ] <line-expr-or-under> <comma> <line-expr-or-unders> [ `\ ' ] `)'
+
+<line-expr-or-unders> ::=
+<line-expr-or-under> ( <comma> <line-expr-or-under> )*
+
+<line-expr-or-under> ::= <line-expr> | `_'
+
+<line-expr> ::= <basic-or-app-expr> | <line-op-expr> | <line-func-expr>
+
+<basic-or-app-expr> ::= <basic-expr> | <pre-func-app> | <post-func-app>
+
+<basic-expr> ::=
+<literal> | <paren-func-app-or-id> | <special-id> | <tuple> | <list>
+\\
+
+<big-tuple> ::= ""\\
+`(' [ `\ ' ] <line-expr-or-under> [ <nl> <indent> ]
+<comma> <line-expr-or-unders> \\
+( <nl> <indent> <comma> <line-expr-or-unders> )* \\
+<nl> <indent> `)'
+\end{grammar}
+
+\end{itemize}
+
+\paragraph{Lists}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+[1, 2, 17, 42, -100]
+[1.62, 2.72, 3.14, -1234.567]
+["Hello World!", "What's up, doc?", "Alrighty then!"]
+[x => x + 1, x => x + 2, x => x + 3]
+[x, y, z, w]
+\end{verbatim}
+
+\item \textit{Description}
+
+Lists are used to group many values of the same type into one.  The type of the
+list is \verb|ListOf(T1)s| where \verb|T1| is the type of every value inside.
+Therefore, the types of the first four examples are:
+\begin{verbatim}
+ListOf(Int)s
+ListOf(Real)s
+ListOf(String)s
+(@A)And(Int)Add_To(@B) --> ListOf(@A => @B)s
+\end{verbatim}
+And the last list is only legal if x, y, z and w all have the same type.
+Assuming they do and it's the type T, the type of the list is:
+\begin{verbatim}
+ListOf(T)s
+\end{verbatim}
+
+\newpage
+\item \textit{Big Lists}
+  \\\\
+  \textbf{Example}
+
+  \begin{verbatim}
+my_big_list: ListOf(Int => IO)s
+  = [ x => print("I'm the first function and x + 1 is: " + (x + 1))
+    , x => print("I'm the second function and x + 2 is: " + (x + 2))
+    , x => print("I'm the third function and x + 3 is: " + (x + 3))
+    ]
+  \end{verbatim}
+
+  \textbf{Description}
+
+  It is possible to stretch a (big) list expression over multiple lines (only)
+  in a separate value definition (see "Value Definitions" section
+  \ref{subsubsec:valdefs}).  In that case:
+  \begin{itemize}
+  \item
+  The character '\verb|[|' is after the "= " part of the value definition
+  and the first element must be in the same line.
+
+  \item
+  The list can split in a new line only at a '\verb|,|' character. Every such
+  line must be indented so that the '\verb|,|' is in same column where the
+  '\verb|[|' character was in the first line.
+
+  \item
+  The list must be ended by a line that only contains the '\verb|]|' character
+  and is also indented so that the '\verb|]|' is in same column where the
+  '\verb|[|' character was in the first line.
+
+  \item
+  The precise indentation rules are described in the section
+  "Indentation System" \ref{subsubsec:indsys}.
+  \end{itemize}
+
+\item \textit{Grammar}
+\begin{grammar}
+<list> ::= `[' [ `\ ' ] [ <line-expr-or-unders> ] [ `\ ' ] `]'
+
+<big-list> ::= ""\\
+`[' [ `\ ' ] <line-expr-or-unders> \\
+( <nl> <indent> <comma> <line-expr-or-unders> )* \\
+<nl> <indent> `]'
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+\subsection{Parenthesis Function Application}
+\label{subsubsec:parenfuncapp}
+
+\begin{itemize}
+\item \textit{Examples}
+
+\begin{verbatim}
+f(x)
+f(x, y, z)
+(x)to_string
+apply(f)to_all_in(l)
+\end{verbatim}
+
+\item \textit{Description}
+
+Function application in lcases can be done in many different ways. In this
+section, we discuss the ways function application can be done with parenthesis.
+\\\\
+In the first two examples, the usual mathematical function application is used
+which is also used in most programming languages and should be familiar to the
+reader, i.e. function application is done with the arguments of the function in
+parenthesis separated by commas and \textbf{appended} to the function
+identifier.
+\\\\
+This idea can be extended by allowing the arguments to be \textbf{prepended} or
+to be \textbf{inside} to the function identifier (examples 3 and 4). This is
+only valid if the function has been \textbf{defined with these parentheses in
+the identifier}. For example, the definition for
+"\verb|apply(_)to_all_in(_)|"
+starts like so:
+\begin{verbatim}
+apply(_)to_all_in(_) : (T1 => T2) x ListOf(T1)s => ListOf(T2)s
+  = <...definition>
+\end{verbatim}
+The identifier is "\verb|apply(_)to_all_in(_)|" with the parentheses
+\textbf{included}.  This is very useful for defining functions where the
+argument in the middle or before makes the function application look and sound
+more like natural language.
+\\\\
+It is possible to have many parentheses in a single function application (last
+example). The arguments are always inserted to the function from \textbf{left
+to right}.  Therefore, when multiple parentheses are present the arguments of
+the leftmost parentheses are inserted first then the next ones to the right and
+so on.
+
+\newpage
+\item \textit{Empty arguments in Parenthesis Function Application}
+\\\\
+It is possible to provide a function with a subset its arguments by putting an
+underscore to all the missing arguments. The resulting expression is a function
+that expects the missing arguments to return the final result. Let's see
+this in action:
+\begin{verbatim}
+f(_, _, _) : Char x Int x Real => String
+c, i, r : Char, Int, Real
+
+f(c, i, r) : String
+
+f(_, i, r) : Char => String
+f(c, _, r) : Int => String
+f(c, i, _) : Real => String
+
+f(c, _, _) : Int x Real => String
+f(_, i, _) : Char x Real => String
+f(_, _, r) : Char x Int => String
+\end{verbatim}
+
+\item \textit{Grammar}
+\begin{grammar}
+<paren-func-app-or-id> ::= ""\\""
+[ <arguments> ] <id-start> ( <arguments> [a-z_]+ )* [ [0-9] ]
+[ <arguments> ]
+
+<arguments> ::= `(' [ `\ ' ] <line-expr-or-unders> [ `\ ' ] `)'
+
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+
+\subsection{Prefix and Postfix Functions}
+\label{subsubsec:prefixpostfix}
+
+\paragraph{Prefix Functions}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+the_value:1
+error:e
+result:r
+apply(the_value:_)to_all_in(_)
+\end{verbatim}
+
+\item \textit{Description}
+
+Prefix functions are automatically generated from \verb|or_type| definitions
+(see "Or Types" in section \ref{subsubsec:tdefs}). They are functions that
+convert a value of a particular type to a value that is a case of an
+\verb|or_type| and has values of the first type inside. For example in the
+first example above we have:
+\begin{verbatim}
+1 : Int
+the_value:1 : Possibly(Int)
+\end{verbatim}
+Where the function \verb|the_value:_| is automatically generated from the
+definition of the \verb|Possibly| type:
+\begin{verbatim}
+or_type Possibly(T1)
+values the_value:T1 | no_value
+\end{verbatim}
+And it has the type \verb|T1 => Possibly(T1)|.
+\\\\
+These functions are called prefix functions because they are prepended to their
+argument. However, they can also be used as arguments to other functions with
+an underscore in their argument.  This is illustrated in the last example,
+where the function \verb|the_value:_| is an argument of the function
+\verb|apply(_)to_all_in(_)|.
+
+\item \textit{Grammar}
+\begin{grammar}
+<pre-func> ::= <simple-id> `:'
+
+<pre-func-app> ::= <pre-func> <operand>
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+\paragraph{Postfix Functions}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+name.first_name
+list.head
+date.year
+tuple.1st
+apply(_.1st)to_all_in(_)
+\end{verbatim}
+
+\item \textit{Description}
+
+Postfix functions are automatically generated from \verb|tuple_type|
+definitions (see "Tuple Types" in section \ref{subsubsec:tdefs}). They are
+functions that take a \verb|tuple_type| value and return a particular field
+(i.e. projection functions). For example in the first example above we have:
+\begin{verbatim}
+name : Name
+name.first_name : String
+\end{verbatim}
+Where the function \verb|_.first_name| is automatically generated from the
+definition of the \verb|Name| type:
+\begin{verbatim}
+tuple_type Name
+value (first_name, last_name) : String^2
+\end{verbatim}
+And it has the type \verb|Name => String|.
+\\\\
+There are also the following special projection functions that work on all
+tuples:
+"\verb|_.1st|", "\verb|_.2nd|", "\verb|_.3rd|", "\verb|_.4th|", "\verb|_.5th|"
+.
+For the 4th example above, assuming:
+\begin{verbatim}
+tuple : Int x String
+\end{verbatim}
+We have:
+\begin{verbatim}
+tuple.1st : Int
+\end{verbatim}
+The general types of these functions are:
+\begin{verbatim}
+_.1st : (@A)Is(@B)s_1st --> @B => @A
+_.2nd : (@A)Is(@B)s_2nd --> @B => @A
+...
+\end{verbatim}
+These functions are called postfix functions because they are appended to their
+argument. However, they can also be used as arguments to other functions with
+an underscore in their argument. This is illustrated in the last example, where
+the function "\verb|_.1st|" is an argument of the function
+"\verb|apply(_)to_all_in(_)|".
+\\\\
+There is a special postfix function called "\verb|_.change|" which is described
+in the following paragraph.
+
+\newpage
+\item \textit{Grammar}
+\begin{grammar}
+<post-func> ::= `.' ( <simple-id> | <special-id> )
+
+<special-id> ::= `1st' | `2nd' | `3rd' | `4th' | `5th'
+
+<post-func-app> ::= ""\\
+( <basic-expr> | <paren-expr> | `_' )
+( <dot-change> | <post-func>+ [ <dot-change> ] )
+\end{grammar}
+
+\end{itemize}
+
+\paragraph{The ".change" Function}
+
+\begin{itemize}
+
+\item \textit{Examples}
+
+\begin{verbatim}
+state.change{counter = counter + 1}
+tuple.change{1st = 42, 3rd = 17}
+point.change{x = 1.62, y = 2.72, z = 3.14}
+apply(_.change{1st = 1st + 1})to_all_in(_)
+x.change{1st = _, 3rd = _}
+\end{verbatim}
+
+\item \textit{Description}
+\\\\
+The "\verb|_.change|" function is a special postfix function that works an all
+tuples. It returns a new tuple that is the same as the input tuple except for
+some changed fields. Which fields change and to what new value is specified
+inside curly brackets after the "\verb|.change|". The following special
+identifiers can be used for referring to the fields of product type tuples:
+"\verb|1st|", "\verb|2nd|", "\verb|3rd|", "\verb|4th|", "\verb|5th|"
+(2nd, 4th and 5th example). If the tuple is of a tuple type, the identifiers of
+the fields specified in the type definition are used (1st and 3rd example).
+Therefore, we are assuming the following (or similar) if the examples are to
+type check:
+
+\begin{verbatim}
+tuple_type MyStateType
+value (..., counter, ...) : ... x Int x ...
+
+state : MyStateType
 
 
-\section{The C++ Programming Language}
+tuple : Int x SomeType x Int (x ...)
 
-The Agha felt happy: My cellar, he thought, is bursting with good things,
-the rain is falling gently, the cocks are crowing, and, close beside me,
-crouched at my feet, my Youssoufaki munches his mastic and smacks his
-tongue. The Agha suddenly felt his heart overflowing. He bent his neck and
-was about to begin singing the amanés; but the effort was too great; turning
-toward Hussein he signed to him to put his trumpet to his lips to silence
-the raias. After which, he turned to his left:
 
-``Sing, Youssoufaki (my blessing be upon you), sing me `Dounia tabir, rouya
-tabir, aman, aman!' Sing it to me or I shall burst!''
+tuple_type Point
+value (x, y, z) : Real^3
 
-The pretty boy, without hurrying, took the mastic from his mouth, stuck it
-on his bare knee, leaned his right palm against his cheek and began to sing
-his Agha’s favorite amanés: ``World and dream are but one, aman, aman!''
+point : Point
 
-His fluting voice went up and down with dove-like cooings. The Agha,
-enchanted, shut his eyes and, as long as the boy sang, forgot to drink.
 
-One of his good days, whispered Kostandis as he served coffee, blessed be
-raki!
+apply(_.change{1st = 1st + 1})to_all_in(_)
+  : (@A)And(Int)AddTo(@A), (@A)Is(@B)s_1st --> ListOf(@B)s => ListOf(@B)s
 
-Blessed be Youssoufaki, said Yannakos, smiling maliciously. He was the
-village carrier and courier: a thick pepper-and-salt beard, eyes of a bird
-of prey.
 
-``A curse on destiny, the blind hag, for having made him an Agha and us
-raias,'' growled the priest’s brother, Hadji Nikolis, the village
-schoolmaster; a dry individual with glasses and a jutting Adam’s apple that
-bobbed up and down when he talked.
+x : Int x Real x String
+x.change{1st = _, 3rd = _} : Int x String => Int x Real x String
+\end{verbatim}
 
-\begin{figure}[t]
-\setlength\partopsep{-\topsep}% adjusts vertical space after the listing
-\begin{minted}[frame=lines,linenos,numbersep=5pt]{c++}
-#include <iostream>
-int main() {
-  std::cout << "Hello world!" << std::endl;
+\newpage
+The changes of the fields have the following structure:
+"\verb|field = <expression of new value>|"
+and they are separated by commas. The input tuple's fields (i.e. the
+"old" values) can be used inside the expression of a new value and they are
+referred to by the field identifier (1st and 4th example). Underscores can be
+used as the expressions of some new values which makes the whole expression
+a function that expects those new values as arguments (last example).
+\item \textit{Grammar}
+
+\begin{grammar}
+<dot-change> ::=
+`.change{' [ `\ ' ] <field-change> ( <comma> <field-change> )* [ `\ ' ] `}'
+
+<field-change> ::= ( <simple-id> | <special-id> ) <equals> <line-expr-or-under>
+
+<equals> ::= [ `\ ' ] `=' [ `\ ' ]
+\end{grammar}
+
+\end{itemize}
+
+\section{Operators}
+
+\subsection{Function Application and Function Composition Operators}
+
+\paragraph{Function Application Operators}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Type
+\\
+\hline
+\hline
+\verb|->| & \verb| T1 x (T1 => T2) => T2|
+\\
+\hline
+\verb|<-| & \verb| (T1 => T2) x T1 => T2|
+\\
+\hline
+\end{tabular}
+\end{center}
+The function application operators "\verb|->|" and "\verb|<-|" are a
+different way to apply functions to arguments than the usual parenthesis
+function application.  They are meant to look like arrows that point from the
+argument to the function.  These operators are very useful for chaining many
+function applications without the clutter of having to open and close
+parentheses for each one of the functions.  For example, assuming we have the
+following functions with the behaviour suggested by their names and types:
+\begin{verbatim}
+apply(_)to_all_in(_) : (T1 => T2) x ListOf(T1)s => ListOf(T2)s
+str_len(_) : String => Int
+filter(_)with(_) : ListOf(T1)s x (T1 => Bool) => ListOf(T1)s
+(_)is_odd : Int => Bool
+sum_ints(_) : ListOf(Int)s => Int
+\end{verbatim}
+And a list of strings:
+\begin{verbatim}
+strings : ListOf(String)s
+\end{verbatim}
+Here is a simple way to get the total number of characters in all the strings
+that have odd length:
+\begin{verbatim}
+chars_in_odd_length_strings : Int
+  = apply(str_len(_))to_all_in(strings) -> filter(_)with((_)is_odd) -> sum_ints(_)
+\end{verbatim}
+This can be done equivalently using the other operator:
+\begin{verbatim}
+chars_in_odd_length_strings : Int
+  = sum_ints(_) <- filter(_)with((_)is_odd) <- apply(str_len(_))to_all_in(strings)
+
+\end{verbatim}
+
+\newpage
+
+\paragraph{Function Composition Operators}
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Type
+\\
+\hline
+\hline
+\verb|o>| & \verb|(T1 => T2) x (T2 => T3) => (T1 => T3)|
+\\
+\hline
+\verb|<o| & \verb|(T2 => T3) x (T1 => T2) => (T1 => T3)|
+\\
+\hline
+\end{tabular}
+\end{center}
+The function composition operators "\verb|o>|" and "\verb|<o|" are used to
+compose functions, each one in the corresponding direction. The use of the
+letter '\verb|o|' is meant to be similar to the mathematical function
+composition symbol '\(\circ\)' and the symbols '\verb|>|', '\verb|<|' are used
+so that the operator points from the function which is applied first to the
+function which is applied second.  A neat example using function composition is
+the following. Assuming we have the following functions with the behaviour
+suggested by their names and types:
+\begin{verbatim}
+split(_)to_words : String => ListOf(String)s
+apply(_)to_all_in(_) : (T1 => T2) x ListOf(T1)s => ListOf(T2)s
+reverse_str(_) : String => String
+merge_words(_) : ListOf(String)s => String
+\end{verbatim}
+We can reverse the all the words in a string like so:
+\begin{verbatim}
+reverse_words_in(_) : String => String
+  = split(_)to_words o> apply(reverse_str(_))to_all_in(_) o> merge_words(_)
+\end{verbatim}
+This can be done equivalently using the other operator:
+\begin{verbatim}
+reverse_words_in(_) : String => String
+  = merge_words(_) <o apply(reverse_str(_))to_all_in(_) <o split(_)to_words
+\end{verbatim}
+
+\newpage
+
+\subsection{Arithmetic, Comparison and Boolean Operators}
+
+\paragraph{Arithmetic Operators}
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Type
+\\
+\hline
+\hline
+\verb|^| & \verb|(@A)To_The(@B)Is(@C) --> @A x @B => @C|
+\\
+\hline
+\verb|*| & \verb|(@A)And(@B)Multiply_To(@C) --> @A x @B => @C|
+\\
+\hline
+\verb|/| & \verb|(@A)Divided_By(@B)Is(@C) --> @A x @B => @C|
+\\
+\hline
+\verb|+| & \verb|(@A)And(@B)Add_To(@C) --> @A x @B => @C|
+\\
+\hline
+\verb|-| & \verb|(@A)Minus(@B)Is(@C) --> @A x @B => @C|
+\\
+\hline
+\end{tabular}
+\end{center}
+The usual arithmetic operators work as they are expected, similarly to
+mathematics and other programming languages for the usual types. However, they
+are generalized. The examples below show their generality:
+\begin{verbatim}
+>> 1 + 1
+  : Int
+  ==> 2
+>> 1 + 3.14
+  : Real
+  ==> 4.14
+>> 'a' + 'b'
+  : String
+  ==> "ab"
+>> 'w' + "ord"
+  : String
+  ==> "word"
+>> "Hello " + "World!"
+  : String
+  ==> "Hello World!"
+>> 5 * 'a'
+  : String
+  ==> "aaaaa"
+>> 5 * "hi"
+  : String
+  ==> "hihihihihi"
+>> "1,2,3" - ','
+  : String
+  ==> "123"
+\end{verbatim}
+Let's analyze further the example of addition. The type can be read as such:
+the '\verb|+|' operator has the type \\ \verb|@A x @B => @C|, provided that the
+type proposition \verb|(@A)And(@B)Add_To(@C)| holds. This proposition being
+true, means that addition has been defined for these three types (see section
+"Type Logic" \ref{subsec:typelogic} for more on type propositions). For
+example, by the examples above we can deduce that the following propositions
+are true (in the order of the examples):
+\begin{verbatim}
+(Int)And(Int)Add_To(Int)
+(Int)And(Real)Add_To(Real)
+(Char)And(Char)Add_To(String)
+(Char)And(String)Add_To(String)
+(Int)And(Char)Multiply_To(String)
+(Int)And(String)Multiply_To(String)
+(String)Minus(Char)Is(String)
+\end{verbatim}
+This allows us to use the familiar arithmetic operators in types that are not
+necessarily numbers but it is somewhat intuitively obvious what they should do
+in those other types. Furthermore, their behaviour can be defined by the user
+for new user defined types!
+
+\paragraph{Comparison, Boolean and Bitwise Operators}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Type
+\\
+\hline
+\hline
+\verb|==| & \verb|(@A)And(@B)Can_Be_Equal --> @A x @B => Bool|
+\\
+\hline
+\verb|!=| & \verb|(@A)And(@B)Can_Be_Unequal --> @A x @B => Bool|
+\\
+\hline
+\verb|>| & \verb|(@A)Can_Be_Greater_Than(@B) --> @A x @B => Bool|
+\\
+\hline
+\verb|<| & \verb|(@A)Can_Be_Less_Than(@B) --> @A x @B => Bool|
+\\
+\hline
+\verb|>=| & \verb|(@A)Can_Be_Gr_Or_Eq_To(@B) --> @A x @B => Bool|
+\\
+\hline
+\verb|<=| & \verb|(@A)Can_Be_Le_Or_Eq_To(@B) --> @A x @B => Bool|
+\\
+\hline
+\verb|&| & \verb|(@A)Has_And --> @A^2 => @A|
+\\
+\hline
+\texttt{|} & \verb|(@A)Has_Or --> @A^2 => @A|
+\\
+\hline
+\end{tabular}
+\end{center}
+Comparison operators are also generalized. The main reason for the
+generalization is to be able to compare numbers of different types. Consider
+the following example:
+
+\begin{verbatim}
+>> 1
+  : Int
+  ==> 1
+>> 1.1
+  : Real
+  ==> 1.1
+>> 1.1 == 1
+  : Bool
+  ==> false
+>> 1.0 == 1
+  : Bool
+  ==> true
+\end{verbatim}
+In order for the example to work we need to be able to compare integers and
+reals.  Similarly, all the comparison operators need to be able to work on
+arguments of different types.
+\\\\
+Boolean "and" and bitwise "and" are combined into one general "and" operator
+(\verb|&|). The same applies to the "or" operator (\texttt{|}).
+
+\newpage
+
+\subsection{Environment Action Operators}
+\label{subsec:envacts}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Type
+\\
+\hline
+\hline
+\verb|;>| & \verb|(@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)|
+\\
+\hline
+\verb|;| & \verb|(@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)|
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Simple Example Program}
+\begin{verbatim}
+main: (EmptyVal)FromIO
+  = print_string("I'll repeat the line") ; get_line ;> print_string(_)
+\end{verbatim}
+The example above demonstrates the use of the environment action operators with
+the \verb|FromIO| environment type, which is how IO is done in lcases. Some
+light can be shed on how this is done, if we take a look at the types (as
+always!):
+\begin{verbatim}
+print_string(_): String => (EmptyVal)FromIO
+print_string("I'll repeat the line"): (EmptyVal)FromIO
+get_line: (String)FromIO
+
+
+\end{verbatim}
+For the "then" operator we have:
+\verb|; : (@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)|
+\\\\
+In the following expression:
+\verb|print_string("I'll repeat the line") ; get_line|
+\\
+the "then" operator has type:
+\verb|(EmptyVal)FromIO x (String)FromIO => SomeType|
+\\\\
+The only way to match the types is:
+\\
+\verb|  @E = FromIO, T1 = EmptyVal, T2 = String and SomeType = (String)FromIO|
+\\
+and it type checks because: \verb|(FromIO)Has_Then|
+\\\\
+For the whole expression we have:
+\begin{verbatim}
+print_string("I'll repeat the line") ; get_line
+  : (String)FromIO
+
+
+\end{verbatim}
+For the "use" operator we have:
+\verb|;> : (@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)|
+\\\\
+In the following expression:
+\verb|print_string("I'll repeat the line") ; get_line ;> print_string(_)|
+\\
+the "use" operator has type:
+\verb|(String)FromIO x (String => (EmptyVal)FromIO) => SomeType|
+\\\\
+The only way to match the types is:
+\\
+\verb|  @E = FromIO, T1 = String, T2 = EmptyVal and SomeType = (EmptyVal)FromIO|
+\\
+and it type checks because: \verb|(FromIO)Has_Use|
+\\\\
+For the whole expression we have:
+\begin{verbatim}
+print_string("I'll repeat the line") ; get_line ;> print_string(_)
+  : (EmptyVal)FromIO
+\end{verbatim}
+
+\newpage
+\paragraph{Another Example Program}
+\begin{verbatim}
+main: (EmptyVal)FromIO
+  = print_string("Hello! What's your name?") ; get_line ;> name =>
+    print_string("And how old are you?") ; get_line ;> age =>
+    print_string("Oh! You don't look " + age + " " + name + "!")
+
+print_string(_): String => (EmptyVal)FromIO
+
+print_string("Hello! What's your name?") : (EmptyVal)FromIO
+
+print_string("Hello! What's your name?"); get_line
+  : (String)FromIO
+
+print_string("And how old are you?"); get_line
+  : (String)FromIO
+
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+
+age => print_string("Oh! You don't look " + age + " " + name + "!")
+  : String => (EmptyVal)FromIO
+
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+
+name =>
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : String => (EmptyVal)FromIO
+
+print_string("Hello! What's your name?") ; get_line ;> name =>
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+\end{verbatim}
+
+\newpage
+\paragraph{Description}\pend
+The environment action operators are used to combine values that do environment
+actions into values that do more complicated environment actions. Environment
+actions are type functions that take a type argument and produce a type (just
+like \verb|ListOf(_)s|). These type functions have the "then" operator (\verb|;|)
+and the "use" operator (\verb|;>|) defined for them.  A value of the type
+\verb|@E(T1)| where \verb|(@E)Has_Then| does an environment action of type
+\verb|@E| that produces a value of type \verb|T1| which can then be
+combined with another one with the "then" operator. Similarly, with the "use"
+operator the produced value of an action can be used by a function that returns
+another action.
+\\\\
+The effect of the "\verb|;|" operator described in words is the following:
+given a value of type \verb|@E(T1)| and a value of type \verb|@E(T2)|
+(which are environment actions that produce values of type \verb|T1| and
+\verb|T2| respectively), create a new value the does both actions (provided
+the first did not result in an error).  The overall effect is a value which is
+an environment action of type \verb|@E| (the combination of the "smaller"
+actions) which produces a value of type \verb|T2| (the one produced by the
+second action) and therefore it is of type \verb|@E(T2)|.
+\\\\
+Note that the value of type \verb|T1| produced by the first action is not
+used anywhere. This happens mostly when \verb|T1 = EmptyVal| and it is
+because values of type \verb|@E(EmptyVal)| are used for their environment
+action only \\(e.g. \verb|print_string(...): (EmptyVal)FromIO|).
+\\\\
+How the two environment actions of the \verb|@E(T1)| and \verb|@E(T2)|
+values are combined to produce the new environment action is specific to the
+environment action type \verb|@E|.
+\\\\
+The effect of the "\verb|;>|" operator described in words is the following:
+given a value of type \verb|@E(T1)| (which is an environment action of type
+\verb|@E| that produces a value of type \verb|T1|) and a value of type
+\verb|T1 => @E(T2)| (which is a function that takes a value of type
+\verb|T1| and returns an environment action of type \verb|@E| that produces
+a value of type \verb|T2|), combine those two values by creating a value that
+does the following:
+\begin{itemize}
+\item
+Performs the first action that produces a value of type \verb|T1|
+
+\item
+Takes the value of type \verb|T1| produced (provided there was no error) and
+passes it to the function of type \verb|T1 => @E(T2)| that then returns an
+action
+
+\item
+Performs the resulting action
+\end{itemize}
+The overall effect is an environment action  of type \verb|@E| that produces
+a value is of type \verb|T2| and therefore the new value is of type
+\verb|@E(T2)|.
+
+\newpage
+
+\subsection{Operator Expressions}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+1 + 2
+1 + x * 3^y
+"Hello " + "World!"
+x -> f -> g
+f o> g o> h
+x == y
+x >= y - z & x < 2 * y
+get_line ; get_line ;> line => print("Second line: " + line)
+2 * _
+_ - 1
+"Hello " + "it's me, " + _
+"Hi, I am " + _ + " and I am " + _ + " years old"
+\end{verbatim}
+
+\item \textit{Description}
+
+Operator expressions are expressions that use operators. Operators act like
+two-argument-functions that are placed in between their arguments (operands).
+Therefore, they have function types and they act as it is described in their
+respective sections above this one.
+\\\\
+An operator expression might have multiple operators. The order of operations
+is explained in the next section ("Complete Table, Precedence and
+Associativity") in Table \ref{table:precassoc}.
+\\\\
+Just like functions, the operands of an operator, must have types that match
+the types expected by the operator.
+\\\\
+It is possible for the second operand of an operator to be a function
+expression.  This is mostly useful with the "\verb|;>|" operator (see
+previous section: "Environment Operators").
+\\\\
+It is possible to use an underscore as an operand. An operator expression with
+underscore operands becomes a function that expects those operands as
+arguments.  This is best demonstrated by the types of the last four examples:
+
+\begin{verbatim}
+2 * _ : Int => Int
+_ - 1 : Int => Int
+"Hello " + "it's me, " + _ : String => String
+"Hi, I am " + _ + " and I am " + _ + " years old" : String^2 => String
+\end{verbatim}
+Note: These are not the most general types for these examples but they are
+compatible.
+
+\newpage
+
+\item \textit{Big Operator Expressions}\\\\
+\textbf{Example}
+
+\begin{verbatim}
+"Hello, I'm a big string that's going to contain multiple values from " +
+"inside the imaginary program that I'm a part of. Here they are:\n" +
+"value1 = " + value1 + ", value2 = " + value2 + ", value3 = " + value3 +
+", value4 = " + value4 + ", value5 = " + value5
+\end{verbatim}
+
+\textbf{Description}
+
+It is possible to stretch a (big) operator expression over multiple lines.
+In that case:
+\begin{itemize}
+\item
+The operator expression must split in a new line after an operator (not an
+operand).
+
+\item
+Every line after the first must be indented so that in begins at the column
+where the first line of the operator expression begun.
+
+\item
+The precise indentation rules are described in the section
+"Indentation System" \ref{subsubsec:indsys}.
+\end{itemize}
+
+\item \textit{Grammar}
+\begin{grammar}
+<op-expr> ::= <line-op-expr> | <big-op-expr>
+\\
+
+<op-expr-start> ::= ( <operand> <op> )+
+
+<line-op-expr> ::= <op-expr-start> ( <operand> | <line-func-expr> )
+\\
+
+<big-op-expr> ::=
+<big-op-expr-op-split> | <big-op-expr-func-split>
+\\
+
+<big-op-expr-op-split> ::=
+<op-split-line>+ [ <op-expr-start> ] ( <operand> | <func-expr> )
+
+<op-split-line> ::=
+( <op-expr-start> ( <nl> | <oper-fco> ) | <oper-fco> ) <indent>
+
+<oper-fco> ::= <operand> `\ ' <func-comp-op> `\\n'
+\\
+
+<big-op-expr-func-split> ::=
+<op-expr-start> ( <big-func-expr> | <cases-func-expr> )
+\\
+
+<operand> ::= <basic-or-app-expr> | <paren-expr> | `_'
+\\
+
+<op> ::= `\ ' <func-comp-op> `\ ' | [ `\ ' ] <optional-spaces-op> [ `\ ' ]
+
+<func-comp-op> ::= `o>' | `<o'
+
+<optional-spaces-op> ::= ""\\
+`->' | `<-' | `^' | `*' | `/' | `+' | `-' | `==' | `!=' | `>' | `<' | `>=' |
+`<=' | `\&' | `|' | `;>' | `;'
+\end{grammar}
+\end{itemize}
+
+\newpage
+\subsection{Complete Table, Precedence and Associativity}
+
+\begin{table}[h]
+
+\caption{
+The complete table of lcases operators along with their types and
+their short descriptions.
 }
-\end{minted}
-\caption{Filled with joy, the Agha decides to write some code.%
-  \label{fig:hello-english}}
-\end{figure}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Op & Type & Description
+\\
+\hline
+\hline
+\verb|->| & \verb|T1 x (T1 => T2) => T2| &
+\begin{tabular}{@{}c@{}}
+Right Function
+\\
+Application
+\end{tabular}
+\\
+\hline
+\verb|<-| & \verb|(T1 => T2) x T1 => T2| &
+\begin{tabular}{@{}c@{}}
+Left Function
+\\
+Application
+\end{tabular}
+\\
+\hline
+\verb|o>| & \verb|(T1 => T2) x (T2 => T3) => (T1 => T3)| &
+\begin{tabular}{@{}c@{}}
+Right Function
+\\
+Composition
+\end{tabular}
+\\
+\hline
+\verb|<o| & \verb|(T2 => T3) x (T1 => T2) => (T1 => T3)| &
+\begin{tabular}{@{}c@{}}
+Left Function
+\\
+Composition
+\end{tabular}
+\\
+\hline
+\verb|^| & \verb|(@A)To_The(@B)Is(@C) --> @A x @B => @C| &
+General Exponentiation
+\\
+\hline
+\verb|*| & \verb|(@A)And(@B)Multiply_To(@C) --> @A x @B => @C| &
+General Multiplication
+\\
+\hline
+\verb|/| & \verb|(@A)Divided_By(@B)Is(@C) --> @A x @B => @C| &
+General Division
+\\
+\hline
+\verb|+| & \verb|(@A)And(@B)Add_To(@C) --> @A x @B => @C| &
+General Addition
+\\
+\hline
+\verb|-| & \verb|(@A)Minus(@B)Is(@C) --> @A x @B => @C| &
+General Subtraction
+\\
+\hline
+\verb|==| & \verb|(@A)And(@B)Can_Be_Equal --> @A x @B => Bool| &
+General Equality
+\\
+\hline
+\verb|!=| & \verb|(@A)And(@B)Can_Be_Unequal --> @A x @B => Bool| &
+General Inequality
+\\
+\hline
+\verb|>| & \verb|(@A)Can_Be_Greater_Than(@B) --> @A x @B => Bool| &
+General Greater Than
+\\
+\hline
+\verb|<| & \verb|(@A)Can_Be_Less_Than(@B) --> @A x @B => Bool| &
+General Less Than
+\\
+\hline
+\verb|>=| & \verb|(@A)Can_Be_Gr_Or_Eq_To(@B) --> @A x @B => Bool| &
+\begin{tabular}{@{}c@{}}
+General Greater Than
+\\
+or Equal To
+\end{tabular}
+\\
+\hline
+\verb|<=| & \verb|(@A)Can_Be_Le_Or_Eq_To(@B) --> @A x @B => Bool| &
+\begin{tabular}{@{}c@{}}
+General Less Than
+\\
+or Equal To
+\end{tabular}
+\\
+\hline
+\verb|&| & \verb|(@A)Has_And --> @A^2 => @A| & General And
+\\
+\hline
+\texttt{|} & \verb|(@A)Has_Or --> @A^2 => @A| & General Or
+\\
+\hline
+\verb|;>| & \verb|(@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)| &
+\begin{tabular}{@{}c@{}}
+"Use"
+\\
+Environment Action
+\end{tabular}
+\\
+\hline
+\verb|;| & \verb|(@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)| &
+\begin{tabular}{@{}c@{}}
+"Then"
+\\
+Environment Action
+\end{tabular}
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\label{table:allops}
+
+\end{table}
+\newpage\noindent
+The order of operations is done from highest to lowest precedence. In the same
+level of precedence the order is done from left to right if the associativity
+is "Left" and from right to left if the associativity is "Right". For the
+operators that have associativity "None" it is not allowed to place them in the
+same operator expression. The precedence and associativity of the operators
+is shown in the table below.
+
+\begin{table}[h]
+
+\caption{ The table of precedence and associativity of the lcases operators.  }
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Operator & Precedence & Associativity
+\\
+\hline
+\hline
+\verb|->| & 10 (highest) & Left
+\\
+\hline
+\verb|<-| & 9 & Right
+\\
+\hline
+\verb|o> <o| & 8 & Left
+\\
+\hline
+\verb|^| & 7 & Right
+\\
+\hline
+\verb|* /| & 6 & Left
+\\
+\hline
+\verb|+ -| & 5 & Left
+\\
+\hline
+\verb|== != > < >= <=| & 4 & None
+\\
+\hline
+\verb|&| & 3 & Left
+\\
+\hline
+\texttt{|} & 2 & Left
+\\
+\hline
+\verb|;> ;| & 1 & Left
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\label{table:precassoc}
+
+\end{table}
+
+\newpage
+\section{Function Expressions}
+\label{subsec:funcexprs}
+
+Function expressions are divided into \textbf{regular function expressions} and
+\textbf{"cases" function expressions} which are described in the following
+sections.
+\begin{grammar}
+<func-expr> ::= <line-func-expr> | <big-func-expr> | <cases-func-expr>
+\end{grammar}
+
+\subsection{Regular Function Expressions}
+
+\begin{itemize}
+\item \textit{Examples}
+
+\begin{verbatim}
+a => 17 * a + 42
+(a, b) => a + 2*b
+(x, y, z) => sqrt(x^2 + y^2 + z^2)
+* => 42
+(x, *, z) => x + z
+((x1, y1), (x2, y2)) => (x1 + x2, y1 + y2)
+\end{verbatim}
+
+\item \textit{Description}
+
+Regular function expressions are used to define functions or be part of bigger
+expressions as anonymous functions. They are comprised by their parameters and
+their body.
+\\\\
+Parameters have identifiers. There is either only one parameter, in which case
+there is no parenthesis, or there are many, in which case they are in
+parentheses, separated by commas. If a parameter is not needed it can be left
+empty by having an asterisk instead of an identifier (4th and 5th example).
+If a parameter is a tuple itself it can be matched further by using parentheses
+and giving identifiers to its fields (5th example).
+\\\\
+The parameters and the body are separated by the function arrow
+("\verb|=>|"). The body is a basic expression, an operator expression or
+a function expression in parenthesis.
+
+\item \textit{Big Function Expressions}\\\\
+\textbf{Example}
+
+\begin{verbatim}
+(value1, value2, value3, value4, value5, value6, value7) =>
+print("value1 = " + value1 + ", value2 = " + value2 + ", value3 = " + value3) ;
+print("value4 = " + value4 + ", value5 = " + value5 + ", value6 = " + value6) ;
+print("value7 = " + value7)
+\end{verbatim}
+
+\textbf{Description}
+
+It is possible to stretch a (big) function expression over multiple lines.
+In that case:
+\begin{itemize}
+\item
+The function expression must split in a new line after the function arrow
+("\verb|=>|").
+
+\item
+Every line after the first must be indented so that in begins at the column
+where the first character of the parameters was in the first line.
+
+\item
+The precise indentation rules are described in the section
+"Indentation System" \ref{subsubsec:indsys}.
+\end{itemize}
+
+\newpage
+\item \textit{Grammar}
+\begin{grammar}
+<line-func-expr> ::= <parameters> [ `\ ' ] `=>' <line-func-body>
+
+<big-func-expr> ::= <parameters> [ `\ ' ] `=>' <big-func-body>
+
+<parameters> ::= ""\\
+<identifier> | `*' |
+`(' [ `\ ' ] <parameters> ( <comma> <parameters> )+ [ `\ ' ] `)'
+
+<line-func-body> ::= ""\\""
+[ `\ ' ]
+(
+<basic-or-app-expr> | <line-op-expr> |
+`(' [ `\ ' ] <line-func-expr> [ `\ ' ] `)'
+)
+
+<big-func-body> ::= ""\\
+<nl> <indent>
+(
+<basic-or-app-expr> | <op-expr> | `(' [ `\ ' ] <line-func-expr> [ `\ ' ] `)'
+)
+\end{grammar}
+\end{itemize}
+
+\newpage
+\subsection{"cases" Function Expressions}
+\label{subsubsec:casessyntax}
+
+\begin{itemize}
+\item \textit{Examples}
+
+\begin{verbatim}
+print_sentimental_bool(_): Bool => IO
+  = cases
+    true => print("It's true!! :)")
+    false => print("It's false... :(")
+
+or_type TrafficLight
+values green | amber | red
+
+(_)is_not_red: TrafficLight => Bool
+  = cases
+    green => true
+    amber => true
+    red => false
+
+(_)is_seventeen_or_forty_two: Int => Bool
+  = cases
+    17 => true
+    42 => true
+    ... => false
+
+traffic_lights_match(_, _): TrafficLight^2 => Bool
+  = (cases, cases)
+    (green, green) => true
+    (amber, amber) => true
+    (red, red) => true
+    ... => false
+
+gcd_of(_)and(_): Int^2 => Int
+  = (x, cases)
+    0 => x
+    y => gcd_of(y)and((x)mod(y))
+
+apply(_)to_all_in(_): (T1 => T2) x ListOf(T1)s => ListOf(T2)s
+  = (f(_), cases)
+    [] => []
+    [head, tail = ...] => f(head) + apply(f(_))to_all_in(tail)
+
+cases
+  [x1, x2, xs = ...] => (x1 < x2) & (x2 + xs)is_sorted
+  ... => true
+\end{verbatim}
+
+\newpage
+
+\item \textit{Description}
+
+"\verb|cases|" is a keyword that works as a special parameter.  Instead of
+giving the name "\verb|cases|" to that parameter, it is used to pattern match
+on the possible values of that parameter and return a different result for each
+particular case.
+\\\\
+The last case can be "\verb|... => (body of default case)|" to capture all
+remaining cases while dismissing the value (e.g.
+"\verb|is_seventeen_or_forty_two|" example), or it can be \\
+"\verb|some_id => (body of default case)|" to capture all remaining
+cases while being able to use the value with the name "\verb|some_id|"
+(e.g.  "\verb|y|" in "\verb|gcd|" example).
+\\\\
+It is possible to use "\verb|cases|" in multiple parameters to match on all of
+them combined. By doing that, each case represents a particular combination of
+values for the "\verb|cases|" parameters involved\\(e.g.
+\verb|traffic_lights_match| example).
+\\\\
+It is also possible to use a "\verb|where|" expression below a particular case.
+The "\verb|where|" expression must be indented two spaces more than than the
+line where that particular case begins.
+\\\\
+It also possible to use the following syntax to match on as many elements of a
+list as needed and optionally give a name to the rest of the list:
+\begin{verbatim}
+# no name for the rest of the list
+[x1, ...] => <case body>
+[x1, x2, ...] => <case body>
+[x1, x2, x3, ...] => <case body>
+
+# name for the rest of the list
+[x1, xs = ...] => <case body>
+[x1, x2, xs = ...] => <case body>
+[x1, x2, x3, xs = ...] => <case body>
+\end{verbatim}
+
+\newpage
+\item \textit{Grammar}
+\begin{grammar}
+<cases-func-expr> ::= <cases-params> <case>+ [ <end-case> ]
+
+<cases-params> ::=
+""\\
+<identifier> | `cases' | `*' | ""\\
+`(' [ `\ ' ] <cases-params> ( <comma> <cases-params> )+ [ `\ ' ] `)'
+\\
+
+<case> ::=  <nl> <indent> <outer-matching> [ `\ ' ] `=>' <case-body>
+
+<end-case> ::=
+<nl> <indent> ( `...' | <identifier> ) [ `\ ' ] `=>' <case-body>
+\\
+
+<outer-matching> ::= <simple-id> | <matching>
+
+<matching> ::=
+<literal> | <pre-func> <inner-matching> | <tuple-matching> | <list-matching>
+
+<inner-matching> ::= `*' | <identifier> | <matching>
+
+<tuple-matching> ::=
+`(' [ `\ ' ] <inner-matching> ( <comma> <inner-matching> )+ [ `\ ' ] `)'
+
+<list-matching> ::= ""\\
+`[' [ `\ ' ]
+[ <inner-matching> ( <comma> <inner-matching> )* [ <rest-list-matching> ] ]
+""\\""
+[ `\ ' ] `]'
+
+<rest-list-matching> ::= <comma> [ <simple-id> <equals> ] `...'
+\\
+
+<case-body> ::= <line-func-body> | <big-func-body> [ <where-expr> ]
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+
+\section{Value Definitions and "where" Expressions}
+\label{subsec:valdefswhere}
+
+\subsection{Value Definitions}
+\label{subsubsec:valdefs}
+
+\begin{itemize}
+
+\item \textit{Examples}
+
+\begin{verbatim}
+foo: Int
+  = 42
+
+f(_, _, _): Int^3 => Int
+  = (a, b, c) => a + b * c
+
+val1, val2, val3: Int, Bool, Char
+  = 42, true, 'a'
+
+int1, int2, int3: all Int
+  = 1, 2, 3
+\end{verbatim}
+
+\item \textit{Description}
+
+Value definitions are the main building block of lcases programs. To define a
+new value you give it a name, a type and an expression. The name is an
+identifier which is followed by the "has type" symbol ('\verb|:|') and the
+expression of the type of the value. The line below is indented two spaces and
+begins with the equal sign and continues with the expression of the value
+(which extends to as many lines as needed).
+\\\\
+A value definition begins either in the first column, where it can be "seen" by
+all other value definitions, or it is inside a "\verb|where|" expression (see
+section below), where it can be "seen" by the expression above the
+"\verb|where|" and all the other definitions in the same "\verb|where|"
+expression.
+\\\\
+A value definition can be followed by a "\verb|where|" expression where
+intermediate values used in the value expression are defined. In that case, the
+"\verb|where|" expression must be indented two spaces more than the "\verb|=|"
+line of the value definition.
+\\\\
+It is possible to group value definitions together by separating the names, the
+types and the expressions with commas. This is very useful for not cluttering
+the program with many definitions for values with small expressions (e.g.
+constants).  When grouping definitions together it is also possible to use the
+keyword "\verb|all|" to give the same type to all the values.
+
+\item \textit{Grammar}
+\begin{grammar}
+<value-def> ::= ""\\
+<indent> <identifier>
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' ) <type>  \\
+<nl> <indent> `=\ ' <value-expr> [ <where-expr> ]
+
+<value-expr> ::=
+<basic-or-app-expr> | <op-expr> | <func-expr> | <big-tuple> | <big-list>
+\\
+
+<grouped-value-defs> ::= ""\\
+<indent> <identifier> ( <comma> <identifier> )+ \\
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' )
+( <type> ( <comma> <type> )+ | `all\ ' <type> ) \\
+<nl> <indent> `=\ ' <line-exprs> ( <nl> <indent> <comma> <line-exprs> )*
+
+<line-exprs> ::= <line-expr> ( <comma> <line-expr> )*
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+
+\subsection{"where" Expressions}
+\label{subsubsec:whereexprs}
+
+\begin{itemize}
+
+\item \textit{Examples}
+\begin{verbatim}
+sort(_): ListOf(Int)s => ListOf(Int)s
+  = cases
+    [] => []
+    [head, tail = ...] =>
+      sort(less_l) + head + sort(greater_l)
+      where
+      less_l, greater_l: all ListOf(Int)s
+        = filter(tail)with(_ < head), filter(tail)with(_ >= head)
+
+sum_nodes(_): TreeOf(Int)s => Int
+  = tree =>
+    tree.root + apply(sum_nodes(_))to_all_in(tree.subtrees) -> sum_list(_)
+    where
+    sum_list(_) : ListOf(Int)s => Int
+      = cases
+        [] => 0
+        [head, tail = ...] => head + sum_list(tail)
+
+big_string : String
+  = s1 + s2 + s3 + s4
+    where
+    s1, s2, s3, s4 : all String
+      = "Hello, my name is Struggling Programmer."
+      , " I have tried way too many times to fit a big chunk of text"
+      , " inside my program, without it hitting the half-screen mark!"
+      , " I am so glad I finally discovered lcases!"
+\end{verbatim}
+
+\item \textit{Description}
+
+"\verb|where|" expressions allow the programmer to use values inside an
+expression and define them below it. They are very useful for reusing or
+abbreviating expressions that are specific to a particular definition or case.
+\\\\
+A "\verb|where|" expression begins by a line that only has the word
+"\verb|where|" in it. It is indented as described in the "Value Definitions"
+(\ref{subsubsec:valdefs}) or "'cases' Function Expressions"
+(\ref{subsubsec:casessyntax}) sections.  The definitions are placed below the
+"\verb|where|" line and must have the same indentation.
+
+\item \textit{Grammar}
+\begin{grammar}
+<where-expr> ::= ""\\
+<nl> <indent> `where'
+<nl> <value-def-or-defs> ( <nl> <nl> <value-def-or-defs> )*
+
+<value-def-or-defs> ::= <value-def> | <grouped-value-defs>
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+
+\chapter{Language Description: Types and Type Logic}
+
+\section{Types}
+\label{subsec:types}
+
+The constructs regarding types are \textbf{type expressions}, \textbf{type
+definitions} and \textbf{type nicknames} and they are described in the
+following sections.
+
+\subsection{Type Expressions}
+
+Type expressions are divided into the following categories:
+\begin{itemize}
+\item Type Identifiers
+\item Type Variables
+\item Type Application Types
+\item Product Types
+\item Function Types
+\item Conditional Types
+\end{itemize}
+which are described in the following paragraphs.
+\\\\
+The grammar of a type expression is:
+\begin{grammar}
+<type> ::= [ <condition> ]  <simple-type>
+
+<simple-type> ::=
+<param-t-var> | <type-app-id-or-ahtv> | <power-type> | <prod-type> |
+<func-type>
+\end{grammar}
+
+\paragraph{Type Identifiers}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+Int     Real     Char     String     SelfReferencingType
+\end{verbatim}
+
+\item \textit{Description}
+
+A type identifier is either the name of a basic type (Int, Real, Char, String)
+or the name of some defined type that has no type parameters. It begins with a
+capital letter and is followed by capital or lowercase letters.
+
+\item \textit{Grammar}
+\begin{grammar}
+<type-id> ::= [A-Z] [A-Za-z]*
+\end{grammar}
+\end{itemize}
+
+\paragraph{Type Variables}\pend
+Type Variables are placeholders inside bigger type expressions that can be
+substituted with various types. This makes the bigger type expression an
+expression of a \textbf{polymorphic} type. The types of polymorphism that exist
+in lcases are \textbf{parametric polymorphism} and \textbf{ad hoc
+polymorphism}. Type variables for each of the two types have different syntax
+and they are described in the following paragraphs.
+
+\subparagraph{Parametric Type Variables}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+T1     T2     T3
+\end{verbatim}
+
+\item
+\textit{Examples of parametric type variables inside bigger type expressions}
+\begin{verbatim}
+T1 => T1
+(T1 => T2) x (T2 => T3) => (T1 => T3)
+(T1^2 => T1) x T1 x ListOf(T1)s => T1
+\end{verbatim}
+
+\item \textit{Description}
+
+Parametric type variables can be substituted with any type and the program will
+type check.  The simplest example of a polymorphic type with a parametric type
+variable is the type of the identity function where we have:
+\begin{verbatim}
+id(_): T1 => T1
+  = x => x
+
+id(1): Int
+  where T1 is substituted by Int and id gets the type Int => Int
+
+id("Hello"): String
+  where T1 is substituted by String and id gets the type String => String
+\end{verbatim}
+
+A parametric type variable is written with capital "T" followed by a digit.
+
+\item \textit{Grammar}
+\begin{grammar}
+<param-t-var> ::= `T' [0-9] \\
+\end{grammar}
+\end{itemize}
+
+\subparagraph{Ad Hoc Type Variables}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+@A @B @C @T
+\end{verbatim}
+
+\item \textit{Examples of ad hoc type variables inside bigger type expressions}
+\begin{verbatim}
+(@T)Has_Str_Rep --> @T => String
+(@A)Is(@B)s_First --> @B => @A
+(@A)And(@B)Can_Be_Equal --> @A x @B => Bool
+(@A)And(@B)Add_To(@C) --> @A x @B => @C
+\end{verbatim}
+
+\item \textit{Description}
+
+Ad hoc type variables are type variables that can be substituted only by types
+that satisfy a condition. This condition comes in the form of a type
+proposition (see Type Logic section \ref{subsec:typelogic}). Therefore, any ad
+hoc type variable must also appear in the condition as shown in the examples.
+\\\\
+An ad hoc type variable is written with an '@' followed by any capital letter.
+
+\item \textit{Grammar}
+\begin{grammar}
+<ad-hoc-t-var> ::= `@' [A-Z]
+\end{grammar}
+\end{itemize}
+
+\paragraph{Type Application Types}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+Possibly(Int)
+ListOf(Real)s
+TreeOf(String)s
+Result(Int)OrError(String)
+ListOf(Int => Int)s
+ListOf(T1)s
+\end{verbatim}
+
+\item \textit{Description}
+
+Type application types are types that are produced by passing type arguments to
+a type function generated by a \verb|tuple_type| definition, an \verb|or_type|
+definition or a \verb|type_nickname|. For example, given the definition of
+\verb|Possibly(T1)|:
+\begin{verbatim}
+or_type Possibly(T1)
+values the_value:T1 | no_value
+\end{verbatim}
+We have that \verb|Possibly(_)| is a type function that receives one type
+parameter and returns a resulting type. For example \verb|Possibly(Int)| is
+the result of passing the type argument \verb|Int| to \verb|Possibly(_)|.
+\\\\
+Type application types have the same form as the name in the \verb|tuple_type|
+definition, \verb|or_type| definition or \verb|type_nickname|, with the
+difference that type parameters are substituted by the expressions of the type
+arguments.
+
+\item \textit{Grammar}
+\begin{grammar}
+<type-app-id-or-ahtv> ::=
+[ <types-in-paren> ] <taioa-middle> [ <types-in-paren> ]
+
+<taioa-middle> ::=
+<type-id> ( <types-in-paren> [A-Za-z]+ )* | <ad-hoc-t-var>
+
+<types-in-paren> ::=
+`(' [ `\ ' ] <simple-type> ( <comma> <simple-type> )* [ `\ ' ] `)'
+\end{grammar}
+\end{itemize}
+
+\newpage
+
+\paragraph{Product Types}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+Int x Real x String
+ListOf(Int)s x Int x ListOf(String)s
+(Int => Int) x (Int x Real) x (Real => String)
+Int^2 x Int^2
+Real^3 x Real^3
+\end{verbatim}
+
+\item \textit{Description}
+
+Product types are the types of tuples. They are comprised of the expressions of
+the types of the fields separated by the string " \verb|x| " (space '\verb|x|'
+space) to resemble the cartesian product. If any of the fields is of a product
+or a function type then the corresponding type expression must be inside
+parentheses. A product type where all the fields are of the same type can be
+abbreviated with a power type expression which is comprised of the type, the
+power symbol '\verb|^|' and the number of times the type is repeated.
+
+\item \textit{Grammar}
+\begin{grammar}
+<prod-type> ::= <field-type> ( `\ x\ ' <field-type> )+
+
+<field-type> ::= <power-base-type> | <power-type>
+
+<power-base-type> ::= ""\\
+<param-t-var> | <type-app-id-or-ahtv> |
+`(' [ `\ ' ] ( <prod-type> | <func-type> ) [ `\ ' ] `)'
+
+<power-type> ::= <power-base-type> `^' <int-greater-than-one>
+\end{grammar}
+\end{itemize}
+
+\paragraph{Function Types}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+String => String
+Real => Int
+T1 => T1
+Int^2 => Int
+Real^3 => Real
+(T1 => T2) x (T2 => T3) => (T1 => T3)
+(Int => Int) => (Int => Int)
+\end{verbatim}
+
+\item \textit{Description}
+
+A function type expression is comprised of the input type expression and the
+output type expression separated by the function arrow ("\verb|=>|"). The
+input and output type expressions are type expressions which are put in
+parentheses only if they are function type expressions.
+
+\item \textit{Grammar}
+\begin{grammar}
+<func-type> ::= <in-or-out-type> `\ =>\ ' <in-or-out-type>
+
+<in-or-out-type> ::=
+""\\
+<param-t-var> | <type-app-id-or-ahtv> | <power-type> | <prod-type> | ""\\
+`(' [ `\ ' ] <func-type>  [ `\ ' ] `)'
+\end{grammar}
+\end{itemize}
+
+\newpage
+
+\paragraph{Conditional Types}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+(@A)And(@B)Can_Be_Equal --> @A x @B => Bool
+(@A)And(@B)Add_To(@C) --> @A x @B => @C
+(@A)Is(@B)s_First --> @B => @A
+(@T)Has_Str_Rep --> @T => String
+(@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)
+\end{verbatim}
+
+\item \textit{Description}
+
+Conditional types are the types of values that are polymorphic not because of
+their structure but because they have been defined (separately) for many
+different combinations of types (i.e. they are ad hoc polymorphic). They are
+comprised of a condition and a "simple" type (i.e. a type without a condition)
+which are separated by the condition arrow (" \verb|-->| "). The condition is
+a type proposition which refers to type variables inside the "simple" type and
+it must hold whenever the polymorphic value of that type is used. For example:
+\begin{verbatim}
+(_)first: (@A)Is(@B)s_First --> @B => @A
+\end{verbatim}
+can be used as follows:
+\begin{verbatim}
+pair, triple, list
+  : Int x String, Real x Char x Int, ListOf(String)s
+  = (42, "The answer to everything"), (3.14, 'a', 1), ["Hi!", "Hello", Heeey"]
+
+>> (pair)first
+  : Int
+  ==> 42
+>> (triple)first
+  : Real
+  ==> 3.14
+>> (list)first
+  : String
+  ==> "Hi!"
+\end{verbatim}
+and that is because the following propositions hold:
+\begin{verbatim}
+(Int)Is(Int x String)s_First
+(Real)Is(Real x Char x Int)s_First
+(String)Is(ListOf(String)s)s_First
+\end{verbatim}
+which it turn means that the function "\verb|first|" has been defined for these
+combinations of types. For more on how conditions, propositions and ad hoc
+polymorphism works, see the "Type Logic" section (\ref{subsec:typelogic}).
+
+\item \textit{Grammar}
+\begin{grammar}
+<condition> ::= <prop-name> `\ -->\ '
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+
+\subsection{Type Definitions}
+\label{subsubsec:tdefs}
+
+Type definitions are divided into \verb|tuple_type| definitions and
+\verb|or_type| definitions which are described in the following paragraphs.
+\\\\
+The grammar of a type definition is:
+\begin{grammar}
+<type-def> ::= <tuple-type-def> | <or-type-def>
+\end{grammar}
+
+\paragraph{Tuple Types}
+
+\begin{itemize}
+\item \textit{Definition Examples}
+
+\begin{verbatim}
+tuple_type Name
+value (first_name, last_name) : String^2
+
+tuple_type Date
+value (day, month, year) : Int^3
+
+tuple_type MathematicianInfo
+value (name, nationality, date_of_birth) : Name x String x Date
+
+tuple_type TreeOf(T1)s
+value (root, subtrees) : T1 x ListOf(TreeOf(T1)s)s
+
+tuple_type Indexed(T1)
+value (index, val) : Int x T1
+\end{verbatim}
+
+\item \textit{Usage Examples}
+
+\begin{verbatim}
+euler_info: MathematicianInfo
+  = (("Leonhard", "Euler"), "Swiss", (15, 4, 1707))
+
+name(_)to_string: Name => String
+  = n => "\nFirst Name: " + n.first_name + "\nLast Name: " + n.last_name
+
+print_name_and_nat(_): MathematicianInfo => IO
+  = ci => print(name(ci.name)to_string + "\nNationality: " + ci.nationality)
+
+sum_nodes(_): TreeOf(Int)s => Int
+  = tree => tree.root + apply(sum_nodes(_))to_all_in(tree.subtrees) -> sum_list(_)
+\end{verbatim}
+
+\item \textit{Description}
+
+A tuple type is equivalent to a product type with a new name  and names for the
+fields for convenience. A tuple type generates postfix functions for all of
+the fields by using a '.' before the name of the field. For example the
+"\verb|MathematicianInfo|" type above generates the following functions:
+\begin{verbatim}
+_.name : MathematicianInfo => Name
+_.nationality : MathematicianInfo => String
+_.date_of_birth : MathematicianInfo => Date
+\end{verbatim}
+
+\newpage
+
+\item \textit{Grammar}
+
+\begin{grammar}
+<tuple-type-def> ::= ""\\
+`tuple_type\ ' <type-name> <nl> \\
+`value' ( `\ ' | <nl> `\ \ ' )
+<id-tuple> [ `\ ' ] `:' [ `\ ' ] ( <prod-type> | <power-type> )
+
+<type-name> ::= ""\\""
+[ <param-vars-in-paren> ] <type-id> ( <param-vars-in-paren> [A-Za-z]+ )* ""\\""
+[ <param-vars-in-paren> ]
+
+<param-vars-in-paren> ::=
+`(' [ `\ ' ] <param-t-var> ( <comma> <param-t-var> )* [ `\ ' ] `)'
+
+<id-tuple> ::= `(' [ `\ ' ] <simple-id> ( <comma> <simple-id> )+ [ `\ ' ] `)'
+\end{grammar}
+
+\end{itemize}
+
+\paragraph{Or Types}
+
+\begin{itemize}
+\item \textit{Definition Examples}
+
+\begin{verbatim}
+or_type Bool
+values true | false
+
+or_type TrafficLight
+values green | amber | red
+
+or_type Possibly(T1)
+values the_value:T1 | no_value
+
+or_type Result(T1)OrError(T2)
+values result:T1 | error:T2
+\end{verbatim}
+
+\item \textit{Usage Examples}
+
+\begin{verbatim}
+traffic_lights_match(_, _): TrafficLight^2 => Bool
+  = (cases, cases)
+    (green, green) => true
+    (amber, amber) => true
+    (red, red) => true
+    ... => false
+
+err_if(_)is_no_value : Possibly(T1) => Result(T1)OrError(String)
+  = cases
+    no_value => throw_err("There is no value!")
+    the_value:val => result:val
+
+print_err(_)or_res(_): (@A)Has_Str_Rep --> Result(@A)OrError(String) => IO
+  = cases
+    result:r => print("All good! The result is: " + (r)to_string)
+    error:e => print("Error occured: " + e)
+\end{verbatim}
+
+\newpage
+\item \textit{Description}
+
+The values of an \verb|or_type| are split into cases. Some cases have other
+values inside.  The cases which have other values inside are followed by a
+colon and the type of the internal value. Similar syntax can be used for
+matching that particular case in a function using the "cases" syntax.  An
+\verb|or_type| definition automatically creates prefix functions for each case
+with an internal value (which are simply conversions from the type of the
+internal value to the \verb|or_type|).  For example, for the case
+"\verb|the_value|" of a "\verb|Possibly(T1)|" the function "\verb|the_value:_|"
+is automatically created from the definition for which we can say:
+\begin{verbatim}
+the_value:_ : T1 => Possibly(T1)
+\end{verbatim}
+These functions can be used like any other function as arguments to other
+functions.  For example:
+\begin{verbatim}
+(_)to_possiblies : ListOf(T1)s => ListOf(Possibly(T1))s
+  = apply(the_value:_)to_all_in(_)
+\end{verbatim}
+
+\item \textit{Grammar}
+
+\begin{grammar}
+<or-type-def> ::= ""\\
+`or_type\ ' <type-name> <nl> \\
+`values' ( `\ ' | <nl> `\ \ ' ) \\
+<simple-id> [ `:' <simple-type> ]
+( [ `\ ' ] `|' [ `\ ' ] <simple-id> [ `:' <simple-type> ] )*
+\end{grammar}
+
+\end{itemize}
+
+\paragraph{Type Nicknames}
+
+\begin{itemize}
+
+\item \textit{Examples}
+
+\begin{verbatim}
+type_nickname Ints = ListOf(Int)s
+type_nickname IntStringPairs = ListOf(Int x String)s
+type_nickname IO = (EmptyVal)FromIO
+type_nickname Res(T1)OrErr = Result(T1)OrError(String)
+\end{verbatim}
+
+\item \textit{Description} \\\\
+Type nicknames are used to abbreviate or give a more descriptive name to a
+type.  They start with the keyword "\verb|type_nickname|", followed by the
+nickname, then an equal sign and the type to be nicknamed.
+Parametric type variables can be used in the nickname.
+
+\item \textit{Grammar}
+
+\begin{grammar}
+<t-nickname> ::=
+`type_nickname\ ' <type-name> <equals> <simple-type>
+\end{grammar}
+
+\end{itemize}
+
+\newpage
+\section{Type Logic}
+\label{subsec:typelogic}
+
+Type logic is the mechanism for ad hoc polymorphism in lcases. The central
+notion of \textbf{type logic} is the \textbf{type proposition}. A type
+proposition is a proposition that has types as parameters and is true or false
+for particular type arguments.
+\\\\
+Type propositions can either be defined or proven (for certain type arguments).
+Therefore, the following constructs exist and accomplish the aforementioned
+respectively: \textbf{type proposition definitions} and \textbf{type theorems}.
+These constructs are described in detail in the following sections. From this
+point onwards the "type" part will be omitted, i.e. propositions are always
+type propositions and theorems are always type theorems.
+
+\subsection{Proposition Definitions}
+
+Proposition definitions are split into definitions of \textbf{atomic
+propositions} and definitions of \textbf{renaming propositions} which are
+described in the following paragraphs.
+
+\paragraph{Atomic Propositions}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+type_proposition (@A)Is(@B)s_First
+needed (_)first: @B => @A
+
+type_proposition (@T)Has_Str_Rep
+needed (_)to_string: @T => String
+
+type_proposition (@T)Has_A_Wrapper
+needed wrap(_): T1 => @T(T1)
+
+type_proposition (@T)Has_Internal_App
+needed apply(_)inside(_) : (T1 => T2) x @T(T1) => @T(T2)
+\end{verbatim}
+The examples above define the following (ad hoc) polymorphic functions which
+have the respective (conditional) types:
+\begin{verbatim}
+(_)first: (@A)Is(@B)s_First --> @B => @A
+
+(_)to_string: (@T)Has_Str_Rep --> @T => String
+
+wrap(_): (@T)Has_A_Wrapper --> T1 => @T(T1)
+
+apply(_)inside(_): (@T)Has_Internal_App --> (T1 => T2) x @T(T1) => @T(T2)
+\end{verbatim}
+
+\newpage
+
+\item \textit{Description}
+
+An atomic proposition definition defines simultaneously the \textbf{atomic
+proposition} itself and a \textbf{polymorphic value} (usually, but not
+necessarily, a function), by defining the form of the type of the value given
+the type parameters of the proposition. The proposition is true or false when
+the type parameters are substituted by specific type arguments depending on
+whether the implementation of the value has been defined for these type
+arguments. The aforementioned truth value determines whether the value is used
+correctly inside the program and therefore whether the program will typecheck.
+In order to add more types for which the function works, i.e.  define the
+function for these types, i.e. make the proposition true for these types, one
+must prove a theorem. The specifics of theorems are described in the next
+section. For now, we'll show the example for everything mentioned in this
+paragraph for the proposition "\verb|(@A)Is(@B)s_First|":
+
+\begin{itemize}
+\item Proposition Definition:
+
+\begin{verbatim}
+type_proposition (@A)Is(@B)s_First
+needed (_)first: @B => @A
+\end{verbatim}
+
+\item Function defined and its type:
+
+\begin{verbatim}
+(_)first: (@A)Is(@B)s_First --> @B => @A
+\end{verbatim}
+
+\item Theorems for specific types:
+
+\begin{verbatim}
+type_theorem (T1)Is(T1 x T2)s_First
+proof (_)first = _.1st
+
+type_theorem (T1)Is(ListOf(T1)s)s_First
+proof
+  (_)first =
+    cases
+      [] => throw_err("Tried to take the first element of an empty list")
+      [head, ...] => head
+\end{verbatim}
+
+\item Usage of the function
+\begin{verbatim}
+pair, list
+  : Int x String, ListOf(String)s
+  = (42, "The answer to everything"), ["Hi!", "Hello", Heeey"]
+
+>> (pair)first
+  : Int
+  ==> 42
+>> (list)first
+  : String
+  ==> "Hi!"
+\end{verbatim}
+\end{itemize}
+
+An atomic proposition definition begins with the keyword
+"\verb|type_proposition|" followed by the name of the proposition (including
+the type parameters) in the first line. The second line begins with the keyword
+"\verb|needed|" which is followed by the identifier and the
+type expression of the value separated by the "has type" symbol ('\verb|:|').
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Renaming Propositions}
+
+\begin{itemize}
+\item \textit{Examples}
+\begin{verbatim}
+type_proposition (@T)Has_Equality
+equivalent (@T)And(@T)Can_Be_Equal
+
+type_proposition (@A)And(@B)Are_Comparable
+equivalent
+  (@A)Can_Be_Less_Than(@B), (@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)
+
+type_proposition (@T)Has_Comparison
+equivalent (@T)And(@T)Are_Comparable
+\end{verbatim}
+
+\item \textit{Description}
+
+A renaming proposition definition is used to abbreviate one or the conjunction
+of many propositions into a new proposition.
+\\\\
+A renaming proposition definition begins with the keyword
+"\verb|type_proposition|" followed by the name of the proposition (including
+the type parameters) in the first line. The second line begins with the keyword
+"\verb|equivalent|" followed by either one proposition or (if it is a
+conjunction) many propositions separated by commas (where the commas
+mean "and").
+
+\end{itemize}
+
+\paragraph{Grammar for Proposition Definitions}
+
+\begin{grammar}
+<type-prop-def> ::= <atom-prop-def> | <renaming-prop-def>
+\\
+
+<atom-prop-def> ::= ""\\
+<prop-name-line> <nl> `needed' ( `\ ' | <nl> `\ \ ' )
+<identifier> [ `\ ' ] `:' [ `\ ' ] <simple-type>
+
+<renaming-prop-def> ::= ""\\
+<prop-name-line> <nl>
+`equivalent' ( `\ ' | <nl> `\ \ ' ) <prop-name> ( <comma> <prop-name> )*
+
+<prop-name-line> ::= `type_proposition\ ' <prop-name>
+
+<prop-name> ::=  ""\\""
+[A-Z] ( <name-part> <types-in-paren> )+ [ <name-part> ]
+\alt " "( <types-in-paren> <name-part> )+ [ <types-in-paren> ]
+
+<name-part> ::= ( [A-Za-z] | `_'[A-Z] )+
+\end{grammar}
+
+\newpage
+
+\subsection{Theorems}
+\label{subsubsec:ttheo}
+
+Theorems are split into theorems of \textbf{atomic propositions} and
+theorems of \textbf{implication propositions} which are described in the
+following paragraphs.
+
+\paragraph{Atomic Propositions}
+
+\begin{itemize}
+\item \textit{Examples}
+
+\begin{verbatim}
+type_theorem (Possibly(_))Has_A_Wrapper
+proof wrap(_) = the_value:_
+
+type_theorem (ListOf(_)s)Has_A_Wrapper
+proof wrap(_) = [_]
+
+type_theorem (Possibly(_))Has_Internal_App
+proof
+  apply(_)inside(_) =
+    (f(_), cases)
+      no_value => no_value
+      the_value:x => the_value:f(x)
+
+type_theorem (ListOf(_)s)Has_Internal_App
+proof apply(_)inside(_) = apply(_)to_all_in(_)
+\end{verbatim}
+
+\item \textit{Usage}
+
+\begin{verbatim}
+a, b : all Possibly(Int)
+  = wrapper(1), no_value
+
+l1, l2, l3 : all ListOf(Int)s
+  = wrapper(1), empty_l, [1, 2, 3]
+
+>> a
+  : Possibly(Int)
+  ==> the_value:1
+>> b
+  : Possibly(Int)
+  ==> no_value
+>> l1
+  : ListOf(Int)s
+  ==> [1]
+>> l2
+  : ListOf(Int)s
+  ==> []
+\end{verbatim}
+\newpage
+\begin{verbatim}
+>> apply(_ + 1)inside(a)
+  : Possibly(Int)
+  ==> the_value:2
+>> apply(_ + 1)inside(b)
+  : Possibly(Int)
+  ==> no_value
+>> apply(_ + 1)inside(l1)
+  : ListOf(Int)s
+  ==> [2]
+>> apply(_ + 1)inside(l2)
+  : ListOf(Int)s
+  ==> []
+>> apply(_ + 1)inside(l3)
+  : ListOf(Int)s
+  ==> [2, 3, 4]
+\end{verbatim}
+
+\item \textit{Description}
+
+A theorem of an atomic proposition proves the proposition for
+specific type arguments, by implementing the value associated to the
+proposition for these type arguments. Therefore, the value associated with the
+proposition can be used with all the combinations of type arguments for which
+the proposition is true, i.e. the combinations of type arguments for which
+the value has been implemented.
+\\\\
+A proof of a theorem of an atomic proposition is correct when the
+implementation of the value associated with the proposition follows the form of
+the type given to the value by the definition of the proposition, i.e. the only
+difference between the type of the value in the theorem and the type of the
+value in the definition is that the type parameters of the proposition are
+substituted by the type arguments of the theorem.
+\\\\
+A theorem of an atomic proposition begins with the keyword
+"\verb|type_theorem|" followed by the name of the proposition with the type
+parameters substituted by the specific types for which the proposition will be
+proven. The second line is the keyword "\verb|proof|". The third line is
+indented once and it is the line in which the proof begins. The proof begins
+with the identifier of the value associated with the proposition and is
+followed by an equal sign and the value expression which implements the value.
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Implication Propositions}
+
+\begin{itemize}
+\item \textit{Examples}
+
+\begin{verbatim}
+type_theorem (@A)And(@B)Can_Be_Equal --> (@A)And(@B)Can_Be_Unequal
+proof a \= b = not(a == b)
+
+type_theorem (@A)Can_Be_Greater_Than(@B) --> (@A)Can_Be_Le_Or_Eq_To(@B)
+proof a <= b = not(a > b)
+
+type_proposition (@A)And(@B)Have_Eq_And_Gr
+equivalent (@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)
+
+type_theorem (@A)And(@B)Have_Eq_And_Gr --> (@A)Can_Be_Gr_Or_Eq_To(@B)
+proof a >= b = a == b | a > b
+\end{verbatim}
+
+\item \textit{Description}
+
+A theorem of an implication proposition is similar to a theorem of an atomic
+proposition but it also uses other ad hoc polymorphic values in the
+implementation. Therefore, the implementation does not prove the proposition
+associated to the value it implements unless the polymorphic values used in the
+implementation are already defined in their own theorems. In other words it
+proves the following: "if these ad hoc polymorphic values are defined then we
+can also define this other one". This can be translated into the following
+implication proposition: "if the propositions associated to the values we are
+using are true then the proposition associated to the value we are defining is
+true", which can be condensed to the notation with the condition arrow
+("\verb| --> |") used in the examples.
+\\\\
+When we are using many ad hoc values in the implementation we need to
+group all their propositions into one conjunction proposition with
+a renaming proposition definition as it is done in the example of \\
+\verb|(@A)And(@B)Have_Eq_And_Gr|.
+\\\\
+The proof of an implication proposition allows the compiler to
+automatically create the definition for an ad hoc polymorphic value for a
+particular combination of types given the definitions of the ad hoc polymorphic
+values used in the implementation for this same combination of types. This
+mechanism essentially gives definitions for free, that is in the sense that
+when you define a set of ad hoc polymorphic values for a particular set of
+types you get for free all the ad hoc polymorphic values that can be defined
+using a subset of the defined ones.
+\\\\
+A theorem of an implication proposition is grammatically the same as
+a theorem of an atomic proposition with the only difference being that an
+implication proposition is comprised by two atomic propositions separated by
+the condition arrow (" \verb|-->| ") arrow.
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Grammar for Theorems}
+
+\begin{grammar}
+<type-theo> ::= ""\\
+`type_theorem\ ' <prop-name-with-subs>
+[ `\ \verb|-->|\ ' <prop-name-with-subs> ] <nl>
+`proof' <proof>
+
+<prop-name-with-subs> ::=  ""\\""
+[A-Z] ( <name-part> <subs-in-paren> )+ [ <name-part> ]
+\alt " "( <subs-in-paren> <name-part> )+ [ <subs-in-paren> ]
+
+<subs-in-paren> ::=
+`(' [ `\ ' ] <t-var-sub> ( <comma> <t-var-sub> )* [ `\ ' ] `)'
+\\
+
+<t-var-sub> ::=
+<param-t-var> | <type-app-id-or-ahtv-sub> | <power-type-sub> | <prod-type-sub> |
+<func-type-sub>
+\\
+
+<type-app-id-or-ahtv-sub> ::= ""\\""
+[ <subs-or-unders-in-paren> ] <taioas-middle> [ <subs-or-unders-in-paren> ]
+
+<taioas-middle> ::=
+<type-id> ( <subs-or-unders-in-paren> [A-Za-z]+ )* | <ad-hoc-t-var>
+
+<subs-or-unders-in-paren> ::=
+`(' [ `\ ' ] <sub-or-under> ( <comma> <sub-or-under> )* [ `\ ' ] `)'
+
+<sub-or-under> ::= <t-var-sub> | `_'
+\\
+
+<power-type-sub> ::= <power-base-type-sub> `^' <int-greater-than-one>
+
+<power-base-type-sub> ::= ""\\
+`_' | <param-t-var> | <type-app-id-or-ahtv-sub> | ""\\
+`(' [ `\ ' ] ( <prod-type-sub> | <func-type-sub> ) [ `\ ' ] `)'
+\\
+
+<prod-type-sub> ::= <field-type-sub> ( `\ x\ ' <field-type-sub> )+
+
+<field-type-sub> ::= <power-base-type-sub> | <power-type-sub>
+\\
+
+<func-type-sub> ::= <in-or-out-type-sub> `\ =>\ ' <in-or-out-type-sub>
+
+<in-or-out-type-sub> ::= ""\\
+`_' | <param-t-var> | <type-app-id-or-ahtv-sub> | <power-type-sub> |
+<prod-type-sub> | \\`(' [ `\ ' ] <func-type-sub> [ `\ ' ] `)'
+\\
+
+<proof> ::=
+`\ ' <id-or-op-eq> `\ ' <line-expr> |
+<nl> `\ \ ' <id-or-op-eq>  <tt-value-expr>
+
+<id-or-op-eq> ::= <identifier> [ <op> <identifier> ] `\ ='
+
+<tt-value-expr> ::=
+`\ ' <line-expr> | <nl> <indent> <value-expr> [ <where-expr> ]
+\end{grammar}
+
+\newpage
+
+\chapter{Language Description: Predefined}
+
+\section{Values}
+
+\begin{itemize}
+
+\item Constants: \verb|undefined, pi, empty_val|
+
+\item Functions
+  \begin{itemize}
+
+  \item Miscellaneous: \verb|not(_), id(_), throw_err(_)|
+
+  \item Numerical:
+    \begin{itemize}
+    \item Miscellaneous: \\
+      \verb|sqrt_of(_), abs_val_of(_), max_of(_)and(_), min_of(_)and(_)|
+    \item Trigonometric: \\
+      \verb|sin(_), cos(_), tan(_), asin(_), acos(_), atan(_)|
+    \item Division related: \\
+      \verb|(_)div(_), (_)mod(_), gcd_of(_)and(_), lcm_of(_)and(_),|
+      \\
+      \verb|(_)is_even, (_)is_odd|
+    \item Rounding: \\
+      \verb|truncate(_), round(_), floor(_), ceiling(_)|
+    \item e and log: \\
+      \verb|exp(_), ln(_), log_of(_)base(_)|
+    \end{itemize}
+
+  \item List:\\
+    \verb|(_)length, (_)is_in(_), apply(_)to_all_in(_), filter(_)with(_),|
+    \\
+    \verb|take(_)from(_), ignore(_)from(_), split(_)at(_),|
+    \\
+    \verb|zip(_)with(_), unzip(_), apply(_)to_all_in_zipped(_,_)|
+
+  \item IO:
+    \begin{itemize}
+    \item Input: \verb|get_char, get_line, get_input, read_file(_)|
+    \item Output:
+      \verb|print(_), print_string(_), write(_)in_file(_)|
+    \end{itemize}
+
+  \item Ad Hoc Polymorphic:\\
+  \verb|wrap(_), (_)to_string, from_string(_), apply(_)inside(_), |
+
+  \end{itemize}
+\end{itemize}
+
+\section{Types}
+
+\begin{itemize}
+  \item
+  Basic: \verb|Int, Real, Char, String, (_)FromIO, (_)FState(_)Man|
+  \item
+  Or Types:
+  \verb|EmptyVal, Bool, Possibly(_), ListOf(_)s, Result(_)OrError(_)|
+  \item
+  Type Nicknames: \verb|IO, State(_)Man, Z, R|
+\end{itemize}
+
+\newpage
+
+\section{Type Propositions}
+
+\begin{itemize}
+
+\item Operator Propositions:
+
+  \begin{itemize}
+  \item \verb|(@A)To_The(@B)Is(@C)|
+  \item \verb|(@A)And(@B)Multiply_To(@C)|
+  \item \verb|(@A)Divided_By(@B)Is(@C)|
+  \item \verb|(@A)And(@B)Add_To(@C)|
+  \item \verb|(@A)Minus(@B)Is(@C)|
+  \item \verb|(@A)And(@B)Can_Be_Equal|
+  \item \verb|(@A)And(@B)Can_Be_Unequal|
+  \item \verb|(@A)Can_Be_Gr_Or_Eq_To(@B)|
+  \item \verb|(@A)Can_Be_Le_Or_Eq_To(@B)|
+  \item \verb|(@A)Can_Be_Greater_Than(@B)|
+  \item \verb|(@A)Can_Be_Less_Than(@B)|
+  \item \verb|(@A)Has_And|
+  \item \verb|(@A)Has_Or|
+  \item \verb|(@T)Has_Use|
+  \item \verb|(@T)Has_Then|
+  \end{itemize}
+
+\item Function Propositions:
+
+  \begin{itemize}
+  \item \verb|(@T)Has_A_Wrapper|
+  \item \verb|(@T)Has_Str_Rep|
+  \item \verb|(@T)Has_Internal_App|
+  \end{itemize}
+
+\newpage
+\item Theorems:
+
+  \begin{itemize}
+  \item \verb|(Possibly(_))Has_A_Wrapper|
+  \item \verb|(ListOf(_)s)Has_A_Wrapper|
+  \item \verb|((_)FState(T1)Man)Has_A_Wrapper|
+  \item \verb|(Result(_)OrError(T1))Has_A_Wrapper|
+  \item \verb|(Int)Has_Str_Rep|
+  \item \verb|(Char)Has_Str_Rep|
+  \item \verb|(Real)Has_Str_Rep|
+  \item \verb|(@A)Has_Str_Rep --> (ListOf(@A)s)Has_Str_Rep|
+  \item \verb|(Possibly(_))Has_Internal_App|
+  \item \verb|(ListOf(_)s)Has_Internal_App|
+  \item \verb|((_)FState(T1)Man)Has_Internal_App|
+  \item \verb|(Result(_)OrError(T1))Has_Internal_App|
+  \item \verb|((_)FromIO)Has_Use|
+  \item \verb|((_)FState(T1)Man)Has_Use|
+  \item \verb|((_)FromIO)Has_Then|
+  \item \verb|((_)FState(T1)Man)Has_Then|
+  \end{itemize}
+
+\end{itemize}
+
+\newpage
+
+\chapter{Parser Implementation}
+
+\section{Full grammar and indentation system}
+
+\subsection{Full grammar}
+
+\begin{grammar}
+
+<literal> ::= <int-lit> | <real-lit> | <char-lit> | <string-lit>
+\\
+
+<identifier> ::=
+[ <unders-in-paren> ] <id-start> <id-cont>* [ [0-9] ] [ <unders-in-paren> ]
+
+<simple-id> ::= <id-start> [ [0-9] ]
+
+<id-start> ::= [a-z] [a-z_]*
+
+<id-cont> ::= <unders-in-paren> [a-z_]+
+
+<unders-in-paren> ::= `(_' ( <comma> `_' )* `)'
+
+<comma> ::= `,' [ `\ ' ]
+\\
+
+<paren-expr> ::= `(' [ `\ ' ] <line-op-expr> | <line-func-expr> [ `\ ' ] `)'
+\\
+
+<tuple> ::=
+`(' [ `\ ' ] <line-expr-or-under> <comma> <line-expr-or-unders> [ `\ ' ] `)'
+
+<line-expr-or-unders> ::=
+<line-expr-or-under> ( <comma> <line-expr-or-under> )*
+
+<line-expr-or-under> ::= <line-expr> | `_'
+
+<line-expr> ::= <basic-or-app-expr> | <line-op-expr> | <line-func-expr>
+
+<basic-or-app-expr> ::= <basic-expr> | <pre-func-app> | <post-func-app>
+
+<basic-expr> ::=
+<literal> | <paren-func-app-or-id> | <special-id> | <tuple> | <list>
+\\
+
+<big-tuple> ::= ""\\
+`(' [ `\ ' ] <line-expr-or-under> [ <nl> <indent> ]
+<comma> <line-expr-or-unders> \\
+( <nl> <indent> <comma> <line-expr-or-unders> )*
+<nl> <indent> `)'
+\\
+
+\newpage
+<list> ::= `[' [ `\ ' ] [ <line-expr-or-unders> ] [ `\ ' ] `]'
+
+<big-list> ::= ""\\
+`[' [ `\ ' ] <line-expr-or-unders>
+( <nl> <indent> <comma> <line-expr-or-unders> )* <nl> <indent> `]'
+\\
+
+<paren-func-app-or-id> ::= ""\\""
+[ <arguments> ] <id-start> ( <arguments> [a-z_]+ )* [ [0-9] ]
+[ <arguments> ]
+
+<arguments> ::= `(' [ `\ ' ] <line-expr-or-unders> [ `\ ' ] `)'
+\\
+
+<pre-func> ::= <simple-id> `:'
+
+<pre-func-app> ::= <pre-func> <operand>
+\\
+
+<post-func> ::= `.' ( <simple-id> | <special-id> )
+
+<special-id> ::= `1st' | `2nd' | `3rd' | `4th' | `5th'
+
+<post-func-app> ::=
+( <basic-expr> | <paren-expr> | `_' )
+( <dot-change> | <post-func>+ [ <dot-change> ] )
+\\
+
+<dot-change> ::=
+`.change{' [ `\ ' ] <field-change> ( <comma> <field-change> )* [ `\ ' ] `}'
+
+<field-change> ::= ( <simple-id> | <special-id> ) <equals> <line-expr-or-under>
+
+<equals> ::= [ `\ ' ] `=' [ `\ ' ]
+\\
+
+<op-expr> ::= <line-op-expr> | <big-op-expr>
+\\
+
+<op-expr-start> ::= ( <operand> <op> )+
+
+<line-op-expr> ::= <op-expr-start> ( <operand> | <line-func-expr> )
+\\
+
+<big-op-expr> ::=
+<big-op-expr-op-split> | <big-op-expr-func-split>
+\\
+
+<big-op-expr-op-split> ::=
+<op-split-line>+ [ <op-expr-start> ] ( <operand> | <func-expr> )
+
+<op-split-line> ::=
+( <op-expr-start> ( <nl> | <oper-fco> ) | <oper-fco> ) <indent>
+
+<oper-fco> ::= <operand> `\ ' <func-comp-op> `\\n'
+\\
+
+<big-op-expr-func-split> ::=
+<op-expr-start> ( <big-func-expr> | <cases-func-expr> )
+\\
+
+<operand> ::= <basic-or-app-expr> | <paren-expr> | `_'
+\\
+
+<op> ::= `\ ' <func-comp-op> `\ ' | [ `\ ' ] <optional-spaces-op> [ `\ ' ]
+
+<func-comp-op> ::= `o>' | `<o'
+
+<optional-spaces-op> ::= ""\\
+`->' | `<-' | `^' | `*' | `/' | `+' | `-' | `==' | `!=' | `>' | `<' | `>=' |
+`<=' | `\&' | `|' | `;>' | `;'
+\\
+
+<func-expr> ::= <line-func-expr> | <big-func-expr> | <cases-func-expr>
+\\
+
+<line-func-expr> ::= <parameters> [ `\ ' ] `=>' <line-func-body>
+
+<big-func-expr> ::= <parameters> [ `\ ' ] `=>' <big-func-body>
+
+<parameters> ::=
+<identifier> | `*' |
+`(' [ `\ ' ] <parameters> ( <comma> <parameters> )+ [ `\ ' ] `)'
+
+<line-func-body> ::= ""\\""
+[ `\ ' ]
+(
+<basic-or-app-expr> | <line-op-expr> |
+`(' [ `\ ' ] <line-func-expr> [ `\ ' ] `)'
+)
+
+<big-func-body> ::= ""\\
+<nl> <indent>
+(
+<basic-or-app-expr> | <op-expr> | `(' [ `\ ' ] <line-func-expr> [ `\ ' ] `)'
+)
+\\
+
+<cases-func-expr> ::= <cases-params> <case>+ [ <end-case> ]
+
+<cases-params> ::= ""\\
+<identifier> | `cases' | `*' |
+`(' [ `\ ' ] <cases-params> ( <comma> <cases-params> )+ [ `\ ' ] `)'
+\\
+
+<case> ::=  <nl> <indent> <outer-matching> [ `\ ' ] `=>' <case-body>
+
+<end-case> ::=
+<nl> <indent> ( `...' | <identifier> ) [ `\ ' ] `=>' <case-body>
+\\
+
+<outer-matching> ::= <simple-id> | <matching>
+
+<matching> ::=
+<literal> | <pre-func> <inner-matching> | <tuple-matching> | <list-matching>
+
+<inner-matching> ::= `*' | <identifier> | <matching>
+
+<tuple-matching> ::=
+`(' [ `\ ' ] <inner-matching> ( <comma> <inner-matching> )+ [ `\ ' ] `)'
+
+<list-matching> ::= ""\\
+`[' [ `\ ' ]
+[ <inner-matching> ( <comma> <inner-matching> )* [ <rest-list-matching> ] ]
+[ `\ ' ] `]'
+
+<rest-list-matching> ::= <comma> [ <simple-id> <equals> ] `...'
+\\
+
+<case-body> ::= <line-func-body> | <big-func-body> [ <where-expr> ]
+\\
+
+\newpage
+<value-def> ::= ""\\
+<indent> <identifier>
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' ) <type>  \\
+<nl> <indent> `=\ ' <value-expr> [ <where-expr> ]
+
+<value-expr> ::=
+<basic-or-app-expr> | <op-expr> | <func-expr> | <big-tuple> | <big-list>
+\\
+
+<grouped-value-defs> ::= ""\\
+<indent> <identifier> ( <comma> <identifier> )+ \\
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' )
+( <type> ( <comma> <type> )+ | `all\ ' <type> ) \\
+<nl> <indent> `=\ ' <line-exprs> ( <nl> <indent> <comma> <line-exprs> )*
+
+<line-exprs> ::= <line-expr> ( <comma> <line-expr> )*
+\\
+
+<where-expr> ::=
+<nl> <indent> `where'
+<nl> <value-def-or-defs> ( <nl> <nl> <value-def-or-defs> )*
+
+<value-def-or-defs> ::= <value-def> | <grouped-value-defs>
+\\
+
+<type> ::= [ <condition> ]  <simple-type>
+
+<simple-type> ::=
+<param-t-var> | <type-app-id-or-ahtv> | <power-type> | <prod-type> |
+<func-type>
+\\
+
+<type-id> ::= [A-Z] [A-Za-z]*
+\\
+
+<param-t-var> ::= `T' [0-9]
+
+<ad-hoc-t-var> ::= `@' [A-Z]
+\\
+
+<type-app-id-or-ahtv> ::=
+[ <types-in-paren> ] <taioa-middle> [ <types-in-paren> ]
+
+<taioa-middle> ::=
+<type-id> ( <types-in-paren> [A-Za-z]+ )* | <ad-hoc-t-var>
+
+<types-in-paren> ::=
+`(' [ `\ ' ] <simple-type> ( <comma> <simple-type> )* [ `\ ' ] `)'
+\\
+
+<prod-type> ::= <field-type> ( `\ x\ ' <field-type> )+
+
+<field-type> ::= <power-base-type> | <power-type>
+
+<power-base-type> ::= ""\\
+<param-t-var> | <type-app-id-or-ahtv> |
+`(' [ `\ ' ] ( <prod-type> | <func-type> ) [ `\ ' ] `)'
+
+<power-type> ::= <power-base-type> `^' <int-greater-than-one>
+\\
+
+<func-type> ::= <in-or-out-type> `\ =>\ ' <in-or-out-type>
+
+<in-or-out-type> ::= ""\\
+<param-t-var> | <type-app-id-or-ahtv> | <power-type> | <prod-type> |
+`(' [ `\ ' ] <func-type>  [ `\ ' ] `)'
+\\
+
+<condition> ::= <prop-name> `\ -->\ '
+\\
+\\
+
+<type-def> ::= <tuple-type-def> | <or-type-def>
+\\
+
+<tuple-type-def> ::= ""\\
+`tuple_type\ ' <type-name> <nl> \\
+`value' ( `\ ' | <nl> `\ \ ' )
+<id-tuple> [ `\ ' ] `:' [ `\ ' ] ( <prod-type> | <power-type> )
+
+<type-name> ::= ""\\""
+[ <param-vars-in-paren> ] <type-id> ( <param-vars-in-paren> [A-Za-z]+ )* ""\\""
+[ <param-vars-in-paren> ]
+
+<param-vars-in-paren> ::=
+`(' [ `\ ' ] <param-t-var> ( <comma> <param-t-var> )* [ `\ ' ] `)'
+
+<id-tuple> ::= `(' [ `\ ' ] <simple-id> ( <comma> <simple-id> )+ [ `\ ' ] `)'
+\\
+
+<or-type-def> ::= ""\\
+`or_type\ ' <type-name> <nl> \\
+`values' ( `\ ' | <nl> `\ \ ' ) \\
+<simple-id> [ `:' <simple-type> ]
+( [ `\ ' ] `|' [ `\ ' ] <simple-id> [ `:' <simple-type> ] )*
+\\
+
+<t-nickname> ::=
+`type_nickname\ ' <type-name> <equals> <simple-type>
+\\\\
+
+<type-prop-def> ::= <atom-prop-def> | <renaming-prop-def>
+\\
+
+<atom-prop-def> ::= ""\\
+<prop-name-line> <nl> `needed' ( `\ ' | <nl> `\ \ ' )
+<identifier> [ `\ ' ] `:' [ `\ ' ] <simple-type>
+
+<renaming-prop-def> ::= ""\\
+<prop-name-line> <nl>
+`equivalent' ( `\ ' | <nl> `\ \ ' ) <prop-name> ( <comma> <prop-name> )*
+
+<prop-name-line> ::= `type_proposition\ ' <prop-name>
+
+<prop-name> ::=  ""\\""
+[A-Z] ( <name-part> <types-in-paren> )+ [ <name-part> ]
+\alt " "( <types-in-paren> <name-part> )+ [ <types-in-paren> ]
+
+<name-part> ::= ( [A-Za-z] | `_'[A-Z] )+
+\\
+
+\newpage
+<type-theo> ::= ""\\
+`type_theorem\ ' <prop-name-with-subs> [ `\ -->\ ' <prop-name-with-subs> ] <nl>
+`proof' <proof>
+
+<prop-name-with-subs> ::=  ""\\""
+[A-Z] ( <name-part> <subs-in-paren> )+ [ <name-part> ]
+\alt " "( <subs-in-paren> <name-part> )+ [ <subs-in-paren> ]
+
+<subs-in-paren> ::=
+`(' [ `\ ' ] <t-var-sub> ( <comma> <t-var-sub> )* [ `\ ' ] `)'
+\\
+
+<t-var-sub> ::=
+<param-t-var> | <type-app-id-or-ahtv-sub> | <power-type-sub> | <prod-type-sub> |
+<func-type-sub>
+\\
+
+<type-app-id-or-ahtv-sub> ::= ""\\""
+[ <subs-or-unders-in-paren> ] <taioas-middle> [ <subs-or-unders-in-paren> ]
+
+<taioas-middle> ::=
+<type-id> ( <subs-or-unders-in-paren> [A-Za-z]+ )* | <ad-hoc-t-var>
+
+<subs-or-unders-in-paren> ::=
+`(' [ `\ ' ] <sub-or-under> ( <comma> <sub-or-under> )* [ `\ ' ] `)'
+
+<sub-or-under> ::= <t-var-sub> | `_'
+\\
+
+<power-type-sub> ::= <power-base-type-sub> `^' <int-greater-than-one>
+
+<power-base-type-sub> ::= ""\\
+`_' | <param-t-var> | <type-app-id-or-ahtv-sub> | ""\\
+`(' [ `\ ' ] ( <prod-type-sub> | <func-type-sub> ) [ `\ ' ] `)'
+\\
+
+<prod-type-sub> ::= <field-type-sub> ( `\ x\ ' <field-type-sub> )+
+
+<field-type-sub> ::= <power-base-type-sub> | <power-type-sub>
+\\
+
+<func-type-sub> ::= <in-or-out-type-sub> `\ =>\ ' <in-or-out-type-sub>
+
+<in-or-out-type-sub> ::= ""\\
+`_' | <param-t-var> | <type-app-id-or-ahtv-sub> | <power-type-sub> |
+<prod-type-sub> | \\`(' [ `\ ' ] <func-type-sub> [ `\ ' ] `)'
+\\
+
+<proof> ::=
+`\ ' <id-or-op-eq> `\ ' <line-expr> |
+<nl> `\ \ ' <id-or-op-eq>  <tt-value-expr>
+
+<id-or-op-eq> ::= <identifier> [ <op> <identifier> ] `\ ='
+
+<tt-value-expr> ::=
+`\ ' <line-expr> | <nl> <indent> <value-expr> [ <where-expr> ]
+\\
+
+<program> ::=
+<nl>* <program-part> ( <nl> <nl> <program-part> )* <nl>*
+
+<program-part> ::= ""\\
+<value-def> | <grouped-value-defs> | <type-def> | <t-nickname> |
+<type-prop-def> | <type-theo>
+
+<nl> :: ( `\ ' | `\\t' )* `\\n'
+\end{grammar}
+
+\newpage
+
+\subsection{Indentation system}
+\label{subsubsec:indsys}
+
+The \textit{$<$indent$>$} non-terminal in not a normal BNF non-terminal. It is a
+context sensitive construct that enforces the indentation rules of lcases.
+It depends on a integer value called the "indentation level" ($il$).
+The \textit{$<$indent$>$} non-terminal corresponds to $2*il$ space characters.
+The indentation level follows the rules below:
+
+\paragraph{Indentation Rules}
+\begin{enumerate}
+
+\item
+At the beginning: $il = 0$
+
+\item
+In a single value definition:
+  \begin{enumerate}
+
+  \item
+  At the end of the first line: $il \leftarrow il + 1$
+
+  \item
+  At the end of the "=" line: $il \leftarrow il + 1$
+
+  \item
+  At the end: $il \leftarrow il - 2$
+  \end{enumerate}
+
+\item
+In a group of value definitions:
+  \begin{enumerate}
+
+  \item
+  At the end of the first line: $il \leftarrow il + 1$
+
+  \item
+  At the end: $il \leftarrow il - 1$
+  \end{enumerate}
+
+\item
+In a case (of a cases function expression):
+  \begin{enumerate}
+
+  \item
+  After the arrow ("\verb|=>|") line: $il \leftarrow il + 1$.
+
+  \item
+  At the end: $il \leftarrow il - 1$.
+  \end{enumerate}
+
+\item
+In a type theorem:
+  \begin{enumerate}
+
+  \item
+  After "\verb|=|" line: $il \leftarrow il + 2$.
+
+  \item
+  At the end: $il \leftarrow il - 2$.
+  \end{enumerate}
+
+\item
+In a cases function expression which does not begin at the "=" line of a value
+definition:
+  \begin{enumerate}
+
+  \item
+  After the parameters line: $il \leftarrow il + 1$.
+
+  \item
+  At the end of the cases function expression: $il \leftarrow il - 1$.
+
+  \end{enumerate}
+
+\end{enumerate}
+
+\newpage
+\section{High level structure}
+
+\subsection{Parsec library}
 
 
-\section{The Structure of this Thesis}
+The parser was implemented using the \textbf{parsec} library \cite{parsec}.
+Parsec is an industrial strength, monadic parser combinator library for
+Haskell.  It can parse context-sensitive, infinite look-ahead grammars. It
+achieves this with a polymorphic parser type with the following parameter
+types:
 
-He kindled, thought of his ancestors, sighed:
+\begin{itemize}
+\item
+  \textit{stream type:} The input type to the parser.
+\item
+  \textit{user state type:} Type of custom state added by the parser developer.
+\item
+  \textit{underlying monad type:} A custom monad type in case it is needed.
+\item
+  \textit{return type:}
+  This is the type of the value that is built by the parser.
+\end{itemize}
+The library has a lot of very nice parsers and parser combinators.
+The package description in hackage is in the following url:
+\url{https://hackage.haskell.org/package/parsec}
 
-There was a time when our people, the Hellenes, were the masters of these
-lands. The wheel turned and the Byzantines came --- Hellenes too, and
-Christians. The wheel turned again, and the children of Hagar came... But
-Christ rose again, my friends, our country will rise again, too! Here,
-Kostandis, another round!
+\paragraph{In this parser}
+\begin{itemize}
+\item
+  \textit{stream type:}
+  \\
+  In this parser this is String.
+\item
+  \textit{state type:}
+  \\
+  In this parser this is ParserState. It is defined in the parser.
+  A paragraph explaining what it is follows.
+\item
+  \textit{underlying monad:}
+  \\
+  In this parser this is not used interestingly
+  (Identity is the underlying monad).
+\item
+  \textit{return type:}
+  \\
+  This is the type of the value that is built during parsing.
+  Every AST type is the return type of the corresponding (sub)parser.
+\end{itemize}
 
-The amanés finished, the exquisite boy put back the mastic into his mouth
-and resumed his sleepy rumination. The trumpet sounded again: the raias
-could now laugh and shout freely.
+\paragraph{State type of the parser: ParserState}\pend
+Here's the actual code for it:
+\begin{verbatim}
+type IndentationLevel = Int
+type InEqualLine = Bool
+type ParserState = (IndentationLevel, InEqualLine)
+\end{verbatim}
+We need this state to enforce the indentation rules (of
+\ref{subsubsec:indsys}).
+
+\subsection{File structure}
+The parser code is split into the following files:
+\begin{itemize}
+\item
+\verb|ASTTypes.hs|: Definitions of abstract syntax tree types
+\item
+\verb|ShowInstances.hs|: String representations for each AST type
+\item
+\verb|Parsers.hs|: Parsers for each AST type
+\end{itemize}
+All of the above are written using the full grammar. The types correspond to
+non-terminal symbols. The parsers try to parse a string into the corresponding
+AST type. If the string is valid every terminal symbol is discarded unless it's
+part of a literal or an identifier.
+
+\section{Parser Examples}
+
+In this section we show how the types and the parsers are derived from the
+grammar with some examples. We begin with a grammar rule and we create the
+AST type and the parser that parses it.
+
+\subsection{Parser Class and Example 0: Literal}
+
+We have the Parser type which is polymorphic in the return
+type with a stream type of String and a state type of ParserState:
+\begin{verbatim}
+type Parser = Parsec String ParserState
+
+\end{verbatim}
+We create the polymorphic value "parser" with the "HasParser" class
+so that all the parsers have the name "parser" irrespective of the particular
+type they are parsing:
+\begin{verbatim}
+class HasParser a where
+  parser :: Parser a
+
+\end{verbatim}
+We begin with the very simple example of the literal with the following
+grammar rule:
+\begin{grammar}
+<literal> ::= <int-lit> | <real-lit> | <char-lit> | <string-lit>\\
+\end{grammar}
+The AST type for the literal is:
+\begin{verbatim}
+data Literal =
+  Int Integer | R Double | Ch Char | S String
+
+\end{verbatim}
+And here is the parser for the literal which is defined as an instance of
+the HasParser class. Inside we use the parsers for each particular literal
+which are defined separately:
+\begin{verbatim}
+instance HasParser Literal where
+  parser =
+    R <$> try parser <|> Int <$> parser <|> Ch <$> parser <|> S <$> parser <?>
+    "Literal"
+
+\end{verbatim}
+The Parser type is a Functor so the "\verb|<$>|" (fmap) operator passes each
+constructor inside the particular parser. The "try" parser combinator does
+backtracking if the parser fails so that it does not consume any input. This is
+used if two parsers can parse the same input up to a point but the second one
+is the correct one. In this case a real number (a number with a decimal point)
+will parse an integer up to before the decimal point but will fail if there
+isn't one. In this case we need to backtrack and let the integer parser consume
+the input.  The "\texttt{<|>}" operator means "this parser or that parser".
+Finally, the "\verb|<?>|" operator means "if all the parsers fail show this
+error message".
+
+\newpage
+\subsection{Example 1: List}
+
+The grammar rule for the list is the following:
+\begin{grammar}
+<list> ::= `[' [ `\ ' ] [ <line-expr-or-unders> ] [ `\ ' ] `]' \\
+\end{grammar}
+The AST type for the list is:
+\begin{verbatim}
+newtype List = L (Maybe LineExprOrUnders)
+
+\end{verbatim}
+And the parser for the list is:
+\begin{verbatim}
+instance HasParser List where
+  parser =
+    L <$> (char '[' *> opt_space_around (optionMaybe parser) <* char ']')
+
+\end{verbatim}
+Here we use the "\verb|*>|" and "\verb|<*|" operators which parse both of
+the parsers that they have as operands (from left to right) but only keep the
+result of the parser that they "point" to. "opt_space_around" parses one space
+optionally on each side of the text parsed by the argument parser and returns
+what was parsed by the argument parser.  "optionMaybe" is defined in the
+library and it optionally parses what its argument parser parses. If the
+argument parser succeeds at parsing then it returns a Just $<$whatever was
+parsed$>$, whereas if it fails it returns Nothing.
+
+\subsection{Example 2: Change}
+
+The grammar rule for the "change" expression is the following:
+\begin{grammar}
+<dot-change> ::=
+`.change{' [ `\ ' ] <field-change> ( <comma> <field-change> )* [ `\ ' ] `}'
+\\
+\end{grammar}
+The AST type for the "change" expression is:
+\begin{verbatim}
+newtype DotChange = DC (FieldChange, [FieldChange])
+
+\end{verbatim}
+And the parser for the "change" expression is:
+\begin{verbatim}
+instance HasParser DotChange where
+  parser =
+    DC <$>
+      (try (string ".change{") *> opt_space_around field_changes_p <* char '}')
+    where
+    field_changes_p :: Parser (FieldChange, [FieldChange])
+    field_changes_p = field_change_p +++ many (comma *> field_change_p)
+
+\end{verbatim}
+Here we use the "\verb|+++|" operator which is defined in the parser. It takes
+two parsers as operands and creates a parser that uses them sequentially and
+puts the two results in a tuple. "field_change_p" parses a single field change.
+"many" is defined in the library, it parses with the argument parser as many
+times as possible and puts the results in a list (the Kleene star of the parser
+world).
 
 
-\chapter{Theoretical Background}
+\newpage
+\subsection{Example 3: Value Definition}
 
-Captain Fortounas, one of the five village Elders, appeared at the door of
-the café: a tall, corpulent character, formerly a boat owner who for many
-years had ploughed the Black Sea, transporting Russian corn and not above
-smuggling. He had not a hair on his chin: complexion olive, a parchment
-skin, deep wrinkles, tiny, sparkling, jet-black eyes. He had grown old, and
-his boat with him. One night it had smashed on a reef off Trebizond:
-shipwrecked and disillusioned, Captain Fortounas had come back to his native
-village, intending to put away as much raki as possible and, when the time
-came, to turn his face to the wall and die. His eyes had seen too many
-things; he had had enough; no, he hadn’t had enough; he was tired, but
-ashamed to admit it.
+The grammar rule for the value definition is the following:
+\begin{grammar}
+<value-def> ::= ""\\
+<indent> <identifier>
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' ) <type>  \\
+<nl> <indent> `=\ ' <value-expr> [ <where-expr> ]
+\\
+\end{grammar}
+The AST type for the value definition is:
+\begin{verbatim}
+newtype ValueDef = VD (Identifier, Type, ValueExpr, Maybe WhereExpr)
+
+\end{verbatim}
+And the parser for the value definition is:
+\begin{verbatim}
+instance HasParser ValueDef where
+  parser =
+    indent *> parser >>= \identifier ->
+
+    increase_il_by 1 >>
+
+    has_type_symbol *> parser >>= \type_ ->
+    nl_indent *> string "= " *>
+
+    increase_il_by 1 >> we_are_in_equal_line >>
+
+    parser >>= \value_expr ->
+
+    we_are_not_in_equal_line >>
+
+    optionMaybe (try parser) >>= \maybe_where_expr ->
+
+    decrease_il_by 2 >>
+
+    return (VD (identifier, type_, value_expr, maybe_where_expr))
+
+\end{verbatim}
+In this example we see how the state of the parser is used to enforce the
+indentation rules. The "indent" parser parses $<$2 * the indentation level$>$
+spaces, getting the indentation level from the state (see Indentation System
+\ref{subsubsec:indsys}).  "\verb|increase_il_by|" and "\verb|decrease_il_by|"
+have a Parser type but they don't actually parse anything, they are "parsers"
+that only update the indentation level (but can also be combined with other
+parsers).  They are used as described in rule 2 of the Indentation System
+(\ref{subsubsec:indsys}). "\verb|has_type_symbol|" parses the following part of
+the grammar rule: ( [ \lit{\ } ] \lit{:} [ \lit{\ } ] \verb||| \synt{nl}
+\synt{indent} \lit{:\ }).  "\verb|we_are_in_equal_line|" and
+"\verb|we_are_not_in_equal_line|" change the state to enforce rule 6 of the
+Indentation System.
+
+\newpage
+\chapter{Translation to \H}
+
+\section{High Level Overview}
+
+To avoid rewriting the whole \H\ type system, lcases is translated directly
+to \H\ without any semantic analysis, except for the bare minimum that is
+required for the translation. The high level phases for the translation are
+the following:
+
+\begin{itemize}
+\item
+\textbf{Collect}\\\\
+In this phase we traverse the AST and the following are collected:
+
+\begin{itemize}
+\item
+All the "\texttt{naked case}" identifiers of all the \verb|or_types| in the
+program, where a naked case is a case which does not contain an internal value
+(e.g. \verb|no_value| as opposed to \verb|the_value:_|).
+
+\item
+All the field identifiers of the all the \verb|tuple_types| in the program.
+
+\item
+All the renaming type propositions.
+
+\end{itemize}
+
+The above are used in the preprocess phase.
+
+\item
+\textbf{Preprocess}\\\\
+In this phase the AST generated by the parser is traversed and tweaked
+according to the following rules:
+
+\begin{itemize}
+\item
+If an identifier of a naked case is found in a value expression, add a 'C' (for
+constructor) in the front. This is going to be needed because \verb|or_type|
+cases are translated to data constructors in \H. Data constructors need to
+start with an upper case letter whereas \verb|or_type| cases don't
+(this is not needed for the \verb|or_type| cases with internal values
+because we can identify them on the spot from the colon and handle them
+appropriately in the translation phase).\\
+
+\item
+If a field identifier is found in a value expression which is a subexpression
+of a "\verb|.change|" expression than the identifier is converted to a postfix
+function with the same argument as the "\verb|.change|". For example, if the
+AST has a part representing the expression below, it is going be
+converted as follows:\\
+\texttt{x.change\{f1 = f1 + 1\}} $\Longrightarrow$
+\texttt{x.change\{f1 = x.f1 + 1\}}\\\\
+The same applies to special identifiers:\\
+\texttt{x.change\{1st = 1st + 1\}} $\Longrightarrow$
+\texttt{x.change\{1st = x.1st + 1\}}\\
+
+\item
+If a renaming type proposition appears in a theorem of an implication before
+the arrow, it is substituted with the conjunction defined in its definition.
+All the substitutions for its ad hoc type variables are also propagated to all
+of the propositions in the conjunction. For example, if the following appear
+in the program:
+\begin{verbatim}
+type_proposition (@A)And(@B)Have_Eq_And_Gr
+equivalent (@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)
+
+type_theorem (@C)And(@D)Have_Eq_And_Gr --> (@C)Can_Be_Gr_Or_Eq_To(@D)
+proof a >= b = a == b | a > b
+\end{verbatim}
+the theorem becomes:
+\begin{verbatim}
+type_theorem
+  [(@C)And(@D)Can_Be_Equal, (@C)Can_Be_Greater_Than(@D)] --> (@C)Can_Be_Gr_Or_Eq_To(@D)
+proof a >= b = a == b | a > b
+# this is a representation of the AST after preprocessing not lcases syntax
+\end{verbatim}
+in the preprocessed AST.
+
+\end{itemize}
+
+\item
+\textbf{Translate}\\\\
+In this phase the preprocessed AST is directly translated to \H. The details
+of how this is done are described in the following section.
+\end{itemize}
+
+\newpage
+\section{Translation Phase}
+
+For the translation phase every type of the AST has its implementation of
+one of the following 3 polymorphic functions:
+
+\begin{itemize}
+\item
+\verb|to_haskell|:\\\\
+This function is for the AST types that need no state and can be directly
+translated to \H.
+\item
+\verb|to_hs_wpn|: (to \verb|to_haskell| with parameter number) \\\\
+This function is for the AST types that implicitly introduce extra
+parameters when translated to \H\ and therefore need a state to keep track
+of how many parameters have been introduced.
+\item
+\verb|to_hs_wil|: (to \verb|to_haskell| with indentation level)\\\\
+This function is for the AST types that need indentation level information to
+be correctly indented when translated to \H. Therefore, a state to keep track
+of the indentation level is needed.\\
+\end{itemize}
+Here are the corresponding classes that define the above functions:
+
+\begin{itemize}
+\item
+\begin{verbatim}
+type Haskell = String
+
+class ToHaskell a where
+  to_haskell :: a -> Haskell
+\end{verbatim}
+
+\item
+\begin{verbatim}
+type WithParamNum = State Int
+
+class ToHsWithParamNum a where
+  to_hs_wpn :: a -> WithParamNum Haskell
+\end{verbatim}
+
+\item
+\begin{verbatim}
+type WithIndentLvl = State Int
+
+class ToHsWithIndentLvl a where
+  to_hs_wil :: a -> WithIndentLvl Haskell
+\end{verbatim}
+\end{itemize}
+In the following sections we dive into more detail for particular types.
+
+\newpage
+\section{Translation Phase: Basic Expressions}
+
+\subsection{Literals and Identifiers}
+\begin{itemize}
+\item
+\textbf{Literals}\\\\
+Literals are kept the same as they were parsed except for number
+literals. Number literals have explicit type annotations (when they are not a
+case of a "cases" function expression), so that they have type \texttt{Integer}
+or \texttt{Double} and not \texttt{Num a => a} or \texttt{Fractional p => p}
+for the \H\ compiler.
+
+\item
+\textbf{Identifiers}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{x1} \lra \texttt{x1} \\
+\verb|apply(_)to_all_in(_)| \lra \verb|apply'to_all_in'| \\
+\verb|(_)to_string| \lra \verb|a'to_string| \\
+\verb|f(_, _, _)| \lra \texttt{f'''}\\
+
+\item
+\textit{Description}\\\\
+For identifiers all underscores in parenthesis are replaced by an equal amount
+of single quotes. If there is a parenthesis in the beginning of the identifier,
+the letter 'a' is prepended to make it a valid \H\ identifier.
+
+\end{itemize}
+
+\end{itemize}
+
+\subsection{Parenthesis, Tuples and Lists}
+\label{subsubsec:parentuplist}
+
+\begin{itemize}
+\item
+\textbf{Parenthesis}\\\\
+The translation of the internal expression is put in parenthesis.\\
+
+\item
+\textbf{Tuples}
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{(x, y)} \lra \texttt{ft2(x, y)} \\
+\verb|(_, 3.14, _)| \lra \verb|(\(pA0, pA1) -> ft3(pA0, 3.14, pA1))|\\
+\\
+\verb|(_, _, "Hello from 3rd field")|
+\\
+\lra
+\\
+\verb|(\(pA0, pA1) -> ft3(pA0, pA1, "Hello from 3rd field"))|\\
+
+\newpage
+\item
+\textit{Description}
+\paragraph{ft\textit{n} function}\pend
+Every tuple is passed through the \textbf{ft\textit{n}} function where
+\textbf{\textit{n}} is the size of the tuple. This is a polymorphic function
+defined by the following class (for \textbf{\textit{n}} = 2 and with similar
+classes for 3, 4 and 5):
+\begin{verbatim}
+class FromTuple2 a b c | c -> a b where
+  ft2 :: (a, b) -> c
+\end{verbatim}
+This is because the same tuple may be of a \texttt{product type} or of a
+\verb|tuple_type| depending on where it appears on the program.
+For product types we have the following instance:
+\begin{verbatim}
+instance FromTuple2 a b (a, b) where
+  ft2 = id
+\end{verbatim}
+And there is also a new instance automatically generated for every
+\verb|tuple_type| definition.\\
+For example, for the following definition:
+\begin{verbatim}
+tuple_type Name
+value (first_name, last_name) : String^2
+\end{verbatim}
+Along with the definition itself which is described in section
+\ref{subsubsec:trantypedef} there will be the following instance:
+\begin{verbatim}
+instance FromTuple2 String String Name where
+  ft2 = \(x1, x2) -> Name' x1 x2
+\end{verbatim}
+With this mechanism the program will type check correctly on both cases.
+
+\paragraph{Parameters for the underscores}\pend
+For all the fields of the tuple that contain an underscore, we generate a new
+parameter in its place \\("\texttt{pA\textit{<n - 1>}}" for
+the n-th underscore) and at the end we prepend the parameters to make it a
+function expression. "pA" stands for parameter and the A is uppercase to avoid
+collisions with regular lcases identifiers.
+
+\paragraph{Big Tuples}\pend
+For big tuples, the original lines are kept and split in the same way.
+The \texttt{ft\textit{n}} function and the implicitly introduced parameters
+have their own separate lines at the top as shown in the following example:
+\begin{verbatim}
+( "Hey, I'm the first field and I'm also a pretty big string."
+, "Hey, I'm the second field and I'm a smaller string."
+, _
+)
+\end{verbatim}
+Becomes:
+\begin{verbatim}
+\pA0 ->
+ft3
+( "Hey, I'm the first field and I'm also a pretty big string."
+, "Hey, I'm the second field and I'm a smaller string"
+, pA0
+)
+\end{verbatim}
+All of these lines are also indented to the same column according to the
+indentation level.
+
+\end{itemize}
+
+\item
+\textbf{Lists}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{[1.61, 2.71, 3.14]}
+\\ \lra \\
+\verb|[(1.61 :: Double), (2.71 :: Double), (3.14 :: Double)]| \\\\
+\verb|[_, x, _]| \lra \verb|(\(pA0, pA1) -> [pA0, x, pA1])| \\
+
+\item
+\textit{Description}\\\\
+Lists work the same way as tuples except for the fact that they don't need
+the \texttt{ft\textit{n}} function.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+\subsection{Parenthesis Function Application}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{f(x, y, z)} \lra \texttt{f'''(x, y, z)} \\
+\verb|f(x, _, _)| \lra \verb|(\(pA0, pA1) -> f'''(x, pA0, pA1))| \\
+\verb|(x)to_str| \lra \verb|a'to_str(x)| \\
+\verb|apply(f)to_all_in(_)| \lra \verb|(\pA0 -> apply'to_all_in'(f, pA0))| \\
+
+\item
+\textit{Description}\\\\
+For the parenthesis function application, we separate the underlying function
+identifier by putting quotes in the place of the arguments (and prepending an
+'a' if needed) and we also collect the arguments in a tuple. From there, we can
+apply the function to the argument tuple. If any argument is an underscore, it
+implicitly introduces a parameter and it is treated similarly to how it is
+treated in tuples (section \ref{subsubsec:parentuplist}).
+
+\end{itemize}
+
+\subsection{Prefix and Postfix Functions}
+\label{subsubsec:prepostfuncs}
 
 
-\section{Programming Language Semantics}
+\begin{itemize}
+\item
+\textbf{Prefix functions}
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\verb|the_value:42| \lra \verb|Cthe_value((42 :: Integer))| \\
+\texttt{error:"this is an error message"} \lra
+\texttt{Cerror("this is an error message")} \\
+\verb|the_value:_| \lra \verb|(\pA0 -> Cthe_value(pA0))| \\
+\verb|the_value:result:true| \lra \verb|Cthe_value(Cresult(True))| \\
 
-Today he was wearing his captain’s boots, his yellow belt and his notable’s
-cap --- real Astrakhan; in his hand the long staff of an Elder. Two or three
-villagers stood up respectfully and invited him to a glass of raki.
+\item
+\textit{Description}\\\\
+Prefix functions are data constructors in \H\ which are introduced by the
+translation of the relevant \verb|or_type| definition. They are prepended
+with an upper case 'C' to be valid data constructors and their argument is
+placed in parenthesis. The argument can be an underscore, in which case a new
+parameter name is put in its place, the appropriate lambda abstraction is
+prepended and the whole expression is put in parenthesis to limit the scope of
+the abstraction.
+\end{itemize}
 
-No time, my children, even for raki, said he; Christ is risen! I’m going to
-the priest’s house, we’ve a notables’~meeting. In less than an hour’s time,
-all those who’ve been invited should be there. Quick, cross yourselves and
-come; you know what the business is today, surely. Ah, one of you should go
-and fetch saddler Panayotaros with his devil’s beard; we need him badly.
+\item
+\textbf{Postfix functions}
 
-He was silent for a moment, blinking, then said maliciously:
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{date.year} \lra \texttt{year(date)} \\
+\texttt{tuple.1st} \lra \texttt{p1st(tuple)} \\
+\texttt{info.date.year} \lra \texttt{year(date(info))} \\
+\texttt{tuple.1st.2nd} \lra \texttt{p2nd(p1st(tuple))} \\
 
-If he isn’t at home, he’ll be at the widow’s. They all burst out laughing.
+\item
+\textit{Description}\\\\
+Postfix functions are projection functions that are generated automatically by
+the translation of the relevant \verb|tuple_type| definition or they are the
+projection functions for product types (\verb|_.1st _.2nd etc|). They are
+translated into regular \H\ functions (as are the record accessor functions of
+\H) with their argument in parenthesis. For \verb|_.1st _.2nd etc| a 'p'
+for "projection" is prepended to make it a valid \H\ function.
+\\\\
+The projection functions for product types are polymorphic and work on tuples
+of any size (in principle, for size $\leq$ 5 for now). This is achieved by
+making them polymorphic through the following class (for p1st and similar
+classes for the rest):
+\begin{verbatim}
+class IsFirst' a b | b -> a where
+  p1st :: b -> a
+\end{verbatim}
+And the following instances:
 
-Christofis, the old muleteer, who had learned love in his young days --- and
-a heavy price he had paid for it --- came out with this violent retort:
+\begin{verbatim}
+instance IsFirst' a (a, b) where
+  p1st = fst
 
-What are you sniggering at, you chicken heads? He’s quite right. Do as you
-damn well like, Panayotaros, and pay no attention to what they say! Life’s
-short, death’s long. Go ahead, my lad!
+instance IsFirst' a (a, b, c) where
+  p1st = \(a, _, _) -> a
 
-Fat Dimitri, the butcher, shook his close-shaved skull:
+instance IsFirst' a (a, b, c, d) where
+  p1st = \(a, _, _, _) -> a
 
-God preserve the widow, our Katerina! The devil knows how many horns she
-saves us from!
+...
+\end{verbatim}
+\end{itemize}
 
-Captain Fortounas laughed.
+\item
+\textbf{The ”.change” Function}
 
-There, children, don’t argue. Every village should have its odd woman, so
-that the honest ones mayn’t be upset. It’s like the fountain by the
-roadside, that’s it: those who’re thirsty stop there and have a
-drink. Otherwise they come knocking at all our doors, one after the other;
-and the women, when they’re asked for water...
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{state.change\{counter = counter + 1\}}\\
+\prarr
+\texttt{state.change\{counter = state.counter + 1\}}\\
+\lra
+\verb|c0counter(counter(state) !+ (1 :: Integer)) state|
+\\\\
+\texttt{tuple.change\{1st = 1.61, 3rd = 3.14\}} \lra
+\texttt{(c1st(1.61) .> c3rd(3.14)) tuple}
+\\\\
+\verb|tuple.change{x = _, y = _}| \lra
+\verb|(\(pA0, pA1) -> (c0x(pA0) .> c0y(pA1)) tuple)| \\
 
-He turned, and noticed the schoolmaster.
+\item
+\textit{Description}\\
 
-What, you here still, old one? Aren’t you on the council, too? Turn even the
-café into a school? Class is over, come along!
+For the "\texttt{.change}" function, similarly to the projection functions, a
+change function (in \H) is introduced for every field of every
+\verb|tuple_type|. This function is the name of the field prepended by "c0"
+where the 'c' stands for "change" and the '0' is there so that there can be no
+collisions with other identifiers (numbers can only be at the end for lcases
+identifiers). For the product type fields, the change functions are
+"\texttt{c1st}", "\texttt{c2nd}", etc. The type of every change function
+has the form:
+\begin{verbatim}
+FieldType -> TupleOrProdType -> TupleOrProdType
+\end{verbatim}
 
-Don’t you want me to come, too? said old Christofis, with a wink to the
-company. I’d do for Judas.
+For every assignment inside the braces we use the change function of the
+assigned field with the expression of the assignment as the
+\texttt{FieldType} argument. By doing this we have all the functions
+of type:
+\begin{verbatim}
+TupleOrProdType -> TupleOrProdType
+\end{verbatim}
 
-But Captain Fortounas had already started up the slope, leaning heavily on
-his stick. He was not in good shape today; his rheumatism was at him with
-its pincers; he had not closed an eye all night. Of course he had gulped
-down two or three big glasses of raki that morning by way of remedy, but,
-devil take it, the pain hadn’t given him a moment’s peace. Even the raki
-hadn’t done the trick.
+we need to make the changes. We compose them all with the "\texttt{.>}"
+operator, which is a predefined operator for function composition from left to
+right (although the regular "\texttt{.}" should also do). Now we have one
+function of type:
+\begin{verbatim}
+TupleOrProdType -> TupleOrProdType
+\end{verbatim}
 
-If I weren’t ashamed, I’d start screaming: that might quiet the pain a
-bit. But there’s this damned self-respect and look jovial. And if I let slip
-my stick, I shan’t let any young imp help me, I shall stoop and pick it up
-by myself... Come on, Captain Fortounas, bite your lips, hoist your sails,
-steer into the waves, my lad! Don’t go covering yourself with shame! By God,
-sir, life, too, is a squall; it’ll pass!
+that does all the changes. We apply it on the argument of the
+"\texttt{.change}" function and we are done.
+\\\\
+The change functions for product types work on tuples of any size
+(in principle, for size $\leq$ 5 for now). This works with appropriate type
+classes and instances, similarly to the way the \texttt{p1st}, \texttt{p2nd},
+etc functions work. Unfortunately, because of this fact the regular braces
+notation of \H\ for the same purpose cannot work, since \texttt{p1st},
+\texttt{p2nd}, etc are polymorphic functions and not "record selectors".
+\\\\
+If an underscore is assigned to a variable, new parameters are introduced
+similarly to the way they are introduced for tuples.
 
-He growled and blasphemed to himself. As he climbed the hill a lurch hurled
-him from one wall to the other. He stopped a moment and looked around him:
-nobody was looking; he sighed noisily and this relieved him a
-little. Raising his eyes toward the upper end of the village, he caught
-sight of a white patch among the trees, the indigo-shuttered house of the
-priest.
+\end{itemize}
 
-What the devil was he thinking of, the old sod, going and building his house
-at the top of the hill, he grumbled. His curse upon me! And he resumed his
-climb.
+\end{itemize}
 
-Two notables had already arrived; seated cross-legged on the divan they were
-waiting in silence for the dish to be brought in. The priest had gone to
-give his orders in the kitchen, where his only daughter, Mariori, was
-preparing the coffee, the cool water, and the preserves.
+\newpage
+\section{Translation Phase: Operators}
 
-Close to the windows the first Elder of Lycovrissi sat throned: corpulent,
-lordly in manner, wearing breeches of fine linen, a gold-braided bolero and
-a stout gold ring on his forefinger --- his seal with his initials
-interlaced: G.P., George Patriarcheas. His hands were fat and soft, like a
-bishop’s. He had never done anything in his life, having a whole tribe of
-servants and serfs working for his service. He had swollen intestines,
-spreading buttocks, a pendulous paunch and three tiers of chin which, one on
-top of another, rested on a well-fleshed, hairy chest. He had two or three
-teeth missing in front --- it was his only defect and made him lisp and
-stammer. But even this defect added to his distinction, for it forced
-whoever was speaking with him to lean toward him in order to hear what he
-said.
+\subsection{Operators}
 
-At his right in a corner, thin, grubby, with a cadaverous head, bleary eyes
-and huge callused hands, sat in a heap, humble and self-effacing, the second
-notable: the richest man of the village, old Ladas. Bent over the land, for
-seventy years he had ploughed it, sowed it, reaped it, planted it with
-olives and vines, pressed it, drunk its blood. Not once since he was a lad
-had he cleaned it off him. Insatiable, he had hurled himself on it,
-demanding that it yield him a thousand to one. Yet he never once said, God
-be praised! but grumbled, eternally discontented. Now, in his old age, the
-land was not enough for him. As his death approached and he felt himself
-getting near the end of his scroll, he was impatient to devour the whole
-village. He had taken to lending money at high rates; men down on their luck
-pledged their vineyards and their houses and, when payment was due and they
-hadn’t a penny, saw their property sold at auction and old Ladas gobbling up
-the lot.
+For each one of the lcases operators, a new \H\ operator is defined, for it to
+be translated to. This allows for the use of the precedence and associativity
+mechanism for new user defined operators in \H\ instead of having to implement
+them from scratch in the parser, while also avoiding a lot of extra parentheses
+that the latter approach would need. Function application and function
+composition operators are defined as shown below. Every other operator is
+defined by a type class that matches the type described in table
+\ref{table:allops}. The implementation of the operator for every combination of
+types is defined by an appropriate instance. The examples for the addition
+operator in the next page show the general structure.
+\\
 
-And yet he moaned without stopping, and never had enough to eat; Penelope,
-his wife, went barefoot, and when the one and only daughter he had managed
-to produce fell ill, he had let her die through not sending for the doctor.
+\begin{table}[ht]
+\hspace{0.5cm}
+\begin{minipage}{0.45\linewidth}\centering
+\begin{tabular}{ |c|c| }
+\hline
+lcases operator & \H\ operator
+\\
+\hline
+\hline
+\verb|->| & \verb|&>|
+\\
+\hline
+\verb|<-| & \verb|<&|
+\\
+\hline
+\verb|o>| & \verb|.>|
+\\
+\hline
+\verb|<o| & \verb|<.|
+\\
+\hline
+\verb|^| & \verb|!^|
+\\
+\hline
+\verb|*| & \verb|!*|
+\\
+\hline
+\verb|/| & \verb|!/|
+\\
+\hline
+\verb|+| & \verb|!+|
+\\
+\hline
+\verb|-| & \verb|!-|
+\\
+\hline
+\verb|==| & \verb|!==|
+\\
+\hline
+\verb|!=| & \verb|!!=|
+\\
+\hline
+\verb|>| & \verb|!>|
+\\
+\hline
+\verb|<| & \verb|!<|
+\\
+\hline
+\verb|>=| & \verb|!>=|
+\\
+\hline
+\verb|<=| & \verb|!<=|
+\\
+\hline
+\verb|&| & \verb|!&|
+\\
+\hline
+\texttt{|} & \texttt{!|}
+\\
+\hline
+\verb|;>| & \verb|!>>=|
+\\
+\hline
+\verb|;| & \verb|!>>|
+\\
+\hline
+\end{tabular}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\linewidth}
 
-It costs a lot of money, he had said; the big towns are a long way off; how
-can I get a doctor out? And then, what do they know, more than others?
-Plague on them! We’ve got our priest; he knows the old medicines, and I
-shall only pay him for the extreme unction. She’ll get well just the same,
-and it’ll be cheaper.
+Precedence and associativity using \H:
+\begin{verbatim}
+infixl 9 &>
+infixr 8 <&
+infixl 7 .>, <.
+infixr 6 !^
+infixl 5 !*, !/
+infixl 4 !+, !-
+infix 3 !==, !!=, !>, !<, !>=, !<=
+infixr 2 !&
+infixr 1 !|
+infixr 0 !>>=, !>>
+\end{verbatim}
 
-But the priest’s electuaries were no use, the holy oils had no effect, and
-the young girl died at seventeen and shook free of her father. He, too, was
-freed from the expense of a wedding: one day, not long after his daughter’s
-death, he had done the accounts: dowry about so much; linen, tables, chairs
-so much. And then wouldn’t he have been obliged to invite to the wedding all
-those relatives, who put away victuals like the gluttons they are? So then
-meat, bread, wine so much... He had added it all up, a pretty figure: his
-daughter would have reduced him to beggary. So what did it matter? We shall
-all die... Besides, she had escaped from the worries of this world ---
-husband, children, illness, housework... In fact, she’d been lucky, God rest
-her soul!
+Function application/composition operators
+\begin{verbatim}
+(&>) :: a -> (a -> b) -> b
+x &> f = f x
+
+(<&) :: (a -> b) -> a -> b
+f <& x = f x
+
+(.>) :: (a -> b) -> (b -> c) -> a -> c
+(.>) = flip (.)
+
+(<.) :: (b -> c) -> (a -> b) -> a -> c
+(<.) = (.)
+\end{verbatim}
+\end{minipage}
+\end{table}
+\newpage
+\begin{Verbatim}[commandchars=\\\{\}]
+# Type class for addition:
+class A'And'Add_To' a b c where
+  (!+) :: a -> b -> c
+
+# Some of the instances
+
+# Adding 2 lists:
+instance b \mytilde [a] => A'And'Add_To' [a] [a] b where
+  (!+) = (++)
+
+# Adding any type 'a' with a list of 'a' s
+instance b \mytilde [a] => A'And'Add_To' a [a] b where
+  (!+) = (:)
+
+# Adding a String to a type 'a' with a Show instance without needing to call show
+instance (Show a, b \mytilde String) => A'And'Add_To' String a b where
+  str !+ x = str ++ show x
+
+\end{Verbatim}
+
+\subsection{Operator Expressions}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\verb|5 * 'a'| \lra \verb|(5 :: Integer) !* 'a'|
+\\\\
+\verb|"Hello " + "World!"| \lra \verb|"Hello " !+ "World!"|
+\\\\
+\verb|_ - 1| \lra \verb|(\pA0 -> pA0 !- (1 :: Integer))|
+\\\\
+\verb|_ + "string in the middle of the arguments" + _|
+\\\lra
+\verb|(\(pA0, pA1) -> pA0 !+ "string in the middle of the arguments" !+ pA1)|
+\\
+
+\item
+\textit{Description}\\
+
+In operator expressions, the operands are translated according to what operands
+they are (described in their respective section) and the operators are
+substituted by their respective \H\ operators. If an operand is an underscore
+than a new lambda abstraction is introduced, similarly to how this is done for
+tuples in \ref{subsubsec:parentuplist}.
+\\\\
+For big operator expression that span multiple lines, the lines are split the
+same way they are split in the source file and they are indented all the same
+according to the indentation level. If new lambda abstractions are introduced,
+they are all placed in a new line on the top, also indented the same. Again,
+all of the above are done similarly to how they are done for tuples in
+\ref{subsubsec:parentuplist}.
+
+\end{itemize}
+
+\newpage
+\section{Translation Phase: Function Expressions}
+
+\subsection{Regular Function Expressions}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\verb|x => 17 * x + 42| \lra \verb|\x -> (17 :: Integer) !* x !+ (42 :: Integer)|
+\\\\
+\verb|* => 42| \lra \verb|\_ -> (42 :: Integer)|
+\\\\
+\verb|(x, *, z) => x + z| \lra \verb|\(x, _, z) -> x !+ z|
+\\\\
+\verb|((x1, y1), (x2, y2)) => (x1 + x2, y1 + y2)|\\
+\lra
+\verb|\((x1, y1), (x2, y2)) -> ft2(x1 !+ x2, y1 !+ y2)|\\
+
+\item
+\textit{Description}\\
+
+The following are done to translate the parameters:
+\begin{itemize}
+\item
+A \verb|'\'| character is prepended
+\item
+The \verb|"=>"| arrow is replaced by the \verb|"->"| arrow
+\item
+A \verb|'*'| parameter becomes a \verb|'_'| parameter
+\end{itemize}
+The body of the function is translated according to expression it
+is.
+\\\\
+It is possible that the function expression is accompanied by a
+"\texttt{where}" expression below it. As shown in the example below:
+\begin{verbatim}
+  gac => print(message)
+  where
+  message: String
+    = "Gcd: " + gac.gcd + "\nCoefficients: a = " + gac.a + ", b = " + gac.b
+\end{verbatim}
+In that case, the "\texttt{where}" expression becomes a "\texttt{let-in}"
+expression as described in section \ref{subsec:tranvalwhere}. This
+"\texttt{let-in}" expression is placed between the parameters and the
+body of the function, to make the parameters "visible" to the expressions
+in the "\texttt{let-in}" expression as shown below:
+\begin{verbatim}
+  \gac ->
+  let
+  message :: String
+  message =
+    "Gcd: " !+ gcd(gac) !+ "\nCoefficients: a = " !+ a(gac) !+ ", b = " !+ b(gac)
+  in
+  print'(message)
+\end{verbatim}
+where the "\verb|gac|" parameter is "visible" to the expression of
+"\verb|message|".
+
+\end{itemize}
+
+\newpage
+\subsection{"cases" Function Expressions}
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\begin{minipage}[t][12cm][t]{\linewidth}
+\begin{minipage}{0.47\linewidth}
+
+\begin{verbatim}
+cases
+  true => print("It's true!! :)")
+  false => print("It's false... :(")
+\end{verbatim}
+\lra
+\begin{verbatim}
+\pA0 ->
+case pA0 of
+  True -> print'("It's true!! :)")
+  False -> print'("It's false... :(")
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+(x, cases)
+  0 => x
+  y => gcd(y, (x)mod(y))
+\end{verbatim}
+\lra
+\begin{verbatim}
+\(x, pA0) ->
+case pA0 of
+  0 -> x
+  y -> gcd''(y, a'mod'(x, y))
+\end{verbatim}
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{verbatim}
+(cases, cases)
+  (green, green) => true
+  (amber, amber) => true
+  (red, red) => true
+  ... => false
+\end{verbatim}
+\lra
+\begin{verbatim}
+\(pA0, pA1) ->
+case (pA0, pA1) of
+  (green, green) -> True
+  (amber, amber) -> True
+  (red, red) -> True
+  _ -> False
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+cases
+  [x1, x2, xs = ...] =>
+    (x1 < x2) & (x2 + xs)is_sorted
+  ... => true
+\end{verbatim}
+\lra
+\begin{verbatim}
+\pA0 ->
+case pA0 of
+  x1 : x2 : xs ->
+    (x1 !< x2) !& a'is_sorted(x2 !+ xs)
+  _ -> True
+\end{verbatim}
+\end{minipage}
+\end{minipage}
+\\
+\item
+\textit{Description}\\
+
+The parameters are translated similarly to how they are translated in regular
+function expressions, with the one difference being that all parameters that
+contain the word "\texttt{cases}" are translated to newly generated parameters.
+Every such parameter is then collected in a tuple that is pattern matched on by
+creating a new line of the form "\verb|case <tuple of new paramters> of|". For
+the last case, if we have "\verb|...|" then it is translated to "\verb|_|".
+When matching on the first few elements of a list the translations is done as
+follows:
+\\\\
+\verb|[x1, x2, ...] => <case body>|
+\lra
+\verb|x1 : x2 : _ -> <case body translation>|
+\\\\
+\verb|[x1, x2, xs = ...] => <case body>|
+\lra
+\verb|x1 : x2 : xs -> <case body translation>|
+\\
+
+where the square brackets are removed and the commas become colons.
+If the rest of the list has a name that it is the only thing that is kept
+after the last colon and if it doesn't an underscore placed instead.
+\end{itemize}
+
+\newpage
+\section{Translation Phase: Value Definitions and "where" Expressions}
+\label{subsec:tranvalwhere}
+
+\begin{itemize}
+\item
+\textit{Examples}
+\begin{verbatim}
+foo: Int
+  = 42
+\end{verbatim}
+\lra
+\begin{verbatim}
+foo :: Integer
+foo =
+  (42 :: Integer)
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+dfs_on_tree(_) : (T1)Tree => (Int x T1)Tree
+  = dfs_on_tree(_)with_num(1) o> _.tree
+    where
+    dfs_on_tree(_)with_num(_) : (T1)Tree x Int => (T1)ResultTreeAndNum
+      = <irrelevant stuff>
+
+    <irrelevant stuff>
+\end{verbatim} \lra
+\begin{verbatim}
+dfs_on_tree' :: forall a1. A'Tree a1 -> A'Tree (Integer, a1)
+dfs_on_tree' =
+  let
+  dfs_on_tree'with_num' :: (A'Tree a1, Integer) -> A'ResultTreeAndNum a1
+  dfs_on_tree'with_num' = <irrelevant stuff>
+
+  <irrelevant stuff>
+  in
+  (\pA0 -> dfs_on_tree'with_num'(pA0, (1 :: Integer))) .> (\x' -> tree(x'))
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+val1, val2, val3 : Int, Bool, Char
+  = 42, true, 'a'
+\end{verbatim} \lra
+\begin{verbatim}
+val1 :: Integer
+val1 =
+  (42 :: Integer)
+
+val2 :: Bool
+val2 =
+  True
+
+val3 :: Char
+val3 =
+  'a'
+\end{verbatim}
+
+\newpage
+
+\begin{verbatim}
+print_gcd_and_coeffs_of(_): GcdAndCoeffs => IO
+  = gac => print(message)
+    where
+    message: String
+      = "Gcd: " + gac.gcd_ + "\nCoefficients: a = " + gac.a + ", b = " + gac.b
+\end{verbatim}
+\lra
+\begin{verbatim}
+print_gcd_and_coeffs_of' :: GcdAndCoeffs -> IO
+print_gcd_and_coeffs_of' =
+  \gac ->
+  let
+  message :: String
+  message =
+    "Gcd: " !+ gcd_(gac) !+ "\nCoefficients: a = " !+ a(gac) !+ ", b = " !+ b(gac)
+  in
+  print'(message)
+\end{verbatim}
+
+\textit{Description}\\
+
+The following are done to translate value definitions:
+
+\begin{itemize}
+\item
+The "has type" symbol is translated by doubling the colon
+
+\item
+The identifier is reused before the equal sign
+
+\item
+If the value definition is on indentation level 0 the following steps are taken:
+
+\begin{itemize}
+\item
+Collect all the parametric type variables of the type
+\item
+Prepend the following to the translation of the type:
+\begin{verbatim}
+"forall " <parametric type vars translated and space seperated> '.'
+\end{verbatim}
+\end{itemize}
+
+This allows the use of the same type variable in the types inside the
+"\texttt{where}" expression if there is one. This is demonstrated in the 2nd
+example where \texttt{T1} (before translation or \texttt{a1} after) is used
+also in the type annotation of as \verb|dfs_on_tree(_)with_num(_)|. By default
+the "\texttt{a1}"s do not refer to the same type even if they have the same
+name.  The compiler extension \texttt{ScopedTypeVariables} is also needed for
+this to work.
+
+\item
+If the value expression is followed by a "\texttt{where}" expression, the
+"\texttt{where}" expression is translated to a "\texttt{let-in}" expression
+that is placed above the translation of the value expression (2nd example). The
+one exception to this rule is when the value expression is a regular
+function expression where the "\texttt{let-in}" expression is placed between
+the parameters and the body (last example).
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+\section{Translation Phase: Types}
+
+\subsection{Type Expressions}
+
+\paragraph{Type Identifiers}
 
 
-\section{Domain Theory}
+\begin{itemize}
+\item
+\textit{Examples}\\
 
-Mariori came in with the dish, greeted the notables and, with eyes cast
-down, stopped first in front of the archon. She was pale and had big eyes,
-fine-drawn eyebrows, and two great tresses of chestnut hair made her a
-crown. The old archon helped himself to a full spoonful of wild bitter
-cherry conserve, looked at the young girl and raised his glass.
+\verb|Int| \lra \verb|Integer|\\\\
+\verb|Real| \lra \verb|Double|\\\\
+\verb|String| \lra \verb|String|\\\\
+\verb|SelfReferencingType| \lra \verb|SelfReferencingType|\\
+\item
+\textit{Description}\\
 
-To your loves, Mariori; my son’s getting impatient.
+Type ids remain the same except for Int and Real, which are translated to
+Integer and Double respectively.
 
-The priest’s daughter was engaged to his only son, Michelis, and the priest
-boasted that such a match would soon bring him grandchildren.
+\end{itemize}
 
-I begin to see why he’s so impatient, the young dog. He can’t stand it any
-more, he says, the old man added with a laugh and winked at the young girl.
+\paragraph{Type Variables}
 
-She blushed to the roots of her hair and became tongue-tied.
 
-Joy to us all! said Grigoris, the priest, as he brought in a bottle of
-muscatel wine. With the blessing of Christ and the Virgin!
+\begin{itemize}
 
-Green still, getting stout, with a perfectly white forked beard, he smelled
-of incense and fat. He saw his daughter’s confusion and, to change the
-subject:
+\item
+Parametric Type Variables
 
-And when, God willing, he asked, do you think of marrying off that adopted
-daughter of yours as well --- Lenio?
+\begin{itemize}
 
-Lenio was one of the bastards the archon had begotten on his servants. He
-had betrothed her to his shepherd, the faithful Manolios, and given her a
-generous dowry in the shape of a flock of sheep, which Manolios minded on
-the Mount of the Virgin, close to the village.
+\item
+\textit{Examples}\\
 
-God willing, quite soon, he replied; Lenio’s in a hurry. She’s in a hurry,
-the lucky girl! I do believe her breasts are swelling and she needs to nurse
-a son. `Here’s the month of May,' she said to me the other day, `here’s the
-month of May, master, it’s high time.'
+\verb|T1| \lra \verb|a1|\\\\
+\verb|T2| \lra \verb|a2|\\\\
+\verb|T3| \lra \verb|a3|\\
 
-He laughed again, wholeheartedly, and his triple chin shook.
+\item
+\textit{Description}\\
 
-Only donkeys wed in May, he said; she’s right, Lenio is, it’s high
-time. They’re human, too, after all, even if they are servants.
+The 'T' becomes an 'a'.
+\end{itemize}
 
-Manolios is a good lad, said the priest; they will be happy.
+\item
+Ad Hoc Type Variables
 
-\selectlanguage{greek}
+\begin{itemize}
+\item
+\textit{Examples}\\
 
+\verb|@A| \lra \verb|b0|\\\\
+\verb|@B| \lra \verb|b1|\\\\
+\verb|@C| \lra \verb|b2|\\
+\item
+\textit{Description}\\
+
+The '@' becomes a 'b' and the capital letters map like so:
+A \lra 0, B \lra 1, etc
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+\paragraph{Type Application Types}
+
+\begin{itemize}
+\item
+\textit{Examples}\\
+
+\verb|ListOf(Int)s| \lra \verb|ListOf's Integer|\\\\
+\verb|Error(String)OrResult(Int)| \lra \verb|Error'OrResult' String Integer|\\\\
+\verb|(Int)Tree| \lra \verb|A'Tree Integer|\\\\
+\verb|ListOf(Int => Int)s| \lra \verb|ListOf's (Integer -> Integer)|\\\\
+\verb|Before(B,C)After| \lra \verb|Before''After B C|\\\\
+\verb|A(B(C))| \lra \verb|A' (B' C)|\\
+
+\item
+\textit{Description}\\
+
+For type application types, the type id for \H\ is extracted by replacing every
+parenthesis with as many single quotes as the number of type arguments it has.
+If the parenthesis is in the beginning, an 'A' (for argument) is prepended to
+make it a valid \H\ identifier.  The type arguments of all the parentheses are
+collected, translated, parenthesized if needed and appended to the type id
+separated by spaces.
+
+\end{itemize}
+
+\paragraph{Product Types}
+
+\begin{itemize}
+\item
+\textit{Examples}\\
+
+\verb|Int x Real x String| \lra \verb|(Integer, Double, String)|\\\\
+\verb|Int^2 x Int^2| \lra \verb|((Integer, Integer), (Integer, Integer))|\\\\
+\verb|(A^2 => A) x A x ListOf(A)s| \lra \verb|((A, A) -> A, A, ListOf's A)|\\
+\item
+\textit{Description}\\
+
+For the product types, all the field types and translated, separated by commas
+and put in parenthesis.
+
+\end{itemize}
+
+\newpage
+\paragraph{Function Types}
+
+\begin{itemize}
+\item
+\textit{Examples}\\
+
+\verb|T1 => T1| \lra \verb|a1 -> a1|\\\\
+\verb|Int^2 => Int| \lra \verb|(Integer, Integer) -> Integer|\\\\
+\verb|(A^2 => A) x A x ListOf(A)s => A|
+\lra \verb|((A, A) -> A, A, ListOf's A) -> A|\\
+
+\item
+\textit{Description}\\
+
+For the function types, the input and output types are translated and
+the arrow between them changes from "\verb|=>|" to "\verb|->|".
+
+\end{itemize}
+
+\paragraph{Conditional Types}
+
+\begin{itemize}
+\item
+\textit{Examples}\\
+
+\verb|(@T)Has_Str_Rep --> @T => String|
+\lra
+\verb|A'Has_Str_Rep b19 => b19 -> String|\\\\
+\verb|(@A)Is(@B)s_First --> @B => @A|
+\lra \verb|A'Is's_First b0 b1 => b1 -> b0|\\\\
+\verb|(@T)Has_Internal_App --> (T1 => T2) x @T(T1) => @T(T2)|
+\\
+\lra
+\\
+\verb|A'Has_Internal_App b19 => (a1 -> a2, b19 a1) -> b19 a2|\\
+
+\item
+\textit{Description}\\
+
+For conditional types, the condition is translated similarly to how type
+application types are translated, with quotes replacing the parentheses and
+the type variables appended to the condition name and separated by spaces.
+The simple type is translated according to what type it is and
+the arrow between the condition and the simple type changes from "\verb|-->|"
+to "\verb|=>|".
+
+\end{itemize}
+
+\newpage
+\subsection{Type Definitions}
+\label{subsubsec:trantypedef}
+
+\paragraph{Tuple Types}
+
+\begin{itemize}
+\item
+\textit{Examples}
+
+\begin{verbatim}
+tuple_type Date
+value (day, month, year) : Int^3
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Date =
+  Date' { day :: Integer, month :: Integer, year :: Integer }
+
+instance FromTuple3 Integer Integer Integer Date where
+  ft3 = \(x1, x2, x3) -> Date' x1 x2 x3
+
+c0day :: Integer -> Date -> Date
+c0month :: Integer -> Date -> Date
+c0year :: Integer -> Date -> Date
+c0day = \new x -> x { day = new }
+c0month = \new x -> x { month = new }
+c0year = \new x -> x { year = new }
+
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+
+tuple_type Edge
+value (u, v) : Node^2
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Edge =
+  Edge' { u :: Node, v :: Node }
+
+instance FromTuple2 Node Node Edge where
+  ft2 = \(x1, x2) -> Edge' x1 x2
+
+c0u :: Node -> Edge -> Edge
+c0v :: Node -> Edge -> Edge
+c0u = \new x -> x { u = new }
+c0v = \new x -> x { v = new }
+\end{verbatim}
+
+\newpage
+\begin{verbatim}
+tuple_type (T1)Tree
+value (root, subtrees) : T1 x (T1)Trees
+\end{verbatim}
+\lra
+\begin{verbatim}
+data A'Tree a1 =
+  A'Tree' { root :: a1, subtrees :: A'Trees a1 }
+
+instance FromTuple2 a1 (A'Trees a1) (A'Tree a1) where
+  ft2 = \(x1, x2) -> A'Tree' x1 x2
+
+c0root :: a1 -> A'Tree a1 -> A'Tree a1
+c0subtrees :: A'Trees a1 -> A'Tree a1 -> A'Tree a1
+c0root = \new x -> x { root = new }
+c0subtrees = \new x -> x { subtrees = new }
+\end{verbatim}
+\item
+\textit{Description}\\
+
+For tuple types the translation has the following steps:
+
+\begin{enumerate}
+
+\item
+"\verb|tuple_type|" \lra "\texttt{data}"
+
+\item
+From the type name the \H\ type id is extracted by replacing the parametric
+type variables in the parenthesis with single quotes and the parametric type
+variables are appended separated by spaces, similarly to how it is done in Type
+Application Types. An equal sign is appended to the above.
+
+\item
+"\texttt{value}" is discarded and the second line is indented and starts
+with the data constructor, which is the \H\ type id ended with a single quote.
+
+\item
+We add the \H\ record syntax with the fields separated by commas and annotated
+with their respective types, which are translated from the product type that
+ends the "\verb|tuple_type|" definition.
+
+\item
+In this step the instance for the \texttt{ft\textit{n}} function is defined
+where \textit{n} is the size of the tuple of the \verb|tuple_type|. This is
+required for the translation of tuples for reasons explained in section
+\ref{subsubsec:parentuplist}. This can be divided into the following substeps
+(where \textit{n} is the size of the tuple of the "\verb|tuple_type|", not
+'n' verbatim):
+
+\begin{enumerate}
+\item
+"\texttt{instance FromTuple}\textit{n} "
+
+\item
+We append the translations (parenthesized if needed) of all the field types and
+the \verb|tuple_type| name (in that order) separated by spaces and followed
+by " \texttt{where}".
+
+\item
+The second line is indented and starts with \texttt{ft\textit{n} =}.
+
+\item
+A \verb|\| and a tuple parameter with internal parameters \texttt{x1} to
+\texttt{x\textit{n}} followed by "\texttt{ -> }" is appended.
+
+\item
+The data constructor of step 3 followed by the parameters \texttt{x1} to
+\texttt{x\textit{n}} separated by spaces are appended.
+
+\end{enumerate}
+
+\item
+The type annotations for the change function of each field (described in the
+"\texttt{.change}" section of \ref{subsubsec:prepostfuncs}) are generated by
+the following substeps for each change function:
+
+\begin{itemize}
+\item
+Prepend "\texttt{c0}" to the field identifier
+
+\item
+Append "\verb| :: |" followed by the type, which is of the following form:
+
+\begin{verbatim}
+<translation of field type> ->
+  <name of the tuple_type> -> <name of the tuple_type>
+\end{verbatim}
+
+
+\end{itemize}
+
+\item
+The definitions for the change function of each field are generated by the
+following substeps for each change function:
+
+\begin{itemize}
+\item
+Prepend "\texttt{c0}" to the field identifier
+
+\item
+Append "\verb| = \new x -> x { <field id> = new }|"
+
+\end{itemize}
+
+\end{enumerate}
+
+\end{itemize}
+
+\paragraph{Or Types}
+
+\begin{itemize}
+
+\item
+\textit{Examples}
+
+\begin{minipage}[t][9cm][t]{\linewidth}
+\begin{minipage}{0.35\linewidth}
+\begin{verbatim}
+or_type Bool
+values true | false
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Bool =
+  Ctrue |
+  Cfalse
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+or_type Possibly(T1)
+values the_value:T1 | no_value
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Possibly' a1 =
+  Cthe_value a1 |
+  Cno_value
+\end{verbatim}
+
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.45\linewidth}
+
+\begin{verbatim}
+or_type Error(T1)OrResult(T2)
+values error:T1 | result:T2
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Error'OrResult' a1 a2 =
+  Cerror a1 |
+  Cresult a2
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+or_type Comparison
+values lesser | equal | greater
+\end{verbatim}
+\lra
+\begin{verbatim}
+data Comparison =
+  Clesser |
+  Cequal |
+  Cgreater
+\end{verbatim}
+
+\end{minipage}
+
+\end{minipage}
+
+\item
+\textit{Description}\\
+
+For \verb|or_types| the translation has the following steps:
+
+\begin{enumerate}
+
+\item
+"\verb|tuple_type|" \lra "\texttt{data}"
+
+\item
+The type name is translated the same way as it is in tuple types.
+
+\item
+"\texttt{ =}" is appended.
+
+\item
+"\texttt{values}" is discarded and the lines from the 2nd onwards have the data
+constructors for each of the values of the \verb|or_type| (one in each). This
+is done as follows:
+
+\begin{enumerate}
+
+\item
+'C' is prepended to the identifier of the value to make it a data constructor.
+
+\item
+If there is an internal value, the type is translated and appended (separated
+by a space).
+
+\item
+If it is not the last value, "\texttt{ |}" is appended.
+
+\end{enumerate}
+
+\end{enumerate}
+
+\end{itemize}
+
+\newpage
+\paragraph{Type Nicknames}
+
+\begin{itemize}
+\item
+\textit{Examples}\\
+
+\verb|type_nickname Ints = ListOf(Int)s| \lra \verb|type Ints = ListOf's Integer|
+\\
+\\
+\verb|type_nickname ErrOrRes(T1) = Error(String)OrResult(T1)|
+\\
+\lra
+\verb|type ErrOrRes' a1 = Error'OrResult' String a1|
+\item
+\textit{Description}\\
+
+For type nicknames we replace "\verb|type_nickname|" with "\verb|type|",
+the type name (before the equal sign) with its translation and the
+type (after the equal sign) with its translation.
+
+\end{itemize}
+
+\newpage
+\section{Translation Phase: Type Logic}
+
+\subsection{Proposition Definitions}
+
+Renaming proposition definitions do not have a translation as they only
+affect theorems during the preprocessing phase. For atomic proposition
+definitions we have the following:
+
+\begin{itemize}
+
+\item
+\textit{Examples}\\
+
+\begin{minipage}{0.45\linewidth}
+\begin{verbatim}
+type_proposition (@A)Is(@B)s_First
+needed (_)first : @B => @A
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Is's_First b0 b1 where
+  a'first :: b1 -> b0
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@T)Has_Internal_App
+needed
+  apply(_)inside(_)
+    : (T1 => T2) x @T(T1) => @T(T2)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_Internal_App b19 where
+  apply'inside'
+    :: (a1 -> a2, b19 a1) -> b19 a2
+\end{verbatim}
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.40\linewidth}
+\begin{verbatim}
+type_proposition (@T)Has_A_Wrapper
+needed wrap(_) : T1 => @T(T1)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_A_Wrapper b19 where
+  wrap' :: a1 -> b19 a1
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@T)Has_String_Repr
+needed (_)to_string : @T => String
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_String_Repr b19 where
+  a'to_string :: b19 -> String
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@A, @B)To(@C)
+needed ab_to_c: @A x @B => @C#
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A''To' b0 b1 b2 where
+  ab_to_c :: (b0, b1) -> b2
+\end{verbatim}
+
+\end{minipage}
+
+\item
+\textit{Description}\\
+
+The translation of atomic type proposition definitions is done with the
+following steps:
+
+\begin{itemize}
+
+\item
+"\texttt{type_proposition}" is replaced by "\texttt{class}".
+
+\item
+The name of the proposition is translated similarly to the type name in a type
+definition. All the parentheses are replaced by the same amount of single
+quotes as there are ad hoc type variables inside the parenthesis and if there
+is a parenthesis at the beginning we prepend an 'A' to make it a valid type
+class name in \H. The translations of the ad hoc type variables are then
+appended and separated by spaces (in the same order in which they appear in the
+proposition).
+
+\item
+"\texttt{ where}" is appended to the first line.
+
+\item
+"\texttt{needed}" is discarded and the second line is indented
+
+\item
+The identifier of the value needed is translated and followed by "\verb| :: |"
+and the translation of its type.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+\subsection{Theorems}
+
+\begin{itemize}
+
+\item
+\textit{Examples}\\
+
+\begin{minipage}{0.45\linewidth}
+
+\begin{verbatim}
+type_theorem
+  (Possibly(_))Has_A_Wrapper
+proof wrap(_) = the_value:_
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance
+  A'Has_A_Wrapper Possibly' where
+  wrap' = (\pA0 -> Cthe_value(pA0))
+
+\end{verbatim}
+
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.50\linewidth}
+
+\begin{verbatim}
+type_theorem
+  (ListOf(_)s)Has_A_Wrapper
+proof wrap(_) = [_]
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance
+  A'Has_A_Wrapper ListOf's where
+  wrap' = (\pA0 -> [pA0])
+
+\end{verbatim}
+
+\end{minipage}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_theorem (Possibly(_))Has_Internal_App
+proof
+  apply(_)inside(_) =
+    (f(_), cases)
+      no_value => no_value
+      the_value:x => the_value:f(x)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance A'Has_Internal_App Possibly' where
+  apply'inside' =
+    \(f', pA0) ->
+    case pA0 of
+      Cno_value -> Cno_value
+      Cthe_value x -> Cthe_value(f'(x))
+\end{verbatim}
+
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_theorem (ListOf(_)s)Has_Internal_App
+proof
+  apply(_)inside(_) =
+    (f(_), cases)
+      [] => []
+      [head, tail = ...] => f(head) + apply(f(_))inside(tail)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance A'Has_Internal_App ListOf's where
+  apply'inside' =
+    \(f', pA0) ->
+    case pA0 of
+      [] -> []
+      head : tail -> f'(head) !+ apply'inside'((\pA0 -> f'(pA0)), tail)
+
+\end{verbatim}
+
+\newpage
+
+\begin{verbatim}
+type_proposition (@A)And(@B)Have_Eq_And_Gr
+equivalent (@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)
+
+type_theorem (@A)And(@B)Have_Eq_And_Gr --> (@A)Can_Be_Gr_Or_Eq_To(@B)
+proof a >= b = a == b | a > b
+\end{verbatim}
+\prarr
+\begin{verbatim}
+type_theorem
+  [(@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)] -->
+  (@A)Can_Be_Gr_Or_Eq_To(@B)
+proof a >= b = a == b | a > b
+# this is a representation of the AST after preprocessing
+# not lcases syntax
+\end{verbatim}
+$\xRightarrow{\text{translation}}$
+\begin{verbatim}
+instance
+  (A'And'Can_Be_Equal b0 b1, A'Can_Be_Greater_Than' b0 b1) =>
+  A'Can_Be_Gr_Or_Eq_To' b0 b1
+  where
+  a !>= b = a !== b !| a !> b
+\end{verbatim}
+
+\item
+\textit{Description} \\
+
+The translation of type theorems is done with the following steps:
+
+\begin{itemize}
+
+\item
+"\texttt{type_theorem}" is replaced by "\texttt{instance}".
+
+\item
+All the type propositions with substitutions (before and after the arrow if
+there is one), are translated and the arrow changes from "\texttt{-->}" to
+"\texttt{=>}". The propositions with substitutions are translated the same way
+propositions are translated in proposition definitions. The only difference is
+that instead of ad hoc type variables there are type substitutions. These come
+in the form of type expressions where there might be underscores instead of
+type arguments (e.g \verb|ListOf(_)s| ). These type expressions are translated
+like regular type expressions except for the underscore type arguments which
+are not translated at all, so that the type constructor itself acts as a higher
+kinded type (e.g \verb|ListOf's| ).
+
+\item
+"\texttt{ where}" is appended to the above.
+
+\item
+"\texttt{proof}" is discarded and the second line is indented.
+
+\item
+The identifier of the value or the operator surrounded by two identifiers
+are translated, followed by \\ "\texttt{ = }" and the translation of the value
+expression.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+\chapter{Running}
+
+\begin{itemize}
+\item Create compiler executable \\
+
+\texttt{make lcc} \\
+
+\item Compile lcases program to executable \\
+
+\texttt{./lcc hello_world.lc} \\
+
+Creates executable "hello_world" \\
+
+\texttt{./hello_world}
+
+\item Compile lcases program to Haskell \\
+
+\texttt{./lcc -h hello_world.lc} \\
+
+Creates executable "hello_world.hs" \\
+
+\texttt{ghci hello_world.hs} \\
+
+\item Run test_inputs \\
+
+\texttt{make} \\
+
+Creates "test_outputs" directory where
+\begin{itemize}
+
+\item
+\verb|test_outputs/compiled_progs| \\
+contains the compiled executables of all "\verb|test_inputs/programs|"
+
+\item
+\verb|test_outputs/programs| \\
+contains the Haskell translation of all "\verb|test_inputs/programs|"
+
+\item
+\verb|test_outputs/grammar_rules| \\
+contains the Haskell translation of various examples for each grammar rule from
+\\
+"\verb|test_inputs/grammar_rules|"
+
+\end{itemize}
+
+also create "grules" executable that is run for
+"\verb|test_outputs/grammar_rules|" \\
+
+\item Clean \\
+
+\texttt{make clean} \\
+
+Removes: \verb|test_outputs|, \verb|lcc|, \verb|grules|, \verb|hello_world|,
+\verb|hello_world.hs|
+
+\end{itemize}
+
+\newpage
+\chapter{Conclusion}
+
+A translator from lambda-cases to \H\ has been implemented. It is written in
+\H. The main differences from \H\ are:
+
+\begin{itemize}
+
+\item
+Function application is done with parentheses instead of spaces. \\
+Example: "\verb|f(x,y,z)|" instead of "\verb|f x y z|"
+
+\item
+Functions can be defined to expect arguments before or in the middle of the
+function identifier. \\
+Example:
+"\verb|apply(f)to_all_in(list)|" instead of "\verb|map f list|"
+
+\item
+Partial function application can be done for any of the arguments.
+\\\\
+Examples:\\
+"\verb|f(x, y, _)|" instead of "\verb|f x y|" for the regular \H\ use for
+a function that expects 3 arguments.
+\\
+In addition, the following are possible:
+
+\begin{itemize}
+
+\item
+"\verb|f(x, _, z)|" instead of "\verb|\y -> f x y z|"
+
+\item
+"\verb|f(_, y, z)|" instead of "\verb|\x -> f x y z|"
+
+\item
+"\verb|f(_, _, z)|" instead of "\verb|\x y -> f x y z|"
+
+\item
+etc
+
+\end{itemize}
+
+\item
+The above syntax for expected arguments with underscores is also possible
+for operands in operator expressions.
+\\\\
+Examples:\\
+"\verb|_ + 1|" instead of "\verb|(+ 1)|" for the regular \H\ use for expecting
+one operand.
+\\
+In addition, the following are possible:
+
+\begin{itemize}
+
+
+\item
+"\verb|"Hello " + _ + "! You look much younger than " + _ + "!"|"
+\\ instead of \\
+"\verb|\name age -> "Hello " ++ name ++ "! You look much younger than " + age + "!"|"
+
+\item
+"\verb|_^2 + _^2|" instead of "\verb|\x y -> x^2 + y^2|"
+
+\item
+etc
+
+\end{itemize}
+
+\item
+The above syntax for expected arguments with underscores is also possible
+for elements of tuples and lists.
+\\\\
+Examples:\\
+\begin{itemize}
+
+\item
+"\verb|(17, _, 42)|" instead of "\verb|\x -> (17, x, 42)|"
+
+\item
+"\verb|[17, _, 42]|" instead of "\verb|\x -> [17, x, 42]|"
+
+\end{itemize}
+
+\newpage
+\item
+No identifiers are needed for pattern matching on function parameters,
+the "\texttt{cases}" keyword is used instead.
+\\\\
+Examples:\\
+
+\begin{itemize}
+
+\item
+\begin{verbatim}
+cases
+  true => print("It's true!! :)")
+  false => print("It's false... :(")
+\end{verbatim}
+instead of
+\begin{verbatim}
+\b -> case b of
+  True -> putStrLn "It's true!! :)"
+  False -> putStrLn "It's false... :("
+\end{verbatim}
+This is also possible in \H\ with the LambdaCase extension like so:
+\begin{verbatim}
+\case
+  True => putStrLn "It's true!! :)"
+  False => putStrLn "It's false... :("
+\end{verbatim}
+This is where the name of the language comes from, the very frequent use
+of the LambdaCase. This idea is extended to any subset of any number of
+parameters as shown in the following example (and in the examples of
+the "cases" function expressions section" \ref{subsubsec:casessyntax})
+
+\item
+\begin{verbatim}
+(cases, cases)
+  (green, green) => true
+  (amber, amber) => true
+  (red, red) => true
+  ... => false
+\end{verbatim}
+instead of
+\begin{verbatim}
+\x y -> case (x, y) of
+  (Green, Green) => True
+  (Amber, Amber) => True
+  (Red, Red) => True
+  _ => False
+\end{verbatim}
+\end{itemize}
+
+\item Powers can be used on types.  For example:\\
+
+"\verb|Int^2|" instead of "\verb|Int x Int|" in lcases or
+"\verb|(Integer, Integer)|"
+in \H. \\
+
+\item Operators are generalized. \\\\
+Examples:
+
+\begin{itemize}
+
+\item
+"\verb|"Hello " + "World!"|" instead of "\verb|"Hello " ++ "World!"|"
+
+\item
+"\verb|5 * 'a'|" instead of "\verb|replicate 5 'a'|"
+
+\end{itemize}
+
+
+\end{itemize}
+
+\newpage
+\paragraph{Future Work}\pend
+Very little semantic analysis has been done and any error that is not a
+parsing error will be thrown by the \H\ compiler. For a more complete
+compiler/translator, a semantic analysis step is needed and error messages
+should refer to lambda-cases program and not the \H\ translation. This has not
+been implemented due to the complexity of the \H\ type system and the enormous
+work it would require to reimplement it. However, because lambda-cases forces
+the user to use type annotations, it might be possible to implement a simpler
+type system that is enough for what lamda-cases needs and/or throw an error
+message if type checking is not possible, to force the user to provide the
+relevant type annotations. This is what we will be working on in the future
+of the project.
 
 %%%  Bibliography
 
@@ -889,28 +5467,6 @@ Manolios is a good lad, said the priest; they will be happy.
 \backmatter
 
 \appendix
-
-\chapter{Ευρετήριο συμβολισμών}
-
-$A \rightarrow B$ : συνάρτηση από το πεδίο $A$ στο πεδίο $B$.
-
-\chapter{Ευρετήριο γλωσσών}
-
-\begin{description}
-\item[C++:] πώς θα βγάλω λεφτά...
-\item[Haskell:] η γλώσσα της ζωής μου αλλά πάνε οι μπύρες...
-\item[Javascript:] χα, χα, χα...
-\item[Python:] πώς θα τελειώνω για να πάω για μπύρες...
-\end{description}
-
-
-\chapter{Ευρετήριο αριθμών}
-
-\begin{description}
-\item[17:] ask Zachos.
-\item[42:] life, the universe and everything --- ask Douglas.
-\end{description}
-
 
 %%%  End of document
 
