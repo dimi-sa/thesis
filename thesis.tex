@@ -842,12 +842,386 @@ reverse_words_in(_) : String => String
 Το λογικό "και" και το bitwise "και" έχουν συγχωνευτεί σε ένα γενικό
 τελεστή "και" (\verb|&|). Το ίδιο ισχύει και για τον τελεστή "ή" (\texttt{|}).
 
+\newpage
 \subsection{Τελεστές Δράσεων σε Περιβάλλον}
 
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Τελεστής & Τύπος
+\\
+\hline
+\hline
+\verb|;>| & \verb|(@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)|
+\\
+\hline
+\verb|;| & \verb|(@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)|
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\paragraph{Απλό Παράδειγμα Προγράμματος}
+\begin{verbatim}
+main: (EmptyVal)FromIO
+  = print_string("I'll repeat the line") ; get_line ;> print_string(_)
+\end{verbatim}
+Το παραπάνω παράδειγμα επιδεικνύει την χρήση των τελεστών δράσεων σε περιβάλλον
+με το τύπο περιβάλλοντος \verb|FromIO|, ο οποίος είναι ο τύπος με τον οποίο
+γίνεται είσοδος/έξοδος στην lcases. Το πως ακριβώς γίνεται αυτό μπορεί να φανεί
+αν ρίξουμε μια ματιά στους τύπους (όπως πάντα!):
+\begin{verbatim}
+print_string(_): String => (EmptyVal)FromIO
+print_string("I'll repeat the line"): (EmptyVal)FromIO
+get_line: (String)FromIO
+
+\end{verbatim}
+Για τον τελεστή "έπειτα" έχουμε:
+\verb|; : (@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)|
+\\\\
+Στην παρακάτω έκφραση:
+\verb|print_string("I'll repeat the line") ; get_line|
+\\
+ο τελεστής "έπειτα" έχει τύπο:
+\verb|(EmptyVal)FromIO x (String)FromIO => Κάποιο Τύπο Τ|
+\\\\
+Ο μόνος τρόπος να ταιριάξουν οι τύποι είναι αν:
+\\
+\verb|  @E = FromIO, T1 = EmptyVal, T2 = String και T = (String)FromIO|
+\\
+Και δουλεύει γιατί: \verb|(FromIO)Has_Then|
+\\\\
+Για την συνολική έκφραση έχουμε:
+\begin{verbatim}
+print_string("I'll repeat the line") ; get_line
+  : (String)FromIO
+
+\end{verbatim}
+Για τον τελεστή "χρησιμοποίησε" έχουμε:
+\\
+\verb|;> : (@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)|
+\\\\
+Στην παρακάτω έκφραση:
+\\
+\verb|print_string("I'll repeat the line") ; get_line ;> print_string(_)|
+\\
+ο τελεστής "χρησιμοποίησε" έχει τύπο:
+\\
+\verb|(String)FromIO x (String => (EmptyVal)FromIO) => Κάποιο Τύπο Τ|
+\\\\
+Ο μόνος τρόπος να ταιριάξουν οι τύποι είναι αν:
+\\
+\verb|  @E = FromIO, T1 = String, T2 = EmptyVal και Τ = (EmptyVal)FromIO|
+\\
+Και δουλεύει γιατί: \verb|(FromIO)Has_Use|
+\\\\
+Για την συνολική έκφραση έχουμε:
+\begin{verbatim}
+print_string("I'll repeat the line") ; get_line ;> print_string(_)
+  : (EmptyVal)FromIO
+\end{verbatim}
+
+\newpage
+\paragraph{Ακόμα ένα Παράδειγμα Προγράμματος}
+\begin{verbatim}
+main: (EmptyVal)FromIO
+  = print_string("Hello! What's your name?") ; get_line ;> name =>
+    print_string("And how old are you?") ; get_line ;> age =>
+    print_string("Oh! You don't look " + age + " " + name + "!")
+
+print_string(_): String => (EmptyVal)FromIO
+
+print_string("Hello! What's your name?") : (EmptyVal)FromIO
+
+print_string("Hello! What's your name?"); get_line
+  : (String)FromIO
+
+print_string("And how old are you?"); get_line
+  : (String)FromIO
+
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+
+age => print_string("Oh! You don't look " + age + " " + name + "!")
+  : String => (EmptyVal)FromIO
+
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+
+name =>
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : String => (EmptyVal)FromIO
+
+print_string("Hello! What's your name?") ; get_line ;> name =>
+print_string("And how old are you?") ; get_line ;> age =>
+print_string("Oh! You don't look " + age + " " + name + "!")
+  : (EmptyVal)FromIO
+\end{verbatim}
+
+\paragraph{Περιγραφή}\pend
+Οι τελεστές δράσεων σε περιβάλλον χρησιμοποιούνται για να συνδιάσουν τιμές που
+είναι δράσεις σε περιβάλλον σε τιμές που είναι πιο περίπλοκες δράσεις σε
+περιβάλλον. Οι τύποι περιβάλλοντος είναι συναρτήσεις τύπων που δέχονται ένα
+τύπο σαν όρισμα και δημιουργούν έναν άλλον τύπο (όπως ο τύπος
+\verb|ListOf(_)s|). Οι τελεστές "έπειτα" (\verb|;|) και "χρησιμοποίησε"
+(\verb|;>|) είναι ορισμένοι για τους τύπους περιβάλλοντος. Μια τιμή τύπου
+\verb|@E(T1)| όπου ο \verb|@E| είναι τύπος περιβάλλοντος κάνει μια δράση
+στο περιβάλλον \verb|@E| και δημιουργεί μια τιμή τύπου \verb|T1|. Αυτή η
+δράση μπορεί να συνδιαστέι με τον τελεστή "έπειτα" με μία άλλη ώστα να γίνει
+η πρώτη και έπειτα η δεύτερη. Αντίστοιχα, με τον τελεστή "χρησιμοποίησε"
+οι τιμή που δημιουργήθηκε από την πρώτη δράση, μπορεί να χρησιμοποιηθεί σαν
+όρισμα σε συνάρτηση που επιστρέφει μια δεύτερη δράση.
+
+\newpage
 \subsection{Εκφράσεις Τελεστών}
 
+\begin{itemize}
+\item \textit{Παραδείγματα}
+\begin{verbatim}
+1 + 2
+1 + x * 3^y
+"Hello " + "World!"
+x -> f -> g
+f o> g o> h
+x == y
+x >= y - z & x < 2 * y
+get_line ; get_line ;> line => print("Second line: " + line)
+2 * _
+_ - 1
+"Hello " + "it's me, " + _
+"Hi, I am " + _ + " and I am " + _ + " years old"
+\end{verbatim}
+
+\item \textit{Περιγραφή}
+
+Οι εκφράσεις τελεστών είναι εκφράσεις που αποτελούνται από τελεστές και
+τελεστέους. Οι τελεστές συμπεριφέρονται σαν συναρτήσεις δύο ορισμάτων που
+βρίσκονται ανάμεσα στα ορίσματά τους (τελεστέους). Επομένως, έχουν τύπους
+συνάρτησης και δρουν όπως περιγράφεται στην αντίστοιχη ενότητα του
+καθενός παραπάνω.
+\\\\
+Οι εκφράσεις τελεστών μπορεί να έχουν πολλούς τελεστές. H σειρά με την
+οποία δρουν περιγράφεται στην επόμενη ενότητα.
+\\\\
+Όπως στις συναρτήσεις, οι τελεστέοι ενός τελεστή πρέπει να έχουν τύπους
+που ταιριάζουν με τους τύπους που περιμένει ο τελεστής.
+\\\\
+Είναι δυνατόν ο δεύτερος τελεστέος να είναι έκφραση συνάρτησης.
+\\\\
+Είναι επίσης δυνατόν να χρησιμοποιηθούν κάτω παύλες στην θέση τελεστέων.
+Μια έκφραση τελεστών που έχει τελεστέους κάτω παύλες λειτουργεί ως μία
+συνάρτηση που περιμένει τους κενούς τελεστέους ως ορίσματα.
+Αυτό επιδεικνύεται καλύτερα από τους τύπους των τελευταίων τεσσάρων
+παραδειγμάτων:
+
+\begin{verbatim}
+2 * _ : Int => Int
+_ - 1 : Int => Int
+"Hello " + "it's me, " + _ : String => String
+"Hi, I am " + _ + " and I am " + _ + " years old" : String^2 => String
+\end{verbatim}
+Σημείωση: Αυτοί δεν είναι οι πιο γενικοί τύποι για τα παραδείγματα αλλά είναι
+συμβατοί.
+
+\end{itemize}
+
+\newpage
 \subsection{Πλήρης Πίνακας Τελεστών, Προτεραιότητα και Προσεταιριστικότητα}
 
+\begin{table}[h]
+
+\caption{
+Ο πλήρης πίνακας τελεστών της lcases μαζί με τους τύπους και της συνοπτικές
+περιγραφές τους.
+}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Τελεστής & Τύπος & Περιγραφή
+\\
+\hline
+\hline
+\verb|->| & \verb|T1 x (T1 => T2) => T2| &
+\begin{tabular}{@{}c@{}}
+Δεξία Εφαρμογή
+\\
+Συνάρτησης
+\end{tabular}
+\\
+\hline
+\verb|<-| & \verb|(T1 => T2) x T1 => T2| &
+\begin{tabular}{@{}c@{}}
+Αριστερή Εφαρμογή
+\\
+Συνάρτησης
+\end{tabular}
+\\
+\hline
+\verb|o>| & \verb|(T1 => T2) x (T2 => T3) => (T1 => T3)| &
+\begin{tabular}{@{}c@{}}
+Δεξιά Σύνθεση
+\\
+Συναρτήσεων
+\end{tabular}
+\\
+\hline
+\verb|<o| & \verb|(T2 => T3) x (T1 => T2) => (T1 => T3)| &
+\begin{tabular}{@{}c@{}}
+Αριστερή Σύνθεση
+\\
+Συναρτήσεων
+\end{tabular}
+\\
+\hline
+\verb|^| & \verb|(@A)To_The(@B)Is(@C) --> @A x @B => @C| &
+\begin{tabular}{@{}c@{}}
+Γενική Ύψηση
+\\
+σε Δύναμη
+\end{tabular}
+\\
+\hline
+\verb|*| & \verb|(@A)And(@B)Multiply_To(@C) --> @A x @B => @C| &
+Γενικός Πολλαπλασιασμός
+\\
+\hline
+\verb|/| & \verb|(@A)Divided_By(@B)Is(@C) --> @A x @B => @C| &
+Γενική Διαίρεση
+\\
+\hline
+\verb|+| & \verb|(@A)And(@B)Add_To(@C) --> @A x @B => @C| &
+Γενική Πρόσθεση
+\\
+\hline
+\verb|-| & \verb|(@A)Minus(@B)Is(@C) --> @A x @B => @C| &
+Γενική Αφαίρεση
+\\
+\hline
+\verb|==| & \verb|(@A)And(@B)Can_Be_Equal --> @A x @B => Bool| &
+Γενική Ισότητα
+\\
+\hline
+\verb|!=| & \verb|(@A)And(@B)Can_Be_Unequal --> @A x @B => Bool| &
+Γενική Ανισότητα
+\\
+\hline
+\verb|>| & \verb|(@A)Can_Be_Greater_Than(@B) --> @A x @B => Bool| &
+Γενικό Μεγαλύτερο
+\\
+\hline
+\verb|<| & \verb|(@A)Can_Be_Less_Than(@B) --> @A x @B => Bool| &
+Γενικό Μικρότερο
+\\
+\hline
+\verb|>=| & \verb|(@A)Can_Be_Gr_Or_Eq_To(@B) --> @A x @B => Bool| &
+\begin{tabular}{@{}c@{}}
+Γενικό Μεγαλύτερο
+\\
+Ίσο
+\end{tabular}
+\\
+\hline
+\verb|<=| & \verb|(@A)Can_Be_Le_Or_Eq_To(@B) --> @A x @B => Bool| &
+\begin{tabular}{@{}c@{}}
+Γενικό Μικρότερο
+\\
+Ίσο
+\end{tabular}
+\\
+\hline
+\verb|&| & \verb|(@A)Has_And --> @A^2 => @A| &
+Γενικό Και
+\\
+\hline
+\texttt{|} & \verb|(@A)Has_Or --> @A^2 => @A| &
+Γενικό Ή
+\\
+\hline
+\verb|;>| & \verb|(@E)Has_Use --> @E(T1) x (T1 => @E(T2)) => @E(T2)| &
+\begin{tabular}{@{}c@{}}
+Τελεστής Δράσης
+\\
+"Χρησιμοποίησε"
+\end{tabular}
+\\
+\hline
+\verb|;| & \verb|(@E)Has_Then --> @E(T1) x @E(T2) => @E(T2)| &
+\begin{tabular}{@{}c@{}}
+Τελεστής Δράσης
+\\
+"Έπειτα"
+\end{tabular}
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\label{table:allopsgr}
+
+\end{table}
+\newpage\noindent
+Η σειρά δράσης των τελεστών γίνεται από μεγαλύτερη σε μικρότερη προτεραιότητα.
+Στο ίδιο επίπεδο προτεραιότητας η σειρά δράσης είναι από αριστερά προς τα δεξιά
+αν οι προσεταιριστικότητα είναι "Αριστερή" και από δεξιά προς τα αριστερά αν
+η προσεταιριστικότητα είναι "Δεξιά". Για τους τελεστές όπου "Δεν Υπάρχει"
+προσεταιριστικότητα, δεν επιτρέπεται η χρήση τους στην ίδια έκφραση τελεστών.
+Η προτεραιότητατ και προσεταιριστικότητα των τελεστών επιδεικνύεται στον
+παρακάτω πίνακα.
+
+\begin{table}[h]
+
+\caption{
+Πίνακας προτεραιότητας και προσεταιριστικότητας των τελεστών της lcases
+}
+
+\begin{center}
+\begin{tabular}{ |c|c|c| }
+\hline
+Τελεστής & Προτεραιότητα & Προσεταιριστικότητα
+\\
+\hline
+\hline
+\verb|->| & 10 (highest) & Αριστερή
+\\
+\hline
+\verb|<-| & 9 & Δεξιά
+\\
+\hline
+\verb|o> <o| & 8 & Αριστερή
+\\
+\hline
+\verb|^| & 7 & Δεξιά
+\\
+\hline
+\verb|* /| & 6 & Αριστερή
+\\
+\hline
+\verb|+ -| & 5 & Αριστερή
+\\
+\hline
+\verb|== != > < >= <=| & 4 & Δεν Υπάρχει
+\\
+\hline
+\verb|&| & 3 & Αριστερή
+\\
+\hline
+\texttt{|} & 2 & Αριστερή
+\\
+\hline
+\verb|;> ;| & 1 & Αριστερή
+\\
+\hline
+\end{tabular}
+\end{center}
+
+\label{table:precassocgr}
+
+\end{table}
+
+\newpage
 \section{Εκφράσεις Συναρτήσεων}
 
 \subsection{Κανονικές Εκφράσεις Συναρτήσεων}
@@ -2089,14 +2463,14 @@ print_string("Oh! You don't look " + age + " " + name + "!")
 \paragraph{Description}\pend
 The environment action operators are used to combine values that do environment
 actions into values that do more complicated environment actions. Environment
-actions are type functions that take a type argument and produce a type (just
-like \verb|ListOf(_)s|). These type functions have the "then" operator (\verb|;|)
-and the "use" operator (\verb|;>|) defined for them.  A value of the type
-\verb|@E(T1)| where \verb|(@E)Has_Then| does an environment action of type
-\verb|@E| that produces a value of type \verb|T1| which can then be
-combined with another one with the "then" operator. Similarly, with the "use"
-operator the produced value of an action can be used by a function that returns
-another action.
+types are type functions that take a type argument and produce a type
+(just like \verb|ListOf(_)s|). These types have the "then" operator
+(\verb|;|) and the "use" operator (\verb|;>|) defined for them.  A value of the
+type \verb|@E(T1)| where \verb|(@E)Has_Then| does an environment action of type
+\verb|@E| that produces a value of type \verb|T1| which can then be combined
+with another one with the "then" operator. Similarly, with the "use" operator
+the produced value of an action can be used by a function that returns another
+action.
 \\\\
 The effect of the "\verb|;|" operator described in words is the following:
 given a value of type \verb|@E(T1)| and a value of type \verb|@E(T2)|
@@ -2162,10 +2536,10 @@ _ - 1
 
 \item \textit{Description}
 
-Operator expressions are expressions that use operators. Operators act like
-two-argument-functions that are placed in between their arguments (operands).
-Therefore, they have function types and they act as it is described in their
-respective sections above this one.
+Operator expressions are expressions that are comprised of operators and
+operands. Operators act like two-argument-functions that are placed in between
+their arguments (operands).  Therefore, they have function types and they act
+as it is described in their respective sections above this one.
 \\\\
 An operator expression might have multiple operators. The order of operations
 is explained in the next section ("Complete Operator Table, Precedence and
