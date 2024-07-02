@@ -1168,7 +1168,7 @@ _ - 1 : Int => Int
 αν οι προσεταιριστικότητα είναι "Αριστερή" και από δεξιά προς τα αριστερά αν
 η προσεταιριστικότητα είναι "Δεξιά". Για τους τελεστές όπου "Δεν Υπάρχει"
 προσεταιριστικότητα, δεν επιτρέπεται η χρήση τους στην ίδια έκφραση τελεστών.
-Η προτεραιότητατ και προσεταιριστικότητα των τελεστών επιδεικνύεται στον
+Η προτεραιότητα και προσεταιριστικότητα των τελεστών επιδεικνύεται στον
 παρακάτω πίνακα.
 
 \begin{table}[h]
@@ -1224,17 +1224,233 @@ _ - 1 : Int => Int
 \newpage
 \section{Εκφράσεις Συναρτήσεων}
 
+Οι εκφρράσεις συναρτήσεων χωρίζονται σε \textbf{κανονικές εκφράσεις
+συναρτήσεων} και \textbf{εκφράσεις συναρτήσεων "cases"} και η κάθε
+κατηγορία περιγράφεται στην αντίστοιχη από τις παρακάτω ενότητες.
+
 \subsection{Κανονικές Εκφράσεις Συναρτήσεων}
 
+\begin{itemize}
+\item \textit{Παραδείγματα}
+
+\begin{verbatim}
+a => 17 * a + 42
+(a, b) => a + 2*b
+(x, y, z) => sqrt(x^2 + y^2 + z^2)
+* => 42
+(x, *, z) => x + z
+((x1, y1), (x2, y2)) => (x1 + x2, y1 + y2)
+\end{verbatim}
+
+\item \textit{Περιγραφή}
+
+Οι κανονικές εκφράσεις συναρτήσεων χρησιμοποιούνται για να ορίσουν συναρτήσεις
+ή είναι μέρος μια μεγαλύτερης έκφρασης ως ανόνυμες συναρτήσεις. Αποτελούνται
+από τις παραμέτρους και το σώμα τους.
+\\\\
+Οι παράμετροι είναι ονόματα. Είτε υπάρχει μόνο μία παράμετρος, στην οποία
+περίπτωση δεν υπάρχει παρένθεση, είτε υπάρχουν πολλές, στην οποία περίπτωση
+είναι σε παρένθεση χωρισμένες από κόμματα. Αν μία παράμετρος δεν χρειάζεται
+μπορεί να μείνει χωρίς όνομα, βάζοντας ένα αστερίσκο στην θέση της
+(παραδείγματα 4 και 5). Αν μία παράμετρος είναι πλειάδα τύπου γινομένου
+μπορεί να ταιριαστεί περαιτέρω (να δωθούν ονόματα στα στοιχεία της) ανοίγοντας
+επιπλέον παρενθέσεις στην θέση της (παράδειγμα 6).
+\\\\
+Οι παράμετροι και το σώμα χωρίζονται από το βέλος συνάρτησης ("\verb|=>|").
+
+\end{itemize}
+
+\newpage
 \subsection{Εκφράσεις Συναρτήσεων "cases"}
 \label{subsubsec:casessyntaxgr}
 
+\begin{itemize}
+\item \textit{Παραδείγματα}
+
+\begin{verbatim}
+print_sentimental_bool(_): Bool => IO
+  = cases
+    true => print("It's true!! :)")
+    false => print("It's false... :(")
+
+or_type TrafficLight
+values green | amber | red
+
+(_)is_not_red: TrafficLight => Bool
+  = cases
+    green => true
+    amber => true
+    red => false
+
+(_)is_seventeen_or_forty_two: Int => Bool
+  = cases
+    17 => true
+    42 => true
+    ... => false
+
+traffic_lights_match(_, _): TrafficLight^2 => Bool
+  = (cases, cases)
+    (green, green) => true
+    (amber, amber) => true
+    (red, red) => true
+    ... => false
+
+gcd_of(_)and(_): Int^2 => Int
+  = (x, cases)
+    0 => x
+    y => gcd_of(y)and((x)mod(y))
+
+apply(_)to_all_in(_): (T1 => T2) x ListOf(T1)s => ListOf(T2)s
+  = (f(_), cases)
+    [] => []
+    [head, tail = ...] => f(head) + apply(f(_))to_all_in(tail)
+
+(_)is_sorted: (@A)Has_Less_Than_Or_Equal --> ListOf(@A)s => Bool
+  = cases
+    [x1, x2, xs = ...] => (x1 <= x2) & (x2 + xs)is_sorted
+    ... => true
+\end{verbatim}
+
+\newpage
+
+\item \textit{Περιγραφή}
+
+Η λέξη κλειδί "\verb|cases|" λειτουργεί ως ειδική παράμετρος.  Αντί να δείνει
+το όνομα "\verb|cases|", χρησιμοποιείται για να τοποθετήσει την παράμετρο σε
+μία πλειάδα παραμέτρων που θα ορίσουν περιπτώσεις ή για να οριστούν περιπτώσεις
+για αυτή την παράμετρο μόνο.  Για κάθε ξεχωριστή περίπτωση ορίζεται το
+αντίστοιχο αποτέλεσμα της συνάρτησης.
+\\\\
+Οι τελευταία περίπτωση μπορεί να είναι
+"\verb|... => <σώμα γενικής περίπτωσης>|"
+δίνοντας το αποτέλεσμα για όλες τις υπόλοιπες περιπτώσεις χωρίς να δωθεί όνομα
+στην τιμή (παράδειγμα "\verb|is_seventeen_or_forty_two|"),
+ή μπορεί να είναι \\
+"\verb|<κάποιο όνομα> => <σώμα γενικής περίπτωσης>|"
+για να δωθεί όνομα στην τιμή και να μπορεί να χρησιμοποιηθεί
+("\verb|y|" στο πάραδειγμα "\verb|gcd_of(_)and(_)|").
+\\\\
+Μια έκφραση "\verb|where|" μπορεί να τοποθετηθεί κάτω από μία περίπτωση
+δεδομένου ότι είναι στοιχισμένη δύο κενά πιο μέσα.
+\\\\
+Μπορεί επίσης να χρησιμοποιηθεί η παρακάτω σύνταξη για να δωθεί όνομα
+σε οσαδήποτε από τα πρώτα στοιχεία μιας λίστας χρειάζεται και προεραιτικά
+να δωθεί όνομα και στο υπόλοιπο της λίστας.
+\begin{verbatim}
+# υπόλοιπο λίστας δεν έχει όνομα
+[x1, ...] => <σώμα περίπτωσης>
+[x1, x2, ...] => <σώμα περίπτωσης>
+[x1, x2, x3, ...] => <σώμα περίπτωσης>
+
+# υπόλοιπο λίστας έχει όνομα
+[x1, xs = ...] => <σώμα περίπτωσης>
+[x1, x2, xs = ...] => <σώμα περίπτωσης>
+[x1, x2, x3, xs = ...] => <σώμα περίπτωσης>
+\end{verbatim}
+
+\end{itemize}
+
+\newpage
 \section{Ορισμοί Τιμών και Εκφράσεις "where"}
 \label{subsec:valdefswheregr}
 
 \subsection{Ορισμοί Τιμών}
 
+\begin{itemize}
+
+\item \textit{Παραδείγματα}
+
+\begin{verbatim}
+foo: Int
+  = 42
+
+f(_, _, _): Int^3 => Int
+  = (a, b, c) => a + b * c
+
+val1, val2, val3: Int, Bool, Char
+  = 42, true, 'a'
+
+int1, int2, int3: all Int
+  = 1, 2, 3
+\end{verbatim}
+
+\item \textit{Περιγραφή}
+
+Οι ορισμοί τιμών είναι το βασικό συστατικό ενός προγράμματος lcases. Για να
+οριστεί μια νέα τιμή πρέπει να της δωθεί ένα όνομα, ένα τύπος και μια έκφραση.
+Το όνομα ακολουθείται από το σύμβολο "έχει τύπο" ('\verb|:|') και την έκφραση
+του τύπου της τιμής. Οι επόμενη γραμμή είναι στοιχισμένη δύο κενά πιο μέσα
+και ξεκινάει με ίσον και συνεχίζεται με την έκφραση της τιμής (η οποία μπορεί
+να εκτείνεται σε οσεσδήποτε γραμμές χρειάζεται).
+\\\\
+Ένας ορισμός τιμής μπορεί να ξεκινάει είτε στην πρώτη στήλη όπου μπορούν να τον
+"δουν" όλοι οι άλλοι ορισμοί τιμών, είτε είναι μέσα σε μια έκφραση
+"\verb|where|" (βλέπε επόμενη ενότητα), όπου μπορεί να τoν "δει" η έκφραση πριν
+το "\verb|where|" και όλοι οι άλλοι ορισμοί μέσα στην ίδια έκφραση
+"\verb|where|".
+\\\\
+Ένας ορισμός τιμής μπορεί να ακολουθηθεί από μια έκφραση "\verb|where|" όπου
+ορίζονται ενδιάμεσες τιμές που χρησιμοποιούνται στον ορισμό. Στην περίπτωση
+αυτή η έκφραση "\verb|where|" πρέπει να στοιχιθεί δύο κενά πιο μέσα από το
+ίσον του ορισμού.
+\\\\
+Υπάρχει η δυνατότητα ομαδοποίησης ορισμών τιμών χωρίζοντας τα ονόματα, τους
+τύπους και της εκφράσεις με κόμματα. Αυτό είναι πολύ χρήσιμο για να μην
+γεμίζει το πρόγραμμα με μικρούς ορισμούς άσκοπα (π.χ. ορισμούς σταθερών).
+Σε μια ομάδα ορισμών μπορεί να χρησιμοποιηθεί η λέξη κλειδί "\verb|all|"
+για να δωθεί ο ίδιος τύπος σε όλες τις τιμές.
+
+\end{itemize}
+
+\newpage
+
 \subsection{Εκφράσεις "where"}
+
+\begin{itemize}
+
+\item \textit{Παραδείγματα}
+\begin{verbatim}
+sort(_): ListOf(Int)s => ListOf(Int)s
+  = cases
+    [] => []
+    [head, tail = ...] =>
+      sort(less_l) + head + sort(greater_l)
+      where
+      less_l, greater_l: all ListOf(Int)s
+        = filter(tail)with(_ < head), filter(tail)with(_ >= head)
+
+sum_nodes(_): TreeOf(Int)s => Int
+  = tree =>
+    tree.root + apply(sum_nodes(_))to_all_in(tree.subtrees) -> sum_list(_)
+    where
+    sum_list(_) : ListOf(Int)s => Int
+      = cases
+        [] => 0
+        [head, tail = ...] => head + sum_list(tail)
+
+big_string : String
+  = s1 + s2 + s3 + s4
+    where
+    s1, s2, s3, s4 : all String
+      = "Hello, my name is Struggling Programmer."
+      , " I have tried way too many times to fit a big chunk of text"
+      , " inside my program, without it hitting the half-screen mark!"
+      , " I am so glad I finally discovered lcases!"
+\end{verbatim}
+
+\item \textit{Περιγραφή}
+
+Οι εκφράσεις "\verb|where|" επιτρέπουν στον προγραμματιστή να χρησιμοποιήσει
+τιμές μέσα σε μια έκφραση και να της ορίσει από κάτω. Είναι πολύ χρήσιμες
+για την επαναχρησιμοποίηση ή την σύντμηση εκφράσεων που χρησιμοποιούνται
+σε ένα συγκεκριμένο ορισμό ή σε μια συγκεκριμένη περίπτωση συνάρτησης.
+\\\\
+Μια έκφραση "\verb|where|" ξεκινάει με μία γραμμή που έχει μόνο την λέξη
+"\verb|where|". Στοιχίζεται όπως αναφέρεται στις ενότητες "Ορισμοί Τιμών"
+και "Εκφράσεις Συναρτήσεων 'cases'". Οι ορισμοί τοποθετούνται κάτω από
+την γραμμή αυτή και έχουν την ίδια στοίχιση.
+
+\end{itemize}
 
 \chapter{Περιγραφή της Γλώσσας: Τύποι και Λογική Τύπων}
 
@@ -2856,7 +3072,7 @@ there is no parenthesis, or there are many, in which case they are in
 parentheses, separated by commas. If a parameter is not needed it can be left
 empty by having an asterisk instead of an identifier (4th and 5th example).
 If a parameter is a tuple itself it can be matched further by using parentheses
-and giving identifiers to its fields (5th example).
+and giving identifiers to its fields (6th example).
 \\\\
 The parameters and the body are separated by the function arrow
 ("\verb|=>|"). The body is a basic expression, an operator expression or
@@ -2961,9 +3177,10 @@ apply(_)to_all_in(_): (T1 => T2) x ListOf(T1)s => ListOf(T2)s
     [] => []
     [head, tail = ...] => f(head) + apply(f(_))to_all_in(tail)
 
-cases
-  [x1, x2, xs = ...] => (x1 < x2) & (x2 + xs)is_sorted
-  ... => true
+(_)is_sorted: (@A)Has_Less_Than_Or_Equal --> ListOf(@A)s => Bool
+  = cases
+    [x1, x2, xs = ...] => (x1 < x2) & (x2 + xs)is_sorted
+    ... => true
 \end{verbatim}
 
 \newpage
@@ -2991,8 +3208,8 @@ It is also possible to use a "\verb|where|" expression below a particular case.
 The "\verb|where|" expression must be indented two spaces more than than the
 line where that particular case begins.
 \\\\
-It also possible to use the following syntax to match on as many elements of a
-list as needed and optionally give a name to the rest of the list:
+It is also possible to use the following syntax to match on as many elements of
+a list as needed and optionally give a name to the rest of the list:
 \begin{verbatim}
 # no name for the rest of the list
 [x1, ...] => <case body>
