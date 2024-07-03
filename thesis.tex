@@ -2153,26 +2153,329 @@ proof a >= b = a == b | a > b
 \chapter{Υλοποίηση Συντακτικού Αναλυτή}
 
 \section{Πλήρης Γραμματική και Σύστημα Στοίχισης}
+\label{sec:indsysgr}
 
-\subsection{Πλήρης Γραμματική}
+Η πλήρης γραμματική βρίσκεται στο αντίστοιχο κεφάλαιο του αγγλικού κειμένου
+\ref{subsec:fullgrammar}.
 
-\subsection{Σύστημα Στοίχισης}
+\paragraph{Σύστημα Στοίχισης}
+
+Το μη-τερματικό σύμβολο \textit{$<$indent$>$} στην γραμματική δεν είναι
+κανονικό BNF μη-τερματικό σύμβολο. Είναι ένα σύμβολο που εξαρτάται απ´τα
+συμφραζόμενα και ακολουθεί τους κανόνες στοίχισης της lcases.
+Εξαρτάται από μια τιμή που ονομάζεται "επίπεδο στοίχισης" ($il$).
+Το \textit{$<$indent$>$} αντιστοιχεί σε $2*il$ κενά. Το επίπεδο στοίχισης
+ακολουθεί τους παρακάτω κανόνες:
+
+\begin{enumerate}
+
+\item
+Στην αρχή: $il = 0$
+
+\item
+Στους ορισμούς τιμής:
+  \begin{enumerate}
+
+  \item
+  Στο τέλος της πρώτης γραμμής: $il \leftarrow il + 1$
+
+  \item
+  Στο τέλος της γραμμής με το ίσον: $il \leftarrow il + 1$
+
+  \item
+  Στο τέλος του ορισμού: $il \leftarrow il - 2$
+  \end{enumerate}
+
+\item
+Στους ορισμούς μια ομάδας τιμών:
+  \begin{enumerate}
+
+  \item
+  Στο τέλος της πρώτης γραμμής: $il \leftarrow il + 1$
+
+  \item
+  Στο τέλος των ορισμών: $il \leftarrow il - 1$
+  \end{enumerate}
+
+\item
+Στις περίπτωσεις μίας έκφρασης συνάρτησης "cases":
+  \begin{enumerate}
+
+  \item
+  Μετά την γραμμή με το βέλος συνάρτησης ("\verb|=>|"): $il \leftarrow il + 1$.
+
+  \item
+  Στο τέλος της περίπτωσης: $il \leftarrow il - 1$
+  \end{enumerate}
+
+\item
+Στα θεωρήματα τύπων:
+  \begin{enumerate}
+
+  \item
+  Μετά την γραμμή με το ίσον: $il \leftarrow il + 2$.
+
+  \item
+  Στο τέλος του θεωρήματος: $il \leftarrow il - 2$.
+  \end{enumerate}
+
+\item
+Στις εκφράσεις συνάρτησεων "cases" που δεν ξεκινούν στην γραμμή με το ίσον
+ενός ορισμού τιμής:
+  \begin{enumerate}
+
+  \item
+  Μετά την γραμμή των παραμέτρων: $il \leftarrow il + 1$.
+
+  \item
+  Στο τέλος την έκφρασης "cases": $il \leftarrow il - 1$.
+
+  \end{enumerate}
+
+\end{enumerate}
 
 \section{Δομή Υψηλού Επιπέδου}
 
 \subsection{Βιβλιοθήκη Parsec}
 
+Ο συντακτικός αναλυτής υλοποιήθηκε χρησιμοποιώντας την βιβλιοθήκη
+\textbf{parsec} \cite{parsec}. Η Parsec είναι μία βιομηχανικής δύναμης
+βιβλιοθήκη από monadic parser combinators. Μπορεί να αναλύσει
+γραμματικές με συμφροζόμενα και άπειρο look-ahead. Τα καταφέρνει αυτά
+χρησιμοποιώντας ένα πολυμορφικό τύπο συντακτικής ανάλυσης με τις παρακάτω
+παραμέτρους τύπων:
+
+\begin{itemize}
+\item
+  \textit{stream type:} Ο τύπος εισόδου του αναλυτή.
+\item
+  \textit{user state type:} Τύπος κατάστασης που επιθημεί ο προγραμματιστής.
+\item
+  \textit{underlying monad type:}
+  Επιπλέον εσωτερικός τύπος Monad αν χρειάζεται.
+\item
+  \textit{return type:} O τύπος του συντατικού δέντρου του αναλυτή.
+\end{itemize}
+Οι περιγραφή του package στο hackage βρίσκεται στο εξής url:\\
+\url{https://hackage.haskell.org/package/parsec}
+
+\paragraph{Στον Συγκεκριμένο Αναλυτή}
+\begin{itemize}
+\item
+  \textit{stream type:} String
+\item
+  \textit{state type:}
+  \\ParserState. Ορίζεται στον αναλυτή. Ακολουθεί παράγραφος που τον
+  περιγράφει.
+\item
+  \textit{underlying monad:}
+  \\
+  Identity. Δηλαδή δεν χρησιμοποιείται κάποιος ενδιαφέρον τύπος.
+\item
+  \textit{return type:}
+  \\
+  Αυτός ο τύπος είναι διαφορετικός σε κάθε επιμέρους αναλυτή και αντιστοιχεί
+  στον αντίστοιχο τύπο του συντακτικού δέντρου.
+\end{itemize}
+
+\paragraph{Τύπος κατάστασης του αναλυτή: ParserState}\pend
+Παρακάτω είναι ο ίδιος ο κώδικας:
+\begin{verbatim}
+type IndentationLevel = Int
+type InEqualLine = Bool
+type ParserState = (IndentationLevel, InEqualLine)
+\end{verbatim}
+Χρειαζόμαστε αυτό τον τύπο κατάστασης για να υλοποιήσουμε του κανόνες
+στοίχισης.
+
+\newpage
+
 \subsection{Δομή Αρχείων}
+
+Ο κώδικας του αναλυτή χωρίζεται στα παρακάτω αρχεία:
+\begin{itemize}
+\item
+\verb|ASTTypes.hs|: Ορισμοί των τύπων του συντακτικού δέντρου
+\item
+\verb|ShowInstances.hs|:
+Αναπαράσταση του κάθε τύπου του συντακτικού δέντρου σε String για εκτύπωση.
+\item
+\verb|Parsers.hs|:
+Επιμέρους αναλυτές για κάθε επιμέρους τύπο του συντακτικού δέντρου αλλά και για
+τον τύπο του συνολικού συντακτικού δέντρου.
+\end{itemize}
+Τα παραπάνω γράφτηκαν χρησιμοποιώντας την πλήρη γραμματική. Οι τύποι
+αντιστιχούν σε μη-τερματικά σύμβολα και οι αναλυτές προσπαθούν να αναλύσουν την
+είσοδο τους και να την μετατρέψουν σε τιμή του αντίστοιχου τύπου του
+συντακτικού δέντρου.
+
+\newpage
 
 \section{Παραδείγματα Συντακτικών Αναλυτών}
 
+Σ'αυτή την ενότητα θα επιδειχτεί το πως οι τύποι και οι αναλυτές
+γράφονται με βάση την γραμματική με μερικά παραδείγματα. Ξεκινάμε με
+έναν κανόνα γραμματικής, μετά φτιάχνουμε τον αντίστοιχο τύπο του συντακτικού
+δέντρου και μετά τον αναλυτή που αναλύει με βάση τον κανόνα.
+
 \subsection{Κλάση Parser και Παράδειγμα 0: Σταθερές}
+
+Έχουμε τον τύπο Parser ο οποίος είναι πολυμορφικός ως προς τον τύπο του
+συντατκτιού δέντρου στον οποίο αναλύει με τύπο εισόδου String και τύπο
+κατάστασης ParserState:
+\begin{verbatim}
+type Parser = Parsec String ParserState
+
+\end{verbatim}
+Φτιάχνουμε μία πολυμορφική τιμή "parser" με την κλάση τύπων "HasParser"
+έτσι ώστε όλοι οι αναλυτές να έχουν το όνομα "parser" ανεξαρτήτως του
+τύπου του συντακτικού δέντρου στον οποίο αντιστοιχούν:
+\begin{verbatim}
+class HasParser a where
+  parser :: Parser a
+
+\end{verbatim}
+Ξεκινάμε με το απλό παράδειγμα του literal με το παρακάτω κανόνα:
+\begin{grammar}
+<literal> ::= <int-lit> | <real-lit> | <char-lit> | <string-lit>\\
+\end{grammar}
+Ο τύπος του συντακτικού δέντρου για το literal είναι:
+\begin{verbatim}
+data Literal =
+  Int Integer | R Double | Ch Char | S String
+
+\end{verbatim}
+Και παρακάτω είναι ο συντακτικός αναλυτής του literal ο οποίος είναι ορισμένος
+ως instance της κλάσης HasParser. Εσωτερικά χρησιμοποιούμε του αναλυτές για
+κάθε συγκεκριμένο literal οι οποίοι είναι ορισμένοι ξεχωριστά:
+\begin{verbatim}
+instance HasParser Literal where
+  parser =
+    R <$> try parser <|> Int <$> parser <|> Ch <$> parser <|> S <$> parser <?>
+    "Literal"
+
+\end{verbatim}
+Ο τύπος Parser είναι Functor,  έτσι ο τελεστής "\verb|<$>|" (fmap) περνάει
+εσωτερικά τον constructor σε κάθε συγκεκριμένο αναλυτή. Ο "try" είναι
+parser combinator που κάτι backtracking αν οι αναλυτής αποτύχει. Ο τελεστής
+"\texttt{<|>}" σημαίνει "αυτός ο αναλυτής ή ο άλλος αναλυτής". Τέλος,
+ο τελεστής "\verb|<?>|" σημαίνει "αν αποτύχουν όλοι οι αναλυτές τότε
+δείξε αυτό στο μήνυμα σφάλματος".
+
+\newpage
 
 \subsection{Παράδειγμα 1: Λίστες}
 
+Ο κανόνας γραμματικής για την λίστα είναι:
+\begin{grammar}
+<list> ::= `[' [ `\ ' ] [ <line-expr-or-unders> ] [ `\ ' ] `]' \\
+\end{grammar}
+Ο τύπος του συντακτικού δέντρου για την λίστα είναι:
+\begin{verbatim}
+newtype List = L (Maybe LineExprOrUnders)
+
+\end{verbatim}
+Και ο αναλυτής για την λίστα είναι:
+\begin{verbatim}
+instance HasParser List where
+  parser =
+    L <$> (char '[' *> opt_space_around (optionMaybe parser) <* char ']')
+
+\end{verbatim}
+Εδώ χρησιμοποιούμε τους τελεστές "\verb|*>|" και "\verb|<*|" οι οποίοι
+χρησιμοποιούν και τους δύο αναλυτές που έχουν ως τελεστέους (πρώτα τον
+αριστερό) αλλά επιστρέφουν μόνο αυτό που έδωσε ο αναλυτής στον οποίο
+"δείχνουν". Το "opt_space_around" διαβάζει ένα κενό προαιρετικά
+από κάθε μεριά αυτών που διαβάζει ο αναλυτής όρισμα. Το "optionMaybe"
+είναι ορισμένο στην βιβλιοθήκη. Χρησιμοποιεί τον αναλυτή όρισμα και αν αυτός
+πετύχει τότε γυρνάει Just $<$αυτό που ανέλυσε ο αναλυτής όρισμα$>$, αλλιώς
+γυρνάει Nothing.
+
 \subsection{Παράδειγμα 2: Change}
 
+Ο κανόνας γραμματικής για την έκφραση "change" είναι:
+\begin{grammar}
+<dot-change> ::=
+`.change{' [ `\ ' ] <field-change> ( <comma> <field-change> )* [ `\ ' ] `}'
+\\
+\end{grammar}
+Ο τύπος του συντακτικού δέντρου για την έκφραση "change" είναι:
+\begin{verbatim}
+newtype DotChange = DC (FieldChange, [FieldChange])
+
+\end{verbatim}
+Και ο αναλυτής για την έκφραση "change" είναι:
+\begin{verbatim}
+instance HasParser DotChange where
+  parser =
+    DC <$>
+      (try (string ".change{") *> opt_space_around field_changes_p <* char '}')
+    where
+    field_changes_p :: Parser (FieldChange, [FieldChange])
+    field_changes_p = field_change_p +++ many (comma *> field_change_p)
+
+\end{verbatim}
+Εδώ χρησιμοποιούμε τον τελεστή "\verb|+++|" ο οποίος χρησιμοποιεί τους αναλυτές
+τελεστεόυς τους (πρώτα τον αριστερό) και βάζει τα αποτελέσματά τους σε μία
+πλειάδα. O "field_change_p" αναλύει μία αλλαγή στοιχείου. Ο "many" είναι
+ορισμένος στην βιβλιοθήκη και αναλύει ότι αναλύει ο αναλυτής όρισμα όσες
+φορές είναι εφικτό και βάζει τα αποτελέσματα σε μία λίστα
+(το άστρο Kleene των αναλυτών).
+
+\newpage
+
 \subsection{Παράδειγμα 3: Ορισμοί Τιμών}
+
+Ο κανόνας γραμματικής για τον ορισμό τιμής είναι:
+\begin{grammar}
+<value-def> ::= ""\\
+<indent> <identifier>
+( [ `\ ' ] `:' [ `\ ' ] | <nl> <indent> `:\ ' ) <type>  \\
+<nl> <indent> `=\ ' <value-expr> [ <where-expr> ]
+\\
+\end{grammar}
+Ο τύπος του συντακτικού δέντρου για τον ορισμό τιμής είναι:
+\begin{verbatim}
+newtype ValueDef = VD (Identifier, Type, ValueExpr, Maybe WhereExpr)
+
+\end{verbatim}
+Και ο αναλυτής για τον ορισμό τιμής είναι:
+\begin{verbatim}
+instance HasParser ValueDef where
+  parser =
+    indent *> parser >>= \identifier ->
+
+    increase_il_by 1 >>
+
+    has_type_symbol *> parser >>= \type_ ->
+    nl_indent *> string "= " *>
+
+    increase_il_by 1 >> we_are_in_equal_line >>
+
+    parser >>= \value_expr ->
+
+    we_are_not_in_equal_line >>
+
+    optionMaybe (try parser) >>= \maybe_where_expr ->
+
+    decrease_il_by 2 >>
+
+    return (VD (identifier, type_, value_expr, maybe_where_expr))
+
+\end{verbatim}
+Σε αυτό το παράδειγμα βλέπουμε το πως η κατάσταση του αναλυτή χρησιμοποιείται
+για να εφαρμοστούν οι κανόνες του συστήματος στοίχισης. Ο αναλυτής "indent"
+διαβάζει $<$2 * επίπεδο στοίχισης$>$ κενά παίρνοντας το επίπεδο στοίχισης από
+την κατάσταση. Oι "\verb|increase_il_by|" και "\verb|decrease_il_by|" έχουν
+τύπο Parser αλλά δεν διαβάζουν όντως τίποτα, είναι "αναλυτές" οι οποίοι
+το μόνο που κάνουν είναι να αλλάζουν την κατάσταση (αλλά μπορούν και να
+συνδιαστούν με άλλους αναλυτές). Χρησιμοποιούνται όπως ορίζεται στον κανόνα 2
+του Συστήματος Στοίχισης (\ref{sec:indsysgr}). Ο "\verb|has_type_symbol|"
+αναλύει με το εξής κομμάτι του κανόνα:
+( [ \lit{\ } ] \lit{:} [ \lit{\ } ] \verb||| \synt{nl}
+\synt{indent} \lit{:\ }). Οι "\verb|we_are_in_equal_line|" και
+"\verb|we_are_not_in_equal_line|" αλλάζουν την κατάσταση για να εφαρμόσουν τον
+κανόνα 6 του Συστήματος Στοίχισης.
 
 \chapter{Μετάφραση σε \H}
 
@@ -5094,6 +5397,7 @@ the condition arrow (" \verb|-->| ") arrow.
 \section{Full Grammar and Indentation System}
 
 \subsection{Full Grammar}
+\label{subsec:fullgrammar}
 
 \begin{grammar}
 
