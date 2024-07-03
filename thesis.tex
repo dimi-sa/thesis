@@ -1719,6 +1719,154 @@ pair, triple, list
 
 \subsection{Ορισμοί Τύπων}
 
+Οι ορισμοί τύπων χωρίζονται σε ορισμούς \verb|tuple_type| και ορισμούς
+\verb|or_type| και περιγράφονται στις παραγράφους που ακολουθούν.
+
+\paragraph{Ορισμοί \texttt{tuple_type}}
+
+\begin{itemize}
+\item \textit{Παραδείγματα Ορισμών}
+
+\begin{verbatim}
+tuple_type Name
+value (first_name, last_name) : String^2
+
+tuple_type Date
+value (day, month, year) : Int^3
+
+tuple_type MathematicianInfo
+value (name, nationality, date_of_birth) : Name x String x Date
+
+tuple_type TreeOf(T1)s
+value (root, subtrees) : T1 x ListOf(TreeOf(T1)s)s
+
+tuple_type Indexed(T1)
+value (index, val) : Int x T1
+\end{verbatim}
+
+\item \textit{Παραδείγματα Χρήσης}
+
+\begin{verbatim}
+euler_info: MathematicianInfo
+  = (("Leonhard", "Euler"), "Swiss", (15, 4, 1707))
+
+name(_)to_string: Name => String
+  = n => "\nFirst Name: " + n.first_name + "\nLast Name: " + n.last_name
+
+print_name_and_nat(_): MathematicianInfo => IO
+  = ci => print(name(ci.name)to_string + "\nNationality: " + ci.nationality)
+
+sum_nodes(_): TreeOf(Int)s => Int
+  = tree => tree.root + apply(sum_nodes(_))to_all_in(tree.subtrees) -> sum_list(_)
+\end{verbatim}
+
+\item \textit{Description}
+
+Ένας ορισμός \verb|tuple_type| (τύπος πλειάδας) ορίζει ένα νέο τύπο που είναι
+ισοδύναμος με κάποιο τύπο γινόμενο δίνοντας του όμως νέο όνομα και ονόματα στα
+στοιχεία για ευκολία. Ένας ορισμός τύπου πλειάδας δημιουργεί αυτόματα
+συναρτήσεις επιθήματος για καθένα από τα στοιχεία οι οποίες γράφονται με μια
+τελειά και το όνομα του στοιχείου. Π.χ. το παράδειγμα του ορισμού του τύπου
+"\verb|MathematicianInfo|" δημιουργεί τις παρακάτω συναρτήσεις:
+\begin{verbatim}
+_.name : MathematicianInfo => Name
+_.nationality : MathematicianInfo => String
+_.date_of_birth : MathematicianInfo => Date
+\end{verbatim}
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Ορισμοί \texttt{or_type}}
+
+\begin{itemize}
+\item \textit{Παραδείγματα Ορισμών}
+
+\begin{verbatim}
+or_type Bool
+values true | false
+
+or_type TrafficLight
+values green | amber | red
+
+or_type Possibly(T1)
+values the_value:T1 | no_value
+
+or_type Result(T1)OrError(T2)
+values result:T1 | error:T2
+\end{verbatim}
+
+\item \textit{Παραδείγματα Χρήσης}
+
+\begin{verbatim}
+traffic_lights_match(_, _): TrafficLight^2 => Bool
+  = (cases, cases)
+    (green, green) => true
+    (amber, amber) => true
+    (red, red) => true
+    ... => false
+
+err_if(_)is_no_value : Possibly(T1) => Result(T1)OrError(String)
+  = cases
+    no_value => error:"There is no value!"
+    the_value:val => result:val
+
+print_err(_)or_res(_): (@A)Has_Str_Rep --> Result(@A)OrError(String) => IO
+  = cases
+    result:r => print("All good! The result is: " + (r)to_string)
+    error:e => print("Error occured: " + e)
+\end{verbatim}
+
+\item \textit{Description}
+
+Οι τιμές ενός \verb|or_type| χωρίζονται σε διαφορετικές περιπτώσεις. Κάποιες
+περιπτώσεις έχουν άλλες τιμές εσωτερικά. Οι περιπτώσεις που έχουν εσωτερικές
+τιμές ακολουθούνται από άνω κάτω τελεία και των τύπο της εσωτερικής τιμής.
+Αντίστοιχη σύνταξη μπορεί να χρησιμοποιηθεί για να διαλέξουμε την κάθε
+περίπτωση σε μια συνάρτηση "cases". Ένας ορισμός \verb|or_type| δημιουργεί
+αυτόματα συναρτήσεις προθήματος για κάθε μία από τις περιπτώσεις που έχουν
+εσωτερική τιμή. Οι συναρτήσεις αυτές έχουν ως μόνο χρήση την μετατροπή μιας
+τιμής που έχει τύπο των εσωτερικό τύπο μιας περίπτωσης σε μια τιμή που είναι
+αυτή η περίπτωση και έχει τύπο τον ορισμένο τύπο. Για παράδειγμα, για την
+περίπτωση "\verb|the_value|" του "\verb|Possibly(T1)|" η συνάρτηση
+"\verb|the_value:_|" δημιουργήθηκε αυτόματα από το ορισμό και έχει τύπο:
+\begin{verbatim}
+the_value:_ : T1 => Possibly(T1)
+\end{verbatim}
+Αυτές οι συναρτήσεις μπορούν να χρησιμοποιηθούν όπως κάθε συνάρτηση σαν
+ορίσματα άλλων συναρτήσεων. Για παράδειγμα:
+\begin{verbatim}
+(_)to_possiblies : ListOf(T1)s => ListOf(Possibly(T1))s
+  = apply(the_value:_)to_all_in(_)
+\end{verbatim}
+
+\end{itemize}
+
+\subsection{Παρατσούκλια Τύπων}
+
+\begin{itemize}
+
+\item \textit{Examples}
+
+\begin{verbatim}
+type_nickname Ints = ListOf(Int)s
+type_nickname IntStringPairs = ListOf(Int x String)s
+type_nickname IO = (EmptyVal)FromIO
+type_nickname Res(T1)OrErr = Result(T1)OrError(String)
+\end{verbatim}
+
+\item \textit{Description} \\\\
+Τα παρατσούκλια τύπων χρησιμοποιούνται για την σύντμηση ή για να δωθεί
+ένα πιο περιγραφικό όνομα σε κάποιον υπάρχον τύπο. Ξεκινούν με την λέξη
+κλειδί "\verb|type_nickname|" που ακολουθείται από το παρατσούκλι, ένα ίσον
+και τον τύπο για τον οποίο δημιουργείται παρατσούκλι. Στο παρατσούκλι μπορούν
+να χρησιμοποιηθούν παραμετρικές μεταβλητές τύπων.
+
+\end{itemize}
+
+\newpage
+
 \section{Λογική Τύπων}
 \label{subsec:typelogicgr}
 
@@ -4077,7 +4225,7 @@ traffic_lights_match(_, _): TrafficLight^2 => Bool
 
 err_if(_)is_no_value : Possibly(T1) => Result(T1)OrError(String)
   = cases
-    no_value => throw_err("There is no value!")
+    no_value => error:"There is no value!"
     the_value:val => result:val
 
 print_err(_)or_res(_): (@A)Has_Str_Rep --> Result(@A)OrError(String) => IO
@@ -4120,7 +4268,7 @@ functions.  For example:
 
 \end{itemize}
 
-\paragraph{Type Nicknames}
+\subsection{Type Nicknames}
 
 \begin{itemize}
 
