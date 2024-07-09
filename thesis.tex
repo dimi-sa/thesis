@@ -2570,6 +2570,53 @@ proof a >= b = a == b | a > b
 
 \section{Φάση Μετάφρασης: Γενικά}
 
+Για την φάση μετάφρασης υπάρχει η υλοποίηση μίας εκ των τριών παρακάτω
+πολυμορφικών συναρτήσεων για κάθε τύπο του συντακτικού δέντρου:
+
+\begin{itemize}
+\item
+\verb|to_haskell|:\\\\
+Αυτή η συνάρτηση είναι για τους τύπους που δεν χρειάζονται κάποιου είδους
+κατάσταση και μπορούν να μεταφραστούν κατευθείαν σε \H.
+\item
+\verb|to_hs_wpn|: (\verb|to_haskell| with parameter number) \\\\
+Αυτή η συνάρτηση είναι για τους τύπους που προσθέτουν καινούργιες παραμέτρους
+κατά την μετάφραση και άρα χρειάζονται μία κατάσταση με μετρητή παραμέτρων.
+\item
+\verb|to_hs_wil|: (\verb|to_haskell| with indentation level)\\\\
+Αυτή η συνάρτηση είναι για τους τύπους που χρειάζονται πληροφορία για την
+στοίχιση για να μεταφραστούν σωστά και άρα χρειάζονται μία κατάσταση που
+περιέχει το επίπεδο στοίχισης.
+\end{itemize}
+Παρακάτω είναι τα αντίστοιχα classes που ορίζουν τις παραπάνω συναρτήσεις:
+\begin{itemize}
+\item
+\begin{verbatim}
+type Haskell = String
+
+class ToHaskell a where
+  to_haskell :: a -> Haskell
+\end{verbatim}
+
+\item
+\begin{verbatim}
+type WithParamNum = State Int
+
+class ToHsWithParamNum a where
+  to_hs_wpn :: a -> WithParamNum Haskell
+\end{verbatim}
+
+\item
+\begin{verbatim}
+type WithIndentLvl = State Int
+
+class ToHsWithIndentLvl a where
+  to_hs_wil :: a -> WithIndentLvl Haskell
+\end{verbatim}
+\end{itemize}
+Στις επόμενες ενότητες μπαίνουμε σε περισσότερη λεπτομέρεια για συγκεκριμένους
+τύπους.
+
 \section{Φάση Μετάφρασης: Βασικές Εκφράσεις}
 
 \subsection{Σταθερές και Ονόματα}
