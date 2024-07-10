@@ -2617,20 +2617,427 @@ class ToHsWithIndentLvl a where
 Στις επόμενες ενότητες μπαίνουμε σε περισσότερη λεπτομέρεια για συγκεκριμένους
 τύπους.
 
+\newpage
+
 \section{Φάση Μετάφρασης: Βασικές Εκφράσεις}
 
 \subsection{Σταθερές και Ονόματα}
 
+\begin{itemize}
+\item
+\textbf{Σταθερές}\\\\
+Οι σταθερές παραμένουν όπως έχουν μετά την συντακτική ανάλυση εκτός από τις
+σταθερές αριθμών, οι οποίες έχουν type annotation όταν βρίσκονται σε μία
+έκφραση τιμής (δεν έχουν αν είναι περίπτωση συνάρτησης "cases").
+
+\item
+\textbf{Ονόματα}
+
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\texttt{x1} \lra \texttt{x1} \\
+\verb|apply(_)to_all_in(_)| \lra \verb|apply'to_all_in'| \\
+\verb|(_)to_string| \lra \verb|a'to_string| \\
+\verb|f(_, _, _)| \lra \verb|f'''|\\
+
+\item
+\textit{Περιγραφή}\\\\
+Για τα ονόματα, όλες οι παρανεθέσεις με κάτω παύλες αντικαθιστόνται από
+αποστρόφους ίσου πλήθους με τις παύλες. Αν υπάρχει παρένθεση στην αρχή του
+ονόματος, ένα 'a' τοποθετείται πριν τις αντίστοιχες αποστρόφους για να
+είναι σωστό όνομα \H.
+
+\end{itemize}
+
+\end{itemize}
+
 \subsection{Παρενθέσεις, Πλειάδες και Λίστες}
+
+\begin{itemize}
+\item
+\textbf{Παρένθεση}\\\\
+Οι μετάφραση μια έκφρασης που είναι σε παρένθεση μπαίνει επίσης σε παρένθεση.\\
+
+\item
+\textbf{Πλειάδες}
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\texttt{(x, y)} \lra \texttt{ft2(x, y)} \\
+\verb|(_, 3.14, _)| \lra \verb|(\(pA0, pA1) -> ft3(pA0, 3.14, pA1))|\\
+\\
+\verb|(_, _, "Hello from 3rd field")|
+\\
+\lra
+\\
+\verb|(\(pA0, pA1) -> ft3(pA0, pA1, "Hello from 3rd field"))|\\
+
+\item
+\textit{Περιγραφή}
+\paragraph{Συνάρτηση ft\textit{n}}\pend
+Στην μετάφραση, κάθε πλειάδα δίνεται ως όρισμα στην συνάρτηση
+\textbf{ft\textit{n}} όπου \textbf{\textit{n}} είναι το μέγεθος της πλειάδας.
+Η \textbf{ft\textit{n}} είναι μια πολυμορφική συνάρτηση που ορίζεται από
+το παρακάτω class (για \textbf{\textit{n}} = 2 και αντίστοιχα classes
+για 3,4 και 5):
+\begin{verbatim}
+class FromTuple2 a b c | c -> a b where
+  ft2 :: (a, b) -> c
+\end{verbatim}
+Αυτό γίνεται διότι η ίδια πλειάδα μπορεί να έχει τύπο γινόμενο ή τύπο
+\verb|tuple_type| ανάλογα με το που εμφανίζεται στο πρόγραμμα. Για τύπους
+γινόμενα έχουμε το παρακάτω instance:
+\begin{verbatim}
+instance FromTuple2 a b (a, b) where
+  ft2 = id
+\end{verbatim}
+Και ο μεταφραστής φτιάχνει αυτόματα ένα καινούργιο instance για κάθε ορισμό
+\verb|tuple_type|.\\
+Για παράδειγμα, για τον παρακάτω ορισμό:
+\begin{verbatim}
+tuple_type Name
+value (first_name, last_name) : String^2
+\end{verbatim}
+μετά την μετάφραση του ίδιου του ορισμού θα έχουμε το παρακάτω instance:
+\begin{verbatim}
+instance FromTuple2 String String Name where
+  ft2 = \(x1, x2) -> Name' x1 x2
+\end{verbatim}
+Με αυτό το μηχανισμό το πρόγραμμα περνάει τον ελεγκτή τύπων και στις δύο
+περιπτώσεις.
+
+\paragraph{Παράμετροι για κάτω παύλες}\pend
+Για όλα τα στοιχεία μίας πλειάδας που περιέχουν κάτω παύλα, δημιουργείται
+μία νέα παράμετρος στην θέση της ("\texttt{pA\textit{<n - 1>}}" για την
+n-οστή κάτω παύλα). Στο τέλος της μετάφρασης της πλειάδας προσθέτουμε στην
+αρχή της όλες τις παραμέτρους που δημιουργήθηκαν για να την κάνουμε έκφραση
+συνάρτησης. Το "pA" διαλέχτηκε για να θυμίζει "parameter" και το 'A' είναι
+κεφαλαίο για να αποφευχθούν πιθανές συγκρούσεις με άλλα ονόματα του
+προγράμματος (στην lcases δεν έχουμε κεφαλαία στα ονόματα).
+
+\end{itemize}
+
+\item
+\textbf{Lists}
+
+\begin{itemize}
+\item
+\textit{Examples}\\\\
+\texttt{[1.61, 2.71, 3.14]}
+\\ \lra \\
+\verb|[(1.61 :: Double), (2.71 :: Double), (3.14 :: Double)]| \\\\
+\verb|[_, x, _]| \lra \verb|(\(pA0, pA1) -> [pA0, x, pA1])| \\
+
+\item
+\textit{Description}\\\\
+Οι λίστες λειτουργούν με τον ίδιο τρόπο που λειτουργούν οι πλειάδς με την
+διαφορά ότι δεν χρειάζονται την συνάρτηση \texttt{ft\textit{n}}.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
 
 \subsection{Εφαρμογή Συνάρτησης με Παρενθέσεις}
 
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\verb|f(x, y, z)| \lra \verb|f'''(x, y, z)| \\
+\verb|f(x, _, _)| \lra \verb|(\(pA0, pA1) -> f'''(x, pA0, pA1))| \\
+\verb|(x)to_str| \lra \verb|a'to_str(x)| \\
+\verb|apply(f)to_all_in(_)| \lra \verb|(\pA0 -> apply'to_all_in'(f, pA0))| \\
+
+\item
+\textit{Περιγραφή}\\\\
+Για την εφαρμογή συνάρτησης με παρενθέσεις, διαχωρίζουμε το όνομα της
+συνάρτησης από το ορίσματά της αντικαθιστώντας κάθε παρένθεση με αποστρόφους
+ίδιου πλήθους με τα ορίσματα της παρένθεσης (και βάζοντας ένα 'a' μπροστά
+αν υπάρχει παρένθεση στην αρχή). Παράλληλα, συλλέγουμε όλα τα ορίσματα σε μία
+πλειάδα την οποία μετά βάζουμε σαν όρισμα στο τέλος του ονόματος της
+συνάρτησης. Αν στην θέση κάποιου ορίσματος έχουμε κάτω παύλα, κάνουμε το ίδιο
+που κάνουμε για τις κάτω παύλες σε πλειάδες ώστε να δημιουργηθεί μία νέα
+παράμετρος.
+
+\end{itemize}
+
 \subsection{Συναρτήσεις Προθήματος και Επιθήματος}
+
+\begin{itemize}
+\item
+\textbf{Συναρτήσεις Προθήματος}
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\verb|the_value:42| \lra \verb|Cthe_value((42 :: Integer))| \\
+\texttt{error:"this is an error message"} \lra
+\texttt{Cerror("this is an error message")} \\
+\verb|the_value:_| \lra \verb|(\pA0 -> Cthe_value(pA0))| \\
+\verb|the_value:result:true| \lra \verb|Cthe_value(Cresult(True))| \\
+
+\item
+\textit{Περιγραφή}\\\\
+Οι συναρτήσεις προθήματος είναι data constructors στην \H, οι οποίοι έχουν
+εισαχθεί από την μετάφραση του αντίστοιχου ορισμού \verb|or_type|. Στην
+μετάφραση τους προσθέτουμε μπροστά ένα 'C' (από το "constructor") ώστε να είναι
+σωστοί \H\ constructors. Το όρισμά του μπαίνει σε παρένθεση οι οποία
+τοποθετείται μετά την μετάφραση του συνάρτησης προθήματος (στην \H\ δεν έχουμε
+άνω κάτω τελεία). Αν το όρισμα είναι κάτω παύλα τότε στην παρένθεση τοποθετούμε
+μία νέα παράμετρο αντίστοιχα με το τρόπο που γίνεται αυτό στις πλειάδες και
+η συνολική μετάφραση μπαίνει σε παρένθεση για να κόψουμε την εμβέλεια της νέας
+παραμέτρου.
+\end{itemize}
+
+\item
+\textbf{Συναρτήσεις Επιθήματος}
+
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\texttt{date.year} \lra \texttt{year(date)} \\
+\texttt{tuple.1st} \lra \texttt{p1st(tuple)} \\
+\texttt{info.date.year} \lra \texttt{year(date(info))} \\
+\texttt{tuple.1st.2nd} \lra \texttt{p2nd(p1st(tuple))} \\
+
+\newpage
+\item
+\textit{Περιγραφή}\\\\
+Οι συναρτήσεις επιθήματος δημιουργούνται αυτόματα από την μετάφραση του
+αντίστοιχου ορισμού \verb|tuple_type| ή είναι οι ειδίκες συναρτήσεις επιθήματος
+τύπων γινομένων (\verb|_.1st _.2nd| κτλ). Μεταφράζονται σε κανονικές \H\
+συναρτήσεις (όπως είναι οι συναρτήσεις προβολής στην \H) με το όρισμά τους
+σε παρένθεση. Για τις ειδικές συναρτήσεις τύπων γινομένων προσθέτουμε στην
+αρχή ένα 'p' (από το "projection") ώστε να είναι σωστό όνομα στην \H.
+\\\\
+Οι συναρτήσεις των τύπων γινομένων είναι πολυμορφικές και λειτουργούν σε
+πλειάδες οποιουδήποτε μήκους (για τώρα $\leq$ 5). Αυτό το καταφέρνουμε
+με τον ορισμό του παρακάτω class (για το p1st και αντίστοιχων classes για
+τα υπόλοιπα):
+\begin{verbatim}
+class IsFirst' a b | b -> a where
+  p1st :: b -> a
+\end{verbatim}
+Και των παρακάτω instances:
+
+\begin{verbatim}
+instance IsFirst' a (a, b) where
+  p1st = fst
+
+instance IsFirst' a (a, b, c) where
+  p1st = \(a, _, _) -> a
+
+instance IsFirst' a (a, b, c, d) where
+  p1st = \(a, _, _, _) -> a
+
+...
+\end{verbatim}
+\end{itemize}
+
+\item
+\textbf{Συνάρτηση ”.change”}
+
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\texttt{state.change\{counter = counter + 1\}}\\
+\prarr
+\texttt{state.change\{counter = state.counter + 1\}}\\
+\lra
+\verb|c0counter(counter(state) !+ (1 :: Integer)) state|
+\\\\
+\texttt{tuple.change\{1st = 1.61, 3rd = 3.14\}} \lra
+\texttt{(c1st(1.61) .> c3rd(3.14)) tuple}
+\\\\
+\verb|tuple.change{x = _, y = _}| \lra
+\verb|(\(pA0, pA1) -> (c0x(pA0) .> c0y(pA1)) tuple)| \\
+
+\item
+\textit{Περιγραφή}\\
+
+Για την συνάρτηση ”.change” δημιουργείται μία συνάρτηση αλλαγής για κάθε field
+κάθενος εκ των \verb|tuple_type| τύπων, αντίστοιχα με τις συναρτήσεις προβολής.
+Αυτή η συνάρτηση έχει όνομα το όνομα του field όπου έχει προστεθεί μπροστά το
+string "c0". Το 'c' είνα από το "change" και το '0' το βάζουμε για την αποφυγή
+συγκρούσεων με άλλα ονόματα (στην lcases τα ψηφία μπορούν να μπουν μόνο στο
+τέλος ενός ονόματος). Για τα fields τύπων γινομένων οι συναρτήσεις αλλαγής
+είναι "\texttt{c1st}", "\texttt{c2nd}", κτλ. Ο τύπος κάθε συνάρτησης αλλαγής
+έχει την μορφή:
+\begin{verbatim}
+FieldType -> TupleOrProdType -> TupleOrProdType
+\end{verbatim}
+
+Για κάθε ανάθεση χρησιμοποιούμε την συνάρτηση αλλαγής του αντίστοιχου field
+με την έκφραση της ανάθεσης ως όρισμα τύπου \texttt{FieldType}.
+Με αυτό τον τρόπο έχουμε όλες τις συναρτήσεις αλλαγής με δοσμένο το πρώτο
+όρισμα να έχουν πλέον τύπο τις μορφής:
+\begin{verbatim}
+TupleOrProdType -> TupleOrProdType
+\end{verbatim}
+
+Τις συνθέτουμε όλες με τον τελεστή σύνθεσης "\texttt{.>}" και έχουμε την
+συνολική συνάρτηση όλων των αλλαγών, τύπου:
+\begin{verbatim}
+TupleOrProdType -> TupleOrProdType
+\end{verbatim}
+
+Την εφαρμόζουμε στον όρισμα όριστμα της "\texttt{.change}" και τελειώσαμε.
+\\\\
+Οι συναρτήσεις αλλαγής για τύπους γινόμενα λειτουργούν σε πλειάδες κάθε
+μεγέθους (για τώρα $\leq$ 5). Αυτό λειτουργεί με παρόμοια classes και
+instances με αυτά των \texttt{p1st}, \texttt{p2nd}, κτλ. Δυστυχώς λόγω αυτού
+δεν μπορούμε να χρησιμοποιήσουμε το συμβολισμό της \H\ για αυτές τις αλλαγές
+γιατί όπως λέει το σφάλμα της \H\ αυτές οι πολυμορφικές συναρτήσεις
+δεν είναι "record selectors".
+\\\\
+Αν υπάρχει κάτω παύλα κάπου δημιουργείται νέα μεταβλητή παρόμοια με τον τρόπο
+που γίνεται αυτό στις πλειάδες.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
 
 \section{Φάση Μετάφρασης: Τελεστές}
 
 \subsection{Τελεστές}
 
+For each one of the lcases operators, a new \H\ operator is defined, for it to
+be translated to. This allows for the use of the precedence and associativity
+mechanism for new user defined operators in \H\ instead of having to implement
+them from scratch in the parser, while also avoiding a lot of extra parentheses
+that the latter approach would need. Function application and function
+composition operators are defined as shown below. Every other operator is
+defined by a type class that matches the type described in table
+\ref{table:allops}. The implementation of the operator for every combination of
+types is defined by an appropriate instance. The examples for the addition
+operator in the next page show the general structure.
+\\
+
+\begin{table}[ht]
+\hspace{0.5cm}
+\begin{minipage}{0.45\linewidth}\centering
+\begin{tabular}{ |c|c| }
+\hline
+lcases operator & \H\ operator
+\\
+\hline
+\hline
+\verb|->| & \verb|&>|
+\\
+\hline
+\verb|<-| & \verb|<&|
+\\
+\hline
+\verb|o>| & \verb|.>|
+\\
+\hline
+\verb|<o| & \verb|<.|
+\\
+\hline
+\verb|^| & \verb|!^|
+\\
+\hline
+\verb|*| & \verb|!*|
+\\
+\hline
+\verb|/| & \verb|!/|
+\\
+\hline
+\verb|+| & \verb|!+|
+\\
+\hline
+\verb|-| & \verb|!-|
+\\
+\hline
+\verb|==| & \verb|!==|
+\\
+\hline
+\verb|!=| & \verb|!!=|
+\\
+\hline
+\verb|>| & \verb|!>|
+\\
+\hline
+\verb|<| & \verb|!<|
+\\
+\hline
+\verb|>=| & \verb|!>=|
+\\
+\hline
+\verb|<=| & \verb|!<=|
+\\
+\hline
+\verb|&| & \verb|!&|
+\\
+\hline
+\texttt{|} & \texttt{!|}
+\\
+\hline
+\verb|;>| & \verb|!>>=|
+\\
+\hline
+\verb|;| & \verb|!>>|
+\\
+\hline
+\end{tabular}
+\end{minipage}
+\hspace{1cm}
+\begin{minipage}{0.45\linewidth}
+
+Precedence and associativity using \H:
+\begin{verbatim}
+infixl 9 &>
+infixr 8 <&
+infixl 7 .>, <.
+infixr 6 !^
+infixl 5 !*, !/
+infixl 4 !+, !-
+infix 3 !==, !!=, !>, !<, !>=, !<=
+infixr 2 !&
+infixr 1 !|
+infixr 0 !>>=, !>>
+\end{verbatim}
+
+Function application/composition operators
+\begin{verbatim}
+(&>) :: a -> (a -> b) -> b
+x &> f = f x
+
+(<&) :: (a -> b) -> a -> b
+f <& x = f x
+
+(.>) :: (a -> b) -> (b -> c) -> a -> c
+(.>) = flip (.)
+
+(<.) :: (b -> c) -> (a -> b) -> a -> c
+(<.) = (.)
+\end{verbatim}
+\end{minipage}
+\end{table}
+\newpage
+\begin{Verbatim}[commandchars=\\\{\}]
+# Type class for addition:
+class A'And'Add_To' a b c where
+  (!+) :: a -> b -> c
+
+# Some of the instances
+
+# Adding 2 lists:
+instance b \mytilde [a] => A'And'Add_To' [a] [a] b where
+  (!+) = (++)
+
+# Adding any type 'a' with a list of 'a' s
+instance b \mytilde [a] => A'And'Add_To' a [a] b where
+  (!+) = (:)
+
+# Adding a String to a type 'a' with a Show instance without needing to call show
+instance (Show a, b \mytilde String) => A'And'Add_To' String a b where
+  str !+ x = str ++ show x
+
+\end{Verbatim}
 \subsection{Εκφράσεις Τελεστών}
 
 \section{Φάση Μετάφρασης: Εκφράσεις Συναρτήσεων}
@@ -6386,7 +6793,7 @@ for the \H\ compiler.
 \texttt{x1} \lra \texttt{x1} \\
 \verb|apply(_)to_all_in(_)| \lra \verb|apply'to_all_in'| \\
 \verb|(_)to_string| \lra \verb|a'to_string| \\
-\verb|f(_, _, _)| \lra \texttt{f'''}\\
+\verb|f(_, _, _)| \lra \verb|f'''|\\
 
 \item
 \textit{Description}\\\\
@@ -6511,7 +6918,7 @@ the \texttt{ft\textit{n}} function.
 \begin{itemize}
 \item
 \textit{Examples}\\\\
-\texttt{f(x, y, z)} \lra \texttt{f'''(x, y, z)} \\
+\verb|f(x, y, z)| \lra \verb|f'''(x, y, z)| \\
 \verb|f(x, _, _)| \lra \verb|(\(pA0, pA1) -> f'''(x, pA0, pA1))| \\
 \verb|(x)to_str| \lra \verb|a'to_str(x)| \\
 \verb|apply(f)to_all_in(_)| \lra \verb|(\pA0 -> apply'to_all_in'(f, pA0))| \\
