@@ -3071,9 +3071,168 @@ instance (Show a, b \mytilde String) => A'And'Add_To' String a b where
 
 \section{Φάση Μετάφρασης: Εκφράσεις Συναρτήσεων}
 
-\subsection{Κανονικές Εκφράσεις Συναρτήσεων}
+\paragraph{Κανονικές Εκφράσεις Συναρτήσεων}
 
-\subsection{Εκφράσεις Συναρτήσεων "cases"}
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\verb|x => 17 * x + 42| \lra \verb|\x -> (17 :: Integer) !* x !+ (42 :: Integer)|
+\\\\
+\verb|* => 42| \lra \verb|\_ -> (42 :: Integer)|
+\\\\
+\verb|(x, *, z) => x + z| \lra \verb|\(x, _, z) -> x !+ z|
+\\\\
+\verb|((x1, y1), (x2, y2)) => (x1 + x2, y1 + y2)|\\
+\lra
+\verb|\((x1, y1), (x2, y2)) -> ft2(x1 !+ x2, y1 !+ y2)|\\
+
+\item
+\textit{Περιγραφή}\\
+
+Για την μετάφραση των παραμέτρων γίνονται τα παρακάτω:
+\begin{itemize}
+\item
+Τοποθετείται μπροστά ο χαρακτήρας \verb|'\'|
+\item
+Το βέλος \verb|"=>"| αντικαθίσταται από το βέλος \verb|"->"|
+\item
+Οι παράμετροι με αστερίσκο μετατρέπονται σε παραμέτρους με κάτω παύλα
+\end{itemize}
+Το σώμα της συνάρτησης μεταφράζεται ανάλογα με το τι έκφραση είναι.
+\\\\
+Είναι δυνατόν η έκφραση συνάρτησης να ακολουθείται από από μία έκφραση
+"\texttt{where}" όπως φαίνεται στο παρακάτω παράδειγμα:
+\begin{verbatim}
+  gac => print(message)
+  where
+  message: String
+    = "Gcd: " + gac.gcd + "\nCoefficients: a = " + gac.a + ", b = " + gac.b
+\end{verbatim}
+Σε αυτή την περίπτωση, η έκφραση "where" μετατρέπεται σε μια έκφραση
+"\texttt{let-in}" όπως περιγράφεται στην αντίστοιχη ενότητα. Αυτή η έκφραση
+"\texttt{let-in}" τοποθετείται ανάμεσα στις παραμέτρους και στο σώμα της
+συνάρτησης, ώστε οι παράμετροι να μπορούν να χρησιμοποιηθούν στους ορισμούς
+της "\texttt{let-in}" έκφρασης όπως φαίνεται παρακάτω:
+\begin{verbatim}
+  \gac ->
+  let
+  message :: String
+  message =
+    "Gcd: " !+ gcd(gac) !+ "\nCoefficients: a = " !+ a(gac) !+ ", b = " !+ b(gac)
+  in
+  print'(message)
+\end{verbatim}
+όπου η παράμετρος "\verb|gac|" χρησιμοποιείται στο "\verb|message|".
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Εκφράσεις Συναρτήσεων "cases"}
+
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\begin{minipage}[t][13cm][t]{\linewidth}
+\begin{minipage}{0.47\linewidth}
+
+\begin{verbatim}
+cases
+  true => print("It's true!! :)")
+  false => print("It's false... :(")
+\end{verbatim}
+\lra
+\begin{verbatim}
+\pA0 ->
+case pA0 of
+  True -> print'("It's true!! :)")
+  False -> print'("It's false... :(")
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+(x, cases)
+  0 => x
+  y => gcd(y, (x)mod(y))
+\end{verbatim}
+\lra
+\begin{verbatim}
+\(x, pA0) ->
+case pA0 of
+  0 -> x
+  y -> gcd''(y, a'mod'(x, y))
+\end{verbatim}
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.45\linewidth}
+\begin{verbatim}
+(cases, cases)
+  (green, green) => true
+  (amber, amber) => true
+  (red, red) => true
+  ... => false
+\end{verbatim}
+\lra
+\begin{verbatim}
+\(pA0, pA1) ->
+case (pA0, pA1) of
+  (green, green) -> True
+  (amber, amber) -> True
+  (red, red) -> True
+  _ -> False
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+cases
+  [x1, x2, xs = ...] =>
+    (x1 < x2) & (x2 + xs)is_sorted
+  ... => true
+\end{verbatim}
+\lra
+\begin{verbatim}
+\pA0 ->
+case pA0 of
+  x1 : x2 : xs ->
+    (x1 !< x2) !& a'is_sorted(x2 !+ xs)
+  _ -> True
+\end{verbatim}
+\end{minipage}
+\end{minipage}
+\\
+\item
+\textit{Περιγραφή}\\
+
+Οι παράμετροι μεταφράζονται παρόμοια με τον τρόπο που μεταφράζονται στις
+κανονικές εφκράσεις συναρτήσεων με την διαφορά ότι όλες οι παράμετροι που
+περιέχουν την λέξη κλειδί "\texttt{cases}" μεταφράζονται σε νέες παραμέτρους.
+Κάθε τέτοια νέο παράμετρος συλλέγεται σε μία πλειάδα στην οποία μετά κάνουμε
+pattern matching με την εξής γραμμή:
+\\"\verb|case <πλειάδα νέων παραμέτρων> of|". \\
+Για την τελυταία περίπτωση, αν έχουμε "\verb|...|" αυτό μεταφράζεται σε
+"\verb|_|". Όταν κάνουμε pattern matching στα πρώτα στοιχεία μίας λίστα η
+μετάφραση γίνεται ως εξής:
+\\
+\verb|[x1, x2, ...] => <σώμα περίπτωσης>|
+\\
+\lra
+\\
+\verb|x1 : x2 : _ -> <μετάφραση σώματος περίπτωσης>|
+\\\\
+\verb|[x1, x2, xs = ...] => <σώμα περίπτωσης>|
+\\
+\lra
+\\
+\verb|x1 : x2 : xs -> <μετάφραση σώματος περίπτωσης>|
+
+όπου αφαιρούνται οι αγκύλες και τα κόμματα γίνονται άνω κάτω τελείες.
+Αν το υπόλοιπο της λίστας έχει όνομα τότε αυτό είναι το μόνο που παραμένει
+μετά την τελευταία άνω κάτω τελεία, αλλιώς έχουμε κάτω παύλα.
+\end{itemize}
+
+\newpage
 
 \section{Φάση Μετάφρασης: Ορισμοί Τιμών και Εκφράσεις "where"}
 
@@ -7415,9 +7574,9 @@ The parameters are translated similarly to how they are translated in regular
 function expressions, with the one difference being that all parameters that
 contain the word "\texttt{cases}" are translated to newly generated parameters.
 Every such parameter is then collected in a tuple that is pattern matched on by
-creating a new line of the form "\verb|case <tuple of new paramters> of|". For
+creating a new line of the form "\verb|case <tuple of new parameters> of|". For
 the last case, if we have "\verb|...|" then it is translated to "\verb|_|".
-When matching on the first few elements of a list the translations is done as
+When matching on the first few elements of a list the translation is done as
 follows:
 \\\\
 \verb|[x1, x2, ...] => <case body>|
