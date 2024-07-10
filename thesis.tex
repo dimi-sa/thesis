@@ -2902,18 +2902,18 @@ instances με αυτά των \texttt{p1st}, \texttt{p2nd}, κτλ. Δυστυ�
 
 \section{Φάση Μετάφρασης: Τελεστές}
 
-\subsection{Τελεστές}
+\paragraph{Τελεστές}
 
-For each one of the lcases operators, a new \H\ operator is defined, for it to
-be translated to. This allows for the use of the precedence and associativity
-mechanism for new user defined operators in \H\ instead of having to implement
-them from scratch in the parser, while also avoiding a lot of extra parentheses
-that the latter approach would need. Function application and function
-composition operators are defined as shown below. Every other operator is
-defined by a type class that matches the type described in table
-\ref{table:allops}. The implementation of the operator for every combination of
-types is defined by an appropriate instance. The examples for the addition
-operator in the next page show the general structure.
+Για καθένα από τους τελεστές της lcases, έχει οριστεί ένας νέος \H\ τελεστής
+στον οποίο μεταφράζεται. Αυτό επιτρέπει την χρήση του μηχανισμού προτεραιότητας
+και προσεταιριστικότητας για νέους τελεστές όρισμένους από τον χρήστη, στην \H.
+Έτσι δεν χρειάστηκε να υλοποιηθούν στον συντακτικό αναλυτή το οποίο θα ήταν
+αρκετά πιο χρονοβόρο και θα χρειαζόντουσαν αρκετά περισσότερες παρενθέσεις στην
+μετάφραση. Οι τελεστές εφαρμογής συνάρτησης και σύνθεσης συναρτήσεων ορίζονται
+όπως ορίζονται παρακάτω. Κάθε άλλος τελεστής ορίζεται με ένα type class.
+Οι υλοποίηση του τελεστή για κάθε συνδιασμό τύπων ορίζεται με ένα αντίστοιχο
+instance. Τα παραδείγματα για τον τελεστή της πρόσθεσης παρακάτω δείχνουν
+την γενική μορφή αυτών των classes και instances.
 \\
 
 \begin{table}[ht]
@@ -2921,7 +2921,7 @@ operator in the next page show the general structure.
 \begin{minipage}{0.45\linewidth}\centering
 \begin{tabular}{ |c|c| }
 \hline
-lcases operator & \H\ operator
+lcases τελεστές & \H\ τελεστές
 \\
 \hline
 \hline
@@ -2987,7 +2987,7 @@ lcases operator & \H\ operator
 \hspace{1cm}
 \begin{minipage}{0.45\linewidth}
 
-Precedence and associativity using \H:
+Προτεραιότητα και προσεταιριστικότητα με \H:
 \begin{verbatim}
 infixl 9 &>
 infixr 8 <&
@@ -3001,7 +3001,7 @@ infixr 1 !|
 infixr 0 !>>=, !>>
 \end{verbatim}
 
-Function application/composition operators
+Τελεστές εφαρμογής συνάρτησης και σύνθεσης συναρτήσεων:
 \begin{verbatim}
 (&>) :: a -> (a -> b) -> b
 x &> f = f x
@@ -3018,27 +3018,56 @@ f <& x = f x
 \end{minipage}
 \end{table}
 \newpage
+
 \begin{Verbatim}[commandchars=\\\{\}]
-# Type class for addition:
+# Type class για πρόσθεση:
 class A'And'Add_To' a b c where
   (!+) :: a -> b -> c
 
-# Some of the instances
+# Μερικά από τα instances
 
-# Adding 2 lists:
+# Πρόσθεση δύο λιστών:
 instance b \mytilde [a] => A'And'Add_To' [a] [a] b where
   (!+) = (++)
 
-# Adding any type 'a' with a list of 'a' s
+# Πρόσθεση ενός τύπου 'a' με μία λίστα από 'a'
 instance b \mytilde [a] => A'And'Add_To' a [a] b where
   (!+) = (:)
 
-# Adding a String to a type 'a' with a Show instance without needing to call show
+# Πρόσθεση ενός String με ένα τύπο 'a' που έχει instance του Show class
 instance (Show a, b \mytilde String) => A'And'Add_To' String a b where
   str !+ x = str ++ show x
 
 \end{Verbatim}
-\subsection{Εκφράσεις Τελεστών}
+
+\paragraph{Εκφράσεις Τελεστών}
+
+\begin{itemize}
+\item
+\textit{Παραδείγματα}\\\\
+\verb|5 * 'a'| \lra \verb|(5 :: Integer) !* 'a'|
+\\\\
+\verb|"Hello " + "World!"| \lra \verb|"Hello " !+ "World!"|
+\\\\
+\verb|_ - 1| \lra \verb|(\pA0 -> pA0 !- (1 :: Integer))|
+\\\\
+\verb|_ + "string in the middle of the arguments" + _|
+\\\lra
+\verb|(\(pA0, pA1) -> pA0 !+ "string in the middle of the arguments" !+ pA1)|
+\\
+
+\item
+\textit{Περιγραφή}\\
+
+Στις εκφράσεις τελεστών, οι τελεστέοι μεταφράζονται αντίστοιχα με το τι
+τελεστέοι είναι και οι τελεστές αντικαθιστώνται με τους αντίστοιχους τελεστές
+στην \H\ που αναφέρθηκαν στην προηγούμενη παράγραφο. Αν στην θέση κάποιου
+τελεστέου υπάρχει κάτω παύλα, μία νέα παράμετρος δημιουργείται παρόμοια με τον
+τρόπο που γίνεται αυτό στις πλειάδες.
+
+\end{itemize}
+
+\newpage
 
 \section{Φάση Μετάφρασης: Εκφράσεις Συναρτήσεων}
 
