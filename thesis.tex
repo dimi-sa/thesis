@@ -2538,7 +2538,7 @@ instance HasParser ValueDef where
 
 \item
 Αν μία πρόταση μετονομασίας εμφανίζεται σε ένα θεώρημα συνεπαγωγής πριν
-το βέλος, αντικαθιστάται από την σύζευξη στην οποία αντιστοιχεί. Όλες
+το βέλος, αντικαθίσταται από την σύζευξη στην οποία αντιστοιχεί. Όλες
 οι αντικαταστάσεις που έχουν γίνει στις μεταβλητές τύπων της, μεταφέρονται
 και στις μεταβλητές τύπων της σύζευξης. Για παράδειγμα, αν τα παρακάτω
 εμφανίζονται στο πρόγραμμα:
@@ -3812,9 +3812,267 @@ data constructor (διαχωρίζονται με κενό).
 
 \section{Φάση Μετάφρασης: Λογική Τύπων}
 
-\subsection{Ορισμοί Προτάσεων}
+\paragraph{Ορισμοί Προτάσεων}
 
-\subsection{Θεωρήματα}
+Οι ορισμοί προτάσεων μετονονομασίας δεν έχουν ξεχωριστή μετάφραση.
+Χρησιμοποίουνται μόνο στην φάση προεπεξεργασίας όπου αλλάζουν τα θεωρήματα στα
+οποία εμφανίζονται οι ορισμένες προτάσεις. Για τους ορισμούς ατομικών πρoτάσεων
+έχουμε τα παρακάτω:
+
+\begin{itemize}
+
+\item
+\textit{Παραδείγματα}\\
+
+\begin{minipage}{0.45\linewidth}
+\begin{verbatim}
+type_proposition (@A)Is(@B)s_First
+needed (_)first : @B => @A
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Is's_First b0 b1 where
+  a'first :: b1 -> b0
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@T)Has_Internal_App
+needed
+  apply(_)inside(_)
+    : (T1 => T2) x @T(T1) => @T(T2)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_Internal_App b19 where
+  apply'inside'
+    :: (a1 -> a2, b19 a1) -> b19 a2
+\end{verbatim}
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.40\linewidth}
+\begin{verbatim}
+type_proposition (@T)Has_A_Wrapper
+needed wrap(_) : T1 => @T(T1)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_A_Wrapper b19 where
+  wrap' :: a1 -> b19 a1
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@T)Has_String_Repr
+needed (_)to_string : @T => String
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A'Has_String_Repr b19 where
+  a'to_string :: b19 -> String
+\end{verbatim}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_proposition (@A, @B)To(@C)
+needed ab_to_c: @A x @B => @C#
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+class A''To' b0 b1 b2 where
+  ab_to_c :: (b0, b1) -> b2
+\end{verbatim}
+
+\end{minipage}
+
+\item
+\textit{Περιγραφή}\\
+
+Οι ορισμοί ατομικών προτάσεων μεταφράζονται ως εξής:
+
+\begin{itemize}
+
+\item
+"\texttt{type_proposition}" \lra "\texttt{class}".
+
+\item
+Το όνομα της πρότασης μεταφράζεται αντίστοιχα με το όνομα του τύπου σε έναν
+ορισμό τύπου.  Κάθε παρένθεση αντικαθίσταται από αποστρόφους ίσου πλήθους με
+της μεταβλητές που βρίσκονται στην παρένθεση και αν υπήρχε παρένθεση στην
+αρχή τότε προσθέτουμε ένα 'A' πριν από τις αντίστοιχες αποστρόφους για
+να είναι σωστό όνομα class της \H. Ύστερα, τοποθετούμε τις μεταφράσεις
+των ad hoc μεταβλητών τύπων χωρισμένες από κενά. Τέλος, κλείνουμε την πρώτη
+γραμμή με "\texttt{ where}".
+
+\item
+Η λέξη κλειδί "\texttt{needed}" δεν εμφανίζεται στην μετάφραση. Η δεύτερη
+γραμμή είναι στοιχισμένη πιο μέσα και ξεκινάει με το όνομα της πολυμορφικής
+τιμής που ορίζουμε ακολουθούμενο από "\verb| :: |" και την μετάφραση του
+τύπου της.
+
+\end{itemize}
+
+\end{itemize}
+
+\newpage
+
+\paragraph{Θεωρήματα}
+
+\begin{itemize}
+
+\item
+\textit{Παραδείγματα}\\
+
+\begin{minipage}{0.45\linewidth}
+
+\begin{verbatim}
+type_theorem
+  (Possibly(_))Has_A_Wrapper
+proof wrap(_) = the_value:_
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance
+  A'Has_A_Wrapper Possibly' where
+  wrap' = (\pA0 -> Cthe_value(pA0))
+
+\end{verbatim}
+
+\end{minipage}
+\hfill\vline\hfill
+\begin{minipage}{0.50\linewidth}
+
+\begin{verbatim}
+type_theorem
+  (ListOf(_)s)Has_A_Wrapper
+proof wrap(_) = [_]
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance
+  A'Has_A_Wrapper ListOf's where
+  wrap' = (\pA0 -> [pA0])
+
+\end{verbatim}
+
+\end{minipage}
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_theorem (Possibly(_))Has_Internal_App
+proof
+  apply(_)inside(_) =
+    (f(_), cases)
+      no_value => no_value
+      the_value:x => the_value:f(x)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance A'Has_Internal_App Possibly' where
+  apply'inside' =
+    \(f', pA0) ->
+    case pA0 of
+      Cno_value -> Cno_value
+      Cthe_value x -> Cthe_value(f'(x))
+\end{verbatim}
+
+
+\rule{\linewidth}{0.1pt}
+
+\begin{verbatim}
+type_theorem (ListOf(_)s)Has_Internal_App
+proof
+  apply(_)inside(_) =
+    (f(_), cases)
+      [] => []
+      [head, tail = ...] => f(head) + apply(f(_))inside(tail)
+\end{verbatim}
+
+\lra
+
+\begin{verbatim}
+instance A'Has_Internal_App ListOf's where
+  apply'inside' =
+    \(f', pA0) ->
+    case pA0 of
+      [] -> []
+      head : tail -> f'(head) !+ apply'inside'((\pA0 -> f'(pA0)), tail)
+
+\end{verbatim}
+
+\newpage
+
+\begin{verbatim}
+type_proposition (@A)And(@B)Have_Eq_And_Gr
+equivalent (@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)
+
+type_theorem (@A)And(@B)Have_Eq_And_Gr --> (@A)Can_Be_Gr_Or_Eq_To(@B)
+proof a >= b = a == b | a > b
+\end{verbatim}
+$\xRightarrow{\text{προεπεξεργασία}}$\
+\begin{verbatim}
+type_theorem
+  [(@A)And(@B)Can_Be_Equal, (@A)Can_Be_Greater_Than(@B)] -->
+  (@A)Can_Be_Gr_Or_Eq_To(@B)
+proof a >= b = a == b | a > b
+\end{verbatim}
+$\xRightarrow{\text{μετάφραση}}$
+\begin{verbatim}
+instance
+  (A'And'Can_Be_Equal b0 b1, A'Can_Be_Greater_Than' b0 b1) =>
+  A'Can_Be_Gr_Or_Eq_To' b0 b1
+  where
+  a !>= b = a !== b !| a !> b
+\end{verbatim}
+
+\item
+\textit{Περιγραφή} \\
+
+Η μετάφραση των θεωρημάτων γίνεται με τα παρακάτω βήματα:
+
+\begin{itemize}
+
+\item
+"\texttt{type_theorem}" \lra "\texttt{instance}".
+
+\item
+Μεταφράζονται οι προτάσεις και το βέλος μετατρέπεται από "\texttt{-->}" σε
+"\texttt{=>}". Οι προτάσεις μεταφράζονται αντίστοιχα με τα ονόματα προτάσεων
+στους ορισμούς ατομικών προτάσεων με την διαφορά ότι αντί για ad hoc μεταβλητές
+τύπων έχουμε τύπους ορίσματα. Αν μία πρόταση πριν από βέλος αντιστοιχεί σε
+πρόταση μετονομασίας, τότε στο βήμα προεπεξεργασίας αυτή έχει αντικατασταθεί
+από την αντίστοιχη πρόταση ή σύζευξη όπως φαίνεται στο τελευταίο παράδειγμα.
+Τα παραπάνω κλείνουν με "\texttt{ where}".
+
+\item
+Η λέξη κλειδί "\texttt{proof}" δεν υπάρχει υπάρχει στην μετάφραση. Η
+επόμενη γραμμή είναι στοιχισμένη πιο μέσα όπου έχουμε την μετάφραση τις τιμής
+ή του τελεστή με τους τελεστέους παραμέτρους, ακολουθούμενους από ίσον και
+την μετάφραση της έκφραση τιμής με την οποία ισούνται.
+
+\end{itemize}
+
+\end{itemize}
 
 \chapter{Συμπεράσματα}
 
@@ -8738,7 +8996,7 @@ type (after the equal sign) with its translation.
 \newpage
 \section{Translation Phase: Type Logic}
 
-\subsection{Proposition Definitions}
+\paragraph{Proposition Definitions}
 
 Renaming proposition definitions do not have a translation as they only
 affect theorems during the preprocessing phase. For atomic proposition
@@ -8858,7 +9116,7 @@ and the translation of its type.
 \end{itemize}
 
 \newpage
-\subsection{Theorems}
+\paragraph{Theorems}
 
 \begin{itemize}
 
