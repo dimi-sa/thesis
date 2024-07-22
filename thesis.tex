@@ -8,6 +8,9 @@
 \usepackage{mathtools}
 
 \usepackage{minted}
+\usepackage{graphicx}
+
+\graphicspath{ {Images/} }
 
 % Hyperref needs to be the last package to use!
 \PassOptionsToPackage{hyphens}{url}
@@ -20,7 +23,6 @@
   ]{hyperref}
 
 % \def
-\def\imgs{../Images}
 \def\H{Haskell}
 \def\r{$\Longleftrightarrow$\ }
 \def\lra{$\Longrightarrow$\ }
@@ -230,6 +232,178 @@
 
 Ο σκοπός αυτής της εργασίας είναι να αντιμετωπιστούν όλα τα παραπάνω
 (και λίγο ακόμα) και να συνδυαστούν σε μια νέα γλώσσα.
+
+\chapter{Σύγκριση Μικρού Προγράμματος: C, Haskell, lcases}
+
+Σε αυτό το κεφάλαιο συγκρίνουμε υλοποιήσεις ενός μικρού προγράμματος σε C,
+Haskell και lcases. Το πρόγραμμα διαβάζει δύο ακεραίους από το stdin (πετάει
+σφάλμα αν δεν μπορέσει) και δείχνει ένα ωραίο μήνυμα με τον μέγιστο κοινό
+διαιρέτη. Αρχικά, συγκρίνουμε την υλοποίηση σε lcases με την υλοποίηση σε C και
+μετά με την υλοποίηση σε \H. Προφανώς, εφόσον οι υλοποιήσεις είναι γραμμένες
+από εμένα, είναι γραμμένες με το στιλ που γράφω εγώ σε αυτές τις γλώσσες.
+Ωστόσο, προσπάθησα να τις γράψω όσο το δυνατόν με τρόπο που αντιλαμβάνομαι εγώ
+ως στάνταρ τρόπο γραφής τους.
+
+\paragraph{Σύγκριση με C}
+
+\begin{center}
+\includegraphics[scale=0.48]{c}\\
+\vspace{0.2cm}
+\includegraphics[scale=0.48]{lcases}
+\end{center}
+\newpage
+
+Μια βασική διαφορά μεταξύ της C και της lcases είναι ότι στην lcases
+εμφανίζεται ξεχωριστά το όνομα, ξεχωριστά η έκφραση του τύπου και ξεχωριστά η
+έκφραση της ανάθεσης. Αυτό φαίνεται συγκρίνοντας την συνάρτηση "\verb|my_gcd|"
+στο C κώδικα με την "\verb|my_gcd_of(_)and(_)|" στον lcases κώδικα.
+Συγκεκριμένα, συγκρίνοντας την γραμμή:
+\begin{verbatim}
+int my_gcd(int a, int b) {
+\end{verbatim}
+με την γραμμή:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+\end{verbatim}
+βλέπουμε ότι το γεγονός ότι η συνάρτηση δέχεται δύο ακεραίους και επιστρέφει
+έναν ακέραιο γράφεται στην C δίνοντας τον τύπο \textbf{\texttt{int}} σε καθεμία
+από τις παραμέτρους και στο αποτέλεσμα, ενώ στην lcases όλα είναι γραμμένα
+σε μία ξεχωριστή έκφραση τύπου που δεν έχει ονόματα παραμέτρων ή συνάρτησης.
+Επίσης, στην ίδια γραμμή lcases βλέπουμε ότι το όνομα της συνάρτησης έχει
+παρένθεση στην μέση, κάτι το οποίο κάνει την συνάρτηση να δέχεται το πρώτο
+όρισμα σε εκείνο το σημείο. Η συνάρτηση καλείται αναδρομικά με ορίσματα στις
+παρενθέσεις στην γραμμή:
+\begin{verbatim}
+y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+όπου μπορούμε επίσης να δούμε ότι η \verb|(_)mod(_)| είναι ορισμένη έτσι ώστε
+να δέχεται το πρώτο όρισμά της στην αρχή. Αντίστοιχα, η
+\verb|ints(_, _, _)to_message| δέχεται και τα τρία ορίσματά της στην ίδια
+παρένθεση στην μέση.
+
+Άλλη μία διαφορά άξια αναφοράς είναι η χρήση της λέξης κλειδιού "cases" στις
+γραμμές:
+\begin{verbatim}
+= (x, cases)
+  0 => x
+  y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+αντί της εντολής "if-then" στις γραμμές:
+\begin{verbatim}
+if (b == 0)
+  return a;
+else
+  return my_gcd(b, a%b);
+\end{verbatim}
+Χρησιμοποιώντας την λέξη κλειδί "cases" στην θέση της δεύτερης παραμέτρου
+υποδεικνύουμε ότι θα πάρουμε περιπτώσεις για τις τιμές της. Αυτό μπορεί να
+γίνει για οποιοδήποτε υποσύνολο των παραμέτρων (βλέπε ενότητα
+\ref{subsubsec:casessyntaxgr}).
+
+Μια άλλη διαφορά είναι η χρήση του τελεστή πρόσθεσης για την ένωση
+συμβολοσειρών και για την αυτόματη μετατροπή των ακεραίων σε συμβολοσειρές
+ώστε να συνενωθούν στην γραμμή:
+\begin{verbatim}
+= (x, y, gcd) => "The GCD of " + x + " and " + y + " is " + gcd
+\end{verbatim}
+αντί της χρήσης της "printf" με "\%d" στην γραμμή:
+\begin{verbatim}
+printf("The GCD of %d and %d is %d\n", x, y, my_gcd(x, y));
+\end{verbatim}
+
+\newpage
+\paragraph{Σύγκριση με \H}
+\begin{center}
+\includegraphics[scale=0.48]{haskell}\\
+\vspace{0.2cm}
+\includegraphics[scale=0.48]{lcases}
+\end{center}
+
+Μία σημαντική διαφορά μεταξύ της \H\ και της lcases είναι ότι η εφαρμογή
+συνάρτησης στην lcases γίνεται με παρενθέσεις αντί για κενά κάτι το οποίο
+επιτρέπει την τοποθέτηση ορισμάτων στην μέση του ονόματος της συνάρτησης.
+Αυτό φαίνεται στην σύγκριση της γραμμής:
+\begin{verbatim}
+my_gcd :: Int -> Int -> Int
+\end{verbatim}
+με την γραμμή:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+\end{verbatim}
+
+Στις ίδιες γραμμές φαίνεται ότι χρησιμοποιούμε έναν τύπο εισόδου και έναν τύπο
+εξόδου (όπως στην \H), όμως στην είσοδο έχουμε το γινόμενο των τύπων των
+ορισμάτων. Αυτό ίσως φαίνεται περιοριστικό αλλά αντιθέτως είναι πιο γενικό
+εφόσον στην lcases είναι εφικτό να δώσουμε ένα υποσύνολο των ορισμάτων
+(βάζοντας κάτω παύλα στα υπόλοιπα) και το αποτέλεσμα είναι μία συνάρτηση
+που περιμένει τα υπόλοιπα ορίσματα (εκτός αν δώθηκαν όλα), βλέπε ενότητα
+\ref{subsubsec:parenfuncappgr}. Στην \H\ τα ορίσματα πρέπει να δωθούν από
+αριστερά προς τα δεξιά και μπορούμε να μην δώσουμε τα n δεξιότερα για να
+έχουμε αποτέλεσμα μία συνάρτηση που δέχεται αυτά τα n. Ωστόσο, αν για
+παράδειγμα θέλουμε να δώσουμε μόνο το δεύτερο πρέπει να χρησιμοποιήσουμε την
+"flip" πρώτα. Για πιο περίπλοκα αντίστοιχα πράγματα πρέπει να ορίσουμε
+συναρτήσεις παρόμοιες της "flip" κάθε φορά με το χέρι.
+
+Επίσης στις ίδιες γραμμές βλέπουμε την χρήση του τύπου δύναμης \verb|Int^2|
+ο οποίος δεν υπάρχει στην \H.
+
+Συγκρίνοντας τις γραμμές:
+\begin{verbatim}
+my_gcd :: Int -> Int -> Int
+my_gcd = \x y -> case y of
+\end{verbatim}
+με τις γραμμές:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+  = (x, cases)
+\end{verbatim}
+βλέπουμε ότι στην lcases η επισημείωση τύπου και η ανάθεση ομαδοποιούνται για
+την αποφυγή της διπλής χρήσης του ονόματος.
+
+Συγκρίνοντας τις γραμμές:
+\begin{verbatim}
+= (x, cases)
+  0 => x
+  y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+με τις γραμμές:
+\begin{verbatim}
+my_gcd = \x y -> case y of
+  0 -> x
+  _ -> my_gcd y (mod x y)
+\end{verbatim}
+βλέπουμε ότι στην lcases χρησιμοποιούμε κατευθείαν την λέξη κλειδί "cases"
+στην θέση της παραμέτρου για την οποία θέλουμε να πάρουμε περιπτώσεις χωρίς
+να της δίνουμε όνομα. To όνομα δίνεται (αν χρειάζεται) στην γενική/τελευταία
+περίπτωση (αν υπάρχει). Η λέξη κλειδί "cases" μπορεί να χρησιμοποιηθεί σε
+οποιοδήποτε υποσύνολο των παραμέτρων για να πάρουμε περιπτώσεις για όλες μαζί
+ταυτόχρονα (βλέπε \ref{subsubsec:casessyntaxgr}).
+
+Συγκρίνοντας τις γραμμές:
+\begin{verbatim}
+= print("Please give me 2 ints");
+  get_line ;> split(_)to_words o> cases
+\end{verbatim}
+με τις γραμμές:
+\begin{verbatim}
+putStrLn "Please give me 2 ints"
+s <- getLine
+case words s of
+\end{verbatim}
+βλέπουμε ότι στην lcases δεν χρησιμοποιούμε do notation. Αντί αυτού
+χρησιμοποιούμε τους τελεστές περιβάλλοντος "\verb|;|" και "\verb|;>|" οι οποίοι
+ισοδυναμούν με τους τελεστές της \H\ "\verb|>>|" και "\verb|>>=|" αντίστοιχα.
+
+Η τελευταία διαφορά που θα αναφέρουμε είναι η χρήση του τελεστή πρόσθεσης για
+την ένωση συμβολοσειρών και για την αυτόματη μετατροπή των ακεραίων σε
+συμβολοσειρές ώστε να συνενωθούν στην γραμμή:
+\begin{verbatim}
+= (x, y, gcd) => "The GCD of " + x + " and " + y + " is " + gcd
+\end{verbatim}
+αντί της χρήσης του τελεστή "\verb|++|" και της "\verb|show|" στην γραμμή:
+\begin{verbatim}
+"The GCD of " ++ show x ++ " and " ++ show y ++ " is " ++ show gcd
+\end{verbatim}
 
 \chapter{Περιγραφή της Γλώσσας: Γενικά}
 
@@ -4443,6 +4617,178 @@ useful to me. This is also where the name of the language comes from.
 The purpose of the thesis is to address all of the above (and a bit more) and
 combine them into a new language.
 
+\chapter{Small Program Comparison: C, Haskell, lcases}
+
+In this chapter we compare implementations of a small program in C, Haskell and
+lcases. The program reads two integers from stdin (it throws an error if it
+can't) and returns a nice message with their gcd. We firstly compare the lcases
+implementation with an implementation in C and secondly with an implementation
+in \H.  Of course, the implementations are written by me and therefore they are
+written in the style I use in these languages.  However, I've tried to write
+them in a way which I perceive to be a relatively standard way to write them.
+
+\paragraph{Comparison with C}
+
+\begin{center}
+\includegraphics[scale=0.48]{c}\\
+\vspace{0.2cm}
+\includegraphics[scale=0.48]{lcases}
+\end{center}
+\newpage
+
+An important difference between C and lcases is the fact that in lcases the
+identifier, the expression of its type and the expression that is assigned to
+it are all separated from each other. This is demonstrated by comparing the
+"\verb|my_gcd|" function in the C code with the "\verb|my_gcd_of(_)and(_)|" in
+lcases. Specifically comparing the line:
+\begin{verbatim}
+int my_gcd(int a, int b) {
+\end{verbatim}
+with the line:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+\end{verbatim}
+we can see that the fact that the function receives two integers and returns an
+integer is written in C by giving the type \textbf{\texttt{int}} to each of the
+parameters and to the result of the function, while in lcases this is all
+written in a single type expression that does not have any identifiers in it.
+
+Also in the same lcases line, we can observe that the identifier has a
+parenthesis in the middle which makes it expect the first argument in that
+spot. The function is then called recursively with arguments inside the
+parentheses in the line:
+\begin{verbatim}
+y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+where we can also see that \verb|(_)mod(_)| is defined expecting the first
+argument in the beginning. Similarly, \verb|ints(_, _, _)to_message| expects
+all three arguments in the same parenthesis in the middle.
+
+Another notable difference is the use of the "cases" keyword in the lines:
+\begin{verbatim}
+= (x, cases)
+  0 => x
+  y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+instead of the "if-then" statement of the lines:
+\begin{verbatim}
+if (b == 0)
+  return a;
+else
+  return my_gcd(b, a%b);
+\end{verbatim}
+By using the "cases" keyword in the spot of the second parameter we indicate
+that we are going to pattern match on it in the cases. That can be done
+for any subset of the parameters (see section \ref{subsubsec:casessyntax}).
+
+Another difference worth mentioning is the use of the plus operator for
+string concatenation and also for automatically converting the integers to
+strings for them to be concatenated in the line:
+\begin{verbatim}
+= (x, y, gcd) => "The GCD of " + x + " and " + y + " is " + gcd
+\end{verbatim}
+as opposed to using "printf" with "\%d" in the line:
+\begin{verbatim}
+printf("The GCD of %d and %d is %d\n", x, y, my_gcd(x, y));
+\end{verbatim}
+
+Finally, another difference is the fact the semicolon is actually an operator
+in lcases with environment actions as operands as described in section
+\ref{subsec:envacts}.
+
+\newpage
+\paragraph{Comparison with \H}
+\begin{center}
+\includegraphics[scale=0.48]{haskell}\\
+\vspace{0.2cm}
+\includegraphics[scale=0.48]{lcases}
+\end{center}
+
+An important difference between \H\ and lcases is the fact that in lcases
+function application is done with parenthesis instead of spaces which also
+gives the opportunity to have arguments inside the function identifier as can
+be seen by comparing the line:
+\begin{verbatim}
+my_gcd :: Int -> Int -> Int
+\end{verbatim}
+with the line:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+\end{verbatim}
+
+In the same lines we can also see that we use one input and one output (as in
+\H) but the input is the product type of all the argument types. This might
+seem restrictive but in fact it is more general as in lcases it is possible to
+provide any subset of the arguments (by putting an underscore in the rest) and
+the result is a function that expects the rest of the arguments (unless they
+were all provided), see section \ref{subsubsec:parenfuncapp}. In \H\ the
+arguments must be provided from left to right and we can omit the n rightmost
+arguments for the result to be a function that expects these n arguments.
+However, if for example we want to omit the first and provide the second (from
+left to right) we must use "flip" first. For more complicated similar stuff
+we must define functions similar to "flip" every time by hand.
+
+Also in the same lines we can see the use of the power type \verb|Int^2|
+which does not exist in \H.
+
+By comparing the lines:
+\begin{verbatim}
+my_gcd :: Int -> Int -> Int
+my_gcd = \x y -> case y of
+\end{verbatim}
+with the lines:
+\begin{verbatim}
+my_gcd_of(_)and(_): Int^2 => Int
+  = (x, cases)
+\end{verbatim}
+we see that in lcases the type annotation and the assignment are grouped into
+one to avoid using the identifier twice.
+
+By comparing the lines:
+\begin{verbatim}
+= (x, cases)
+  0 => x
+  y => my_gcd_of(y)and((x)mod(y))
+\end{verbatim}
+with the lines:
+\begin{verbatim}
+my_gcd = \x y -> case y of
+  0 -> x
+  _ -> my_gcd y (mod x y)
+\end{verbatim}
+we see that in lcases we immediately use the "cases" keyword in the parameter
+we want to pattern match on without giving it a name. The name is given (if it
+is necessary) on the default/last case (if there is one).  The "cases" keyword
+can be used on any subset of the parameters to pattern match on all of them at
+the same time (see section \ref{subsubsec:casessyntax}).
+
+By comparing the lines:
+\begin{verbatim}
+= print("Please give me 2 ints");
+  get_line ;> split(_)to_words o> cases
+\end{verbatim}
+with the lines:
+\begin{verbatim}
+putStrLn "Please give me 2 ints"
+s <- getLine
+case words s of
+\end{verbatim}
+we see that in lcases we don't use do notation, instead we use the environment
+operators "\verb|;|" and "\verb|;>|" which are the equivalent to the \H\
+operators "\verb|>>|" and "\verb|>>=|" respectively (see section
+\ref{subsec:envacts}).
+
+Finally, the last difference worth mentioning is the use of the plus operator
+for string concatenation and also for automatically converting the integers to
+strings for them to be concatenated in the line:
+\begin{verbatim}
+= (x, y, gcd) => "The GCD of " + x + " and " + y + " is " + gcd
+\end{verbatim}
+as opposed to using the "\verb|++|" operator and "\verb|show|" in the line:
+\begin{verbatim}
+"The GCD of " ++ show x ++ " and " ++ show y ++ " is " ++ show gcd
+\end{verbatim}
+
 \chapter{Language Description: General}
 
 \section{Program Structure}
@@ -7229,6 +7575,7 @@ the condition arrow (" \verb|-->| ") arrow.
 
 \newpage
 
+
 \chapter{Parser Implementation}
 
 \section{Full Grammar and Indentation System}
@@ -9789,7 +10136,8 @@ of the project.
 % in your bibliography (do you?)
 \nocite{*}
 
-\bibliographystyle{softlab-thesis}
+% \bibliographystyle{softlab-thesis}
+\bibliographystyle{ieeetr}
 \bibliography{thesis}
 
 
